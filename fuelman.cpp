@@ -9,7 +9,7 @@
 #include <liblec/lecui/widgets/password_field.h>
 #include <liblec/lecui/widgets/image_view.h>
 
-#include "menus.h"
+#include "dashboard.h"
 
 #pragma comment(linker, "/ENTRY:mainCRTStartup")
 
@@ -96,8 +96,8 @@ int main(){
 	if (login_window.show(error))
 		if (!is_logged_in) {
 			login_window.message("signin successful");
-			menus menu_window("menus_page");
-			menu_window.show(error);
+			dashboard dashboard_page("menus_page");
+			dashboard_page.show(error);
 		}
 		else
 			login_window.message("Error: " + error);

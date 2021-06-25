@@ -12,7 +12,7 @@
 
 using namespace liblec::lecui;
 
-class menus : public form {
+class dashboard : public form {
 	const float margin_ = 10.f;
 
 	appearance appearance_{ *this };
@@ -28,7 +28,7 @@ class menus : public form {
 	bool on_layout(std::string& error) override;
 
 public:
-	menus(const std::string& caption) :
+	dashboard(const std::string& caption) :
 		form(caption) {}
 
 };

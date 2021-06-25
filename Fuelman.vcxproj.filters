@@ -18,12 +18,12 @@
     <ClCompile Include="fuelman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="menus.cpp">
+    <ClCompile Include="dashboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="menus.h">
+    <ClInclude Include="dashboard.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
