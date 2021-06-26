@@ -24,8 +24,8 @@ class login : public form{
 	page_management page_man{ *this };
 
 	bool is_logged_in_;
-	const std::string username_ = "username";
-	const std::string password_ = "password";
+	const std::string username_ = "us";
+	const std::string password_ = "pass";
 
 	bool on_initialize(std::string& error) override {
 		controls_.minimize(false);
@@ -43,6 +43,8 @@ class login : public form{
 		avatar().rect.place({ margin_, page.size().width - margin_, margin_, margin_ + (dims_.size().height / 2.f) }, 50.f, 0.f);
 		avatar().quality = image_quality::high;
 		avatar().file = "assets\\pump.png";
+		avatar().border = 1;
+		avatar().color_border = { 2,3,4 };
 
 		widgets::text_field username(page, "username");
 		username().rect.snap_to(avatar().rect, rect::snap_type::bottom, 3.f * margin_);

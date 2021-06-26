@@ -24,9 +24,9 @@ bool dashboard::on_initialize(std::string& error) {
 bool dashboard::on_layout(std::string& error) {
 	auto& page = page_man.add("dashboard");
 
-	containers::pane sidebar(page, "sidebar");
-	sidebar().rect.set(margin_, margin_, 200.f, page.size().height - 6 * margin_);
-	sidebar().border = 1;
+	containers::pane panel(page, "sidebar");
+	panel().rect.set(margin_, margin_, 200.f, page.size().height - 6 * margin_);
+	panel().border = 1;
 
 	widgets::button home(page, "home");
 	home().rect.size(80, 25);
