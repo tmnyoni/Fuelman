@@ -147,6 +147,10 @@
   <ItemGroup>
     <ClInclude Include="dashboard.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\dashboard.png" />
+    <Image Include="assets\pump.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

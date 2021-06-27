@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\assets">
+      <UniqueIdentifier>{a3cbe65c-1538-4a57-a609-56a33d81a359}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fuelman.cpp">
@@ -26,5 +29,13 @@
     <ClInclude Include="dashboard.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\dashboard.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\pump.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>

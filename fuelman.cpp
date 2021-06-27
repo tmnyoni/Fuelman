@@ -90,18 +90,18 @@ public:
 };
 
 int main(){
-	bool is_logged_in = false;
-	login login_window("Fuelman", is_logged_in);
+	//bool is_logged_in = false;
+	//login login_window("FuelMan", is_logged_in);
 
-	//TOdo
+	//// Todo: fix the is_login issue.
 	std::string error;
-	if (login_window.show(error))
-		if (!is_logged_in) {
-			login_window.message("signin successful");
-			dashboard dashboard_page("menus_page");
+	//if (login_window.show(error))
+	//	if (!is_logged_in) {
+	//		login_window.message("signin successful");
+			dashboard dashboard_page("FuelMan");
 			dashboard_page.show(error);
-		}
-		else
-			login_window.message("Error: " + error);
+	//	}
+	//	else
+	//		login_window.message("Error: " + error);
 	return 0;
 }                                                                                                    
