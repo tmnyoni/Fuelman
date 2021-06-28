@@ -98,7 +98,7 @@ int main(){
 	//if (login_window.show(error))
 	//	if (!is_logged_in) {
 	//		login_window.message("signin successful");
-			dashboard dashboard_page("FuelMan");
+			dashboard dashboard_page("<em>FuelMan</em>");
 			dashboard_page.show(error);
 	//	}
 	//	else

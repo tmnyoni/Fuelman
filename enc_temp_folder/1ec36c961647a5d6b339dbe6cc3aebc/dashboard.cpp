@@ -327,7 +327,7 @@ bool dashboard::coupon_handler(const page_management& page)
 	comments_caption().rect.snap_to(coupon_recvby_details().rect, rect::snap_type::bottom, margin_);
 
 	widgets::label comments_details(coupon_details_pane.get(), "comments_details");
-	comments_details().text = "It was an emergency";
+	comments_details().text = std::to_string(coupon_details_pane().rect.width());
 	comments_details().color_fill = { 32, 34, 244 };
 	comments_details().rect.size({ 200, 20 });
 	comments_details().rect.snap_to(comments_caption().rect, rect::snap_type::bottom, 2.f);
