@@ -21,7 +21,8 @@ class dashboard : public form {
 	page_management page_man{ *this };
 	widget_management widget_man{ *this };
 
-	const color caption_color = { 135, 133, 133 };
+	const color caption_color_ = { 135, 133, 133 };
+	const std::string main_page_name_ = "fuelman";
 
 	bool is_logged_in_;
 	const std::string username_ = "username";
@@ -30,8 +31,9 @@ class dashboard : public form {
 	bool on_initialize(std::string& error) override;
 	bool on_layout(std::string& error) override;
 
+	bool dashboard_handler(const page_management& page);
 	bool coupon_handler(const page_management& page);
-	bool dashboard_handler();
+
 public:
 	dashboard(const std::string& caption) :
 		form(caption) {}

@@ -24,7 +24,7 @@ bool dashboard::on_initialize(std::string& error) {
 }
 
 bool dashboard::on_layout(std::string& error) {
-	auto& page = page_man.add("dashboard");
+	auto& page = page_man.add(main_page_name_);
 
 	containers::pane sidebar(page, "sidebar");
 	sidebar().rect.set(margin_, 0.f, 200.f, page.size().height - 6 * margin_);
@@ -41,7 +41,7 @@ bool dashboard::on_layout(std::string& error) {
 	home().rect.place({ 0, sidebar().rect.width() - margin_, margin_, margin_ * 2.f }, 0.f, 0.f);
 	home().color_fill.alpha = 0;
 	home().border = 0;
-	home().events().action = [&]() {};
+	home().events().action = [&]() { dashboard_handler(*this); };
 
 	widgets::image_view dasboard_icon(sidebar.get(), "icon");
 	dasboard_icon().rect.size({ 30, 30 });
@@ -138,20 +138,30 @@ bool dashboard::on_layout(std::string& error) {
 	settings_label().on_resize = { 0.f, 100.f, 0.f, 0.f };
 	settings_label().center_v = true;
 
+	//render dashboard widgets.
+	dashboard_handler(*this);
+
+	page_man.show(main_page_name_);
+	return true;
+}
+
+bool dashboard::dashboard_handler(const page_management& page) {
+	widget_man.close(main_page_name_ + "/coupon_content");
+
 	// Dashboard Panel.
-	containers::pane dashboard_content(page, "dashboard_content");
+	containers::pane dashboard_content(page.get(*this, main_page_name_), "dashboard_content");
 	dashboard_content().rect.set
-		( sidebar().rect.right + margin_
+	(220.f
 		, 0.f
-		, page.size().width - (sidebar().rect.right + (2*margin_))
-		, page.size().height - 6 * margin_
-		);
+		, 560.f
+		, 510.f
+	);
 	dashboard_content().border = 1;
 	dashboard_content().corner_radius_x = 0;
 	dashboard_content().corner_radius_y = 0;
 	dashboard_content().color_fill.alpha = 0;
 	dashboard_content().on_resize = { 0.f, 0.f, 100.f, 100.f };
-	
+
 
 	widgets::label dashboard_title(dashboard_content.get(), "dashboard_title");
 	dashboard_title().text = "Overview";
@@ -168,7 +178,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	containers::pane monthly_content(dashboard_content.get(), "montly_content");
 	monthly_content().rect.set
-		( margin_
+	(margin_
 		, dashboard_title().rect.bottom + margin_
 		, dashboard_content().rect.width() / 2.f - (margin_ * 2.5f)
 		, dashboard_content().rect.height() / 2.f - margin_
@@ -191,24 +201,21 @@ bool dashboard::on_layout(std::string& error) {
 	content_summary().corner_radius_y = 0;
 	content_summary().color_fill.alpha = 0;
 	content_summary().on_resize = { 50.f, 0.f, 50.f, 0.f };
-
-	page_man.show("dashboard");
 	return true;
 }
 
 bool dashboard::coupon_handler(const page_management& page)
 {
-	widget_man.close("dashboard/dashboard_content");
+	widget_man.close(main_page_name_+"/dashboard_content");
 
 
-	containers::pane coupon_content(page.get(*this, "dashboard"), "coupon_content");
+	containers::pane coupon_content(page.get(*this, main_page_name_), "coupon_content");
 	coupon_content().rect.set
 		( 220.f
 		, 0.f
 		, 560.f
 		, 510.f
 		);
-
 	coupon_content().border = 1;
 	coupon_content().corner_radius_x = 0;
 	coupon_content().corner_radius_y = 0;
@@ -255,21 +262,21 @@ bool dashboard::coupon_handler(const page_management& page)
 	//widgets on the pane.
 	widgets::label date_label(coupon_details_pane.get(), "date_label");
 	date_label().text = "Date";
-	date_label().color_text = caption_color;
+	date_label().color_text = caption_color_;
 	date_label().color_fill = { 32, 34, 244 };
 	date_label().rect.size({ 200, 20 });
 	date_label().rect.place(
 		{ margin_, 200, margin_, 20 }, 0.f, 0.f);
 
 	widgets::label date_details(coupon_details_pane.get(), "date_details");
-	date_details().text = "28/06/2021";
+	date_details().text = "28-June-2021";
 	date_details().color_fill = { 32, 34, 244 };
 	date_details().rect.size({ 200, 20 });
 	date_details().rect.snap_to(date_label().rect, rect::snap_type::bottom, 2.f);
 
 	widgets::label coupon_serialno_caption(coupon_details_pane.get(), "coupon_serialno_caption");
 	coupon_serialno_caption().text = "Serial Number";
-	coupon_serialno_caption().color_text = caption_color;
+	coupon_serialno_caption().color_text = caption_color_;
 	coupon_serialno_caption().color_fill = { 32, 34, 244 };
 	coupon_serialno_caption().rect.size({ 200, 20 });
 	coupon_serialno_caption().rect.snap_to(date_details().rect, rect::snap_type::bottom, margin_);
@@ -282,7 +289,7 @@ bool dashboard::coupon_handler(const page_management& page)
 
 	widgets::label quantity_issued_caption(coupon_details_pane.get(), "quantity_issued_caption");
 	quantity_issued_caption().text = "Quantity issued";
-	quantity_issued_caption().color_text = caption_color;
+	quantity_issued_caption().color_text = caption_color_;
 	quantity_issued_caption().color_fill = { 32, 34, 244 };
 	quantity_issued_caption().rect.size({ 200, 20 });
 	quantity_issued_caption().rect.snap_to(coupon_serialno_details().rect, rect::snap_type::bottom, margin_);
@@ -295,7 +302,7 @@ bool dashboard::coupon_handler(const page_management& page)
 
 	widgets::label issuedto_caption(coupon_details_pane.get(), "issuedto_caption");
 	issuedto_caption().text = "Issued to";
-	issuedto_caption().color_text = caption_color;
+	issuedto_caption().color_text = caption_color_;
 	issuedto_caption().color_fill = { 32, 34, 244 };
 	issuedto_caption().rect.size({ 200, 20 });
 	issuedto_caption().rect.snap_to(quantity_issued_details().rect, rect::snap_type::bottom, margin_);
@@ -308,7 +315,7 @@ bool dashboard::coupon_handler(const page_management& page)
 
 	widgets::label coupon_recvby_caption(coupon_details_pane.get(), "coupon_recvby_caption");
 	coupon_recvby_caption().text = "Coupon received by";
-	coupon_recvby_caption().color_text = caption_color;
+	coupon_recvby_caption().color_text = caption_color_;
 	coupon_recvby_caption().color_fill = { 32, 34, 244 };
 	coupon_recvby_caption().rect.size({ 200, 20 });
 	coupon_recvby_caption().rect.snap_to(issuedto_details().rect, rect::snap_type::bottom, margin_);
@@ -321,7 +328,7 @@ bool dashboard::coupon_handler(const page_management& page)
 
 	widgets::label comments_caption(coupon_details_pane.get(), "comments_caption");
 	comments_caption().text = "Comments";
-	comments_caption().color_text = caption_color;
+	comments_caption().color_text = caption_color_;
 	comments_caption().color_fill = { 32, 34, 244 };
 	comments_caption().rect.size({ 200, 20 });
 	comments_caption().rect.snap_to(coupon_recvby_details().rect, rect::snap_type::bottom, margin_);
@@ -335,6 +342,3 @@ bool dashboard::coupon_handler(const page_management& page)
 	return true;
 }
 
-bool dashboard::dashboard_handler(){
-	return true;
-}
