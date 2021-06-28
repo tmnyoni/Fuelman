@@ -34,6 +34,8 @@ class dashboard : public form {
 	bool dashboard_handler(const page_management& page);
 	bool coupon_handler(const page_management& page);
 
+	bool on_select_coupon();
+
 public:
 	dashboard(const std::string& caption) :
 		form(caption) {}

@@ -149,13 +149,19 @@ bool dashboard::dashboard_handler(const page_management& page) {
 	widget_man.close(main_page_name_ + "/coupon_content");
 
 	// Dashboard Panel.
+	rect sidebar_rect;
+	try
+	{
+		sidebar_rect = containers::pane::specs(*this, (main_page_name_ + "/sidebar")).rect;
+	}
+	catch (const std::exception& ex)
+	{
+		message("Error: " + std::string(ex.what()));
+	}
+
 	containers::pane dashboard_content(page.get(*this, main_page_name_), "dashboard_content");
-	dashboard_content().rect.set
-	(220.f
-		, 0.f
-		, 560.f
-		, 510.f
-	);
+	dashboard_content().rect.size({ 560.f, 510.f });
+	dashboard_content().rect.snap_to(sidebar_rect, rect::snap_type::right, margin_);
 	dashboard_content().border = 1;
 	dashboard_content().corner_radius_x = 0;
 	dashboard_content().corner_radius_y = 0;
@@ -208,14 +214,19 @@ bool dashboard::coupon_handler(const page_management& page)
 {
 	widget_man.close(main_page_name_+"/dashboard_content");
 
+	rect sidebar_rect;
+	try
+	{
+		sidebar_rect = containers::pane::specs(*this, (main_page_name_ + "/sidebar")).rect;
+	}
+	catch (const std::exception& ex)
+	{
+		message("Error: " + std::string(ex.what()));
+	}
 
 	containers::pane coupon_content(page.get(*this, main_page_name_), "coupon_content");
-	coupon_content().rect.set
-		( 220.f
-		, 0.f
-		, 560.f
-		, 510.f
-		);
+	coupon_content().rect.size({ 560.f, 510.f });
+	coupon_content().rect.snap_to(sidebar_rect, rect::snap_type::right, margin_);
 	coupon_content().border = 1;
 	coupon_content().corner_radius_x = 0;
 	coupon_content().corner_radius_y = 0;
@@ -340,5 +351,19 @@ bool dashboard::coupon_handler(const page_management& page)
 	comments_details().rect.snap_to(comments_caption().rect, rect::snap_type::bottom, 2.f);
 
 	return true;
+}
+
+bool dashboard::on_select_coupon()
+{
+	try
+	{
+		auto& data = widgets::table_view::specs(*this, (main_page_name_ + "/coupons_table")).selected;
+		return true;
+	}
+	catch (const std::exception& ex)
+	{
+		message("Error: " + std::string(ex.what()));
+		return false;
+	}
 }
 
