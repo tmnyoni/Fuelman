@@ -16,239 +16,271 @@
 using namespace liblec::lecui;
 
 bool dashboard::on_initialize(std::string& error) {
-	controls_.minimize(true);
-	controls_.resize(false);
+	controls_.allow_minimize(true);
+	controls_.allow_resize(false);
 	appearance_.theme(themes::light);
-	dims_.size({ 800, 600 });
+	dims_.set_size({ 800, 600 });
 	return true;
 }
 
 bool dashboard::on_layout(std::string& error) {
-	auto& page = page_man.add(main_page_name_);
+	auto& page = page_man_.add(main_page_name_);
 
-	containers::pane sidebar(page, "sidebar");
-	sidebar().rect.set(margin_, 0.f, 200.f, page.size().height - 6 * margin_);
-	sidebar().border = 1;
-	sidebar().corner_radius_x = 0;
-	sidebar().corner_radius_y = 0;
-	sidebar().color_fill.alpha = 0;
-	sidebar().on_resize = { 0.f, 0.f, 0.f, 100.f };
+	containers::pane_builder sidebar(page, "sidebar");
+	sidebar()
+		.border(1.f)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ 0.f, 0.f, 0.f, 100.f })
+		.rect().set(
+			margin_, 0.f, 200.f, page.size().height - 6 * margin_);
 
 
 	// Home widgets.
-	widgets::rectangle home(sidebar.get(), "test");
-	home().rect.size({ sidebar().rect.width() - (margin_ * 2.f), 35 });
-	home().rect.place({ 0, sidebar().rect.width() - margin_, margin_, margin_ * 2.f }, 0.f, 0.f);
-	home().color_fill.alpha = 0;
-	home().border = 0;
-	home().events().action = [&]() { dashboard_handler(*this); };
+	widgets::rectangle_builder home(sidebar.get(), "test");
+	home()
+		.border(0)
+		.color_fill({ 255, 255, 255, 0 })
+		.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
+		.place(
+			{
+				0,
+				sidebar().rect().width() - margin_,
+				margin_,
+				margin_ * 2.f
+			}, 0.f, 0.f
+		);
+	home().events().action = [&]() { dashboard_handler(); };
 
-	widgets::image_view dasboard_icon(sidebar.get(), "icon");
-	dasboard_icon().rect.size({ 30, 30 });
-	dasboard_icon().rect.place(
-		{ home.specs().rect.left + 2.5f
-		, 40
-		, home.specs().rect.top + 2.5f
-		, home.specs().rect.top + 2.5f + (margin_ * 2.5f)
-		}, 50.f, 0.f);
-	dasboard_icon().file = "assets\\dashboard.png";
-	dasboard_icon().border = 1;
-	
-	widgets::label dashboard_label(sidebar.get(), "dashboard_label");
-	dashboard_label().text = "Dashboard";
-	dashboard_label().rect.snap_to(dasboard_icon().rect, rect::snap_type::right, 10.f);
-	dashboard_label().center_v = true;
+	widgets::image_view_builder dasboard_icon(sidebar.get(), "icon");
+	dasboard_icon()
+		.border(1)
+		.file("assets\\dashboard.png")
+		.rect().size({ 30, 30 })
+		.place(
+			{
+				home.specs().rect().left() + 2.5f,
+				40,
+				home.specs().rect().top() + 2.5f,
+				home.specs().rect().top() + 2.5f + (margin_ * 2.5f)
+			}, 50.f, 0.f
+		);
+
+
+	widgets::label_builder dashboard_label(sidebar.get(), "dashboard_label");
+	dashboard_label()
+		.text("Dashboard")
+		.center_v(true)
+		.rect().snap_to(dasboard_icon().rect(), rect::snap_type::right, 10.f);
 
 
 	// Coupons widgets
-	widgets::rectangle coupons(sidebar.get(), "coupons");
-	coupons().rect.size({ sidebar().rect.width() - (margin_ * 2.f), 35 });
-	coupons().rect.snap_to(home().rect, rect::snap_type::bottom, margin_);
-	coupons().color_fill.alpha = 0;
-	coupons().border = 0;
-	coupons().events().action = [&]() { coupon_handler(*this); };
-
-	widgets::image_view coupons_icon(sidebar.get(), "coupons_icon");
-	coupons_icon().rect.size({ 30, 30 });
-	coupons_icon().rect.place(
-		{ coupons.specs().rect.left + 2.5f
-		, 40
-		, coupons.specs().rect.top + 2.5f
-		, coupons.specs().rect.top + 2.5f + (margin_ * 2.5f)
-		}, 50.f, 0.f);
-	coupons_icon().file = "assets\\pump.png";
-	coupons_icon().border = 1;
+	widgets::rectangle_builder coupons(sidebar.get(), "coupons");
+	coupons()
+		.border(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
+		.snap_to(home().rect(), rect::snap_type::bottom, margin_);
+	coupons().events().action = [&]() { coupon_handler(); };
 
 
-	widgets::label coupons_label(sidebar.get(), "coupon_label");
-	coupons_label().text = "Coupons";
-	coupons_label().rect.snap_to(coupons_icon().rect, rect::snap_type::right, 10.f);
-	coupons_label().center_v = true;
+	widgets::image_view_builder coupons_icon(sidebar.get(), "coupons_icon");
+	coupons_icon()
+		.border(1)
+		.file("assets\\pump.png")
+		.rect().size({ 30, 30 })
+		.place(
+			{
+				coupons.specs().rect().left() + 2.5f,
+				40,
+				coupons.specs().rect().top() + 2.5f,
+				coupons.specs().rect().top() + 2.5f + (margin_ * 2.5f)
+			}, 50.f, 0.f);
+
+
+	widgets::label_builder coupons_label(sidebar.get(), "coupon_label");
+	coupons_label()
+		.text("Coupons")
+		.center_v(true)
+		.rect().snap_to(coupons_icon().rect(), rect::snap_type::right, 10.f);
+
 
 	// reports widgets
-	widgets::rectangle reports(sidebar.get(), "reports");
-	reports().rect.size({ sidebar().rect.width() - (margin_ * 2.f), 35 });
-	reports().rect.snap_to(coupons().rect, rect::snap_type::bottom, margin_);
-	reports().color_fill.alpha = 0;
-	reports().border = 0;
-	reports().events().action = [&]() { coupon_handler(*this); };
+	widgets::rectangle_builder reports(sidebar.get(), "reports");
+	reports()
+		.border(1)
+		.color_fill(rgba(255, 255, 255, 0))
+		.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
+		.snap_to(coupons().rect(), rect::snap_type::bottom, margin_);
+	reports().events().action = [&]() { coupon_handler(); };
 
-	widgets::image_view reports_icon(sidebar.get(), "reports_icon");
-	reports_icon().rect.size({ 30, 30 });
-	reports_icon().rect.place(
-		{ reports.specs().rect.left + 2.5f
-		, 40
-		, reports.specs().rect.top + 2.5f
-		, reports.specs().rect.top + 2.5f + (margin_ * 2.5f)
-		}, 50.f, 0.f);
-	reports_icon().file = "assets\\reports.png";
-	reports_icon().border = 1;
+	widgets::image_view_builder reports_icon(sidebar.get(), "reports_icon");
+	reports_icon()
+		.border(1)
+		.file("assets\\reports.png")
+		.rect().size({ 30, 30 })
+		.place(
+			{
+				reports.specs().rect().left() + 2.5f,
+				40,
+				reports.specs().rect().top() + 2.5f,
+				reports.specs().rect().top() + 2.5f + (margin_ * 2.5f)
+			}, 50.f, 0.f);
 
+	widgets::label_builder reports_label(sidebar.get(), "reports_label");
+	reports_label()
+		.text("Reports")
+		.center_v(true)
+		.rect().snap_to(reports_icon().rect(), rect::snap_type::right, 10.f);
 
-	widgets::label reports_label(sidebar.get(), "reports_label");
-	reports_label().text = "Reports";
-	reports_label().rect.snap_to(reports_icon().rect, rect::snap_type::right, 10.f);
-	reports_label().center_v = true;
 
 	// Settings widgets
-	widgets::rectangle settings(sidebar.get(), "settings");
-	settings().rect.size({ sidebar().rect.width() - (margin_ * 2.f), 35 });
-	settings().color_fill.alpha = 0;
-	settings().border = 0;
-	settings().on_resize = { 0.f, 100.f, 0.f, 0.f };
-	settings().rect.place(
-		{ 0, sidebar().rect.width() - margin_, margin_ + (sidebar().rect.height() - 70), (margin_ * 2.f) + (sidebar().rect.height() - 70) }, 0.f, 0.f);
+	widgets::rectangle_builder settings(sidebar.get(), "settings");
+	settings()
+		.border(0)
+		.color_fill({ 255, 255, 255, 0 })
+		.on_resize({ 0.f, 100.f, 0.f, 0.f })
+		.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
+		.place(
+			{
+				0,
+				sidebar().rect().width() - margin_,
+				margin_ + (sidebar().rect().height() - 70),
+				(margin_ * 2.f) + (sidebar().rect().height() - 70)
+			}, 0.f, 0.f
+		);
 	settings().events().action = [&]() {};
 
-	widgets::image_view settings_icon(sidebar.get(), "settings_icon");
-	settings_icon().rect.size({ 30, 30 });
-	settings_icon().rect.place(
-		{ settings.specs().rect.left + 2.5f
-		, 40
-		, settings.specs().rect.top + 2.5f
-		, settings.specs().rect.top + 2.5f + (margin_ * 2.5f)
-		}, 50.f, 0.f);
-	settings_icon().file = "assets\\settings.png";
-	settings_icon().on_resize = { 0.f, 100.f, 0.f, 0.f };
-	settings_icon().border = 1;
+	widgets::image_view_builder settings_icon(sidebar.get(), "settings_icon");
+	settings_icon()
+		.border(1)
+		.file("assets\\settings.png")
+		.on_resize({ 0.f, 100.f, 0.f, 0.f })
+		.rect().size({ 30, 30 })
+		.place(
+			{ settings.specs().rect().left() + 2.5f
+			, 40
+			, settings.specs().rect().top() + 2.5f
+			, settings.specs().rect().top() + 2.5f + (margin_ * 2.5f)
+			}, 50.f, 0.f);
 
-	widgets::label settings_label(sidebar.get(), "settings_label");
-	settings_label().text = "Settings";
-	settings_label().rect.snap_to(settings_icon().rect, rect::snap_type::right, 10.f);
-	settings_label().on_resize = { 0.f, 100.f, 0.f, 0.f };
-	settings_label().center_v = true;
+	widgets::label_builder settings_label(sidebar.get(), "settings_label");
+	settings_label()
+		.text("Settings")
+		.center_v(true)
+		.on_resize({ 0.f, 100.f, 0.f, 0.f })
+		.rect().snap_to(settings_icon().rect(), rect::snap_type::right, 10.f);
 
 	//render dashboard widgets.
-	dashboard_handler(*this);
+	dashboard_handler();
 
-	page_man.show(main_page_name_);
+	page_man_.show(main_page_name_);
 	return true;
 }
 
-bool dashboard::dashboard_handler(const page_management& page) {
-	widget_man.close(main_page_name_ + "/coupon_content");
+bool dashboard::dashboard_handler() {
+	widget_man_.close(main_page_name_ + "/coupon_content");
 
 	// Dashboard Panel.
 	rect sidebar_rect;
 	try
 	{
-		sidebar_rect = containers::pane::specs(*this, (main_page_name_ + "/sidebar")).rect;
+		sidebar_rect = containers::pane_builder::specs(*this, (main_page_name_ + "/sidebar")).rect();
 	}
 	catch (const std::exception& ex)
 	{
 		message("Error: " + std::string(ex.what()));
 	}
 
-	containers::pane dashboard_content(page.get(*this, main_page_name_), "dashboard_content");
-	dashboard_content().rect.size({ 560.f, 510.f });
-	dashboard_content().rect.snap_to(sidebar_rect, rect::snap_type::right, margin_);
-	dashboard_content().border = 1;
-	dashboard_content().corner_radius_x = 0;
-	dashboard_content().corner_radius_y = 0;
-	dashboard_content().color_fill.alpha = 0;
-	dashboard_content().on_resize = { 0.f, 0.f, 100.f, 100.f };
+	containers::pane_builder dashboard_content(page_man_.get(*this, main_page_name_), "dashboard_content");
+	dashboard_content()
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 250, 0))
+		.on_resize({ 0.f, 0.f, 100.f, 100.f })
+		.rect().size({ 560.f, 510.f })
+		.snap_to(sidebar_rect, rect::snap_type::right, margin_);
 
 
-	widgets::label dashboard_title(dashboard_content.get(), "dashboard_title");
-	dashboard_title().text = "Overview";
-	dashboard_title().font_size = 12.f;
-	dashboard_title().center_h = true;
-	dashboard_title().on_resize = { 50.f, 0.f, 0.f, 0.f };
-	dashboard_title().rect.size({ 80, 20 });
-	dashboard_title().rect.place(
-		{ dashboard_content().rect.width() / 2.f - 40
-		, dashboard_content().rect.width() / 2.f + 40
-		, dashboard_content().rect.top + 20.f
-		, dashboard_content().rect.top + 40.f
-		}, 0.f, 0.f);
+	widgets::label_builder dashboard_title(dashboard_content.get(), "dashboard_title");
+	dashboard_title()
+		.text("Overview")
+		.font_size(12.f)
+		.center_h(true)
+		.on_resize({ 50.f, 0.f, 0.f, 0.f })
+		.rect().size({ 80, 20 })
+		.place(
+			{ dashboard_content().rect().width() / 2.f - 40
+			, dashboard_content().rect().width() / 2.f + 40
+			, dashboard_content().rect().top() + 20.f
+			, dashboard_content().rect().top() + 40.f
+			}, 0.f, 0.f);
 
-	containers::pane monthly_content(dashboard_content.get(), "montly_content");
-	monthly_content().rect.set
-	(margin_
-		, dashboard_title().rect.bottom + margin_
-		, dashboard_content().rect.width() / 2.f - (margin_ * 2.5f)
-		, dashboard_content().rect.height() / 2.f - margin_
-	);
-	monthly_content().border = 1;
-	monthly_content().corner_radius_x = 0;
-	monthly_content().corner_radius_y = 0;
-	monthly_content().color_fill.alpha = 0;
-	monthly_content().on_resize = { -50.f, 0.f, 50.f, 0.f };
+	containers::pane_builder monthly_content(dashboard_content.get(), "montly_content");
+	monthly_content()
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ -50.f, 0.f, 50.f, 0.f })
+		.rect().set(
+			margin_,
+			dashboard_title().rect().bottom() + margin_,
+			dashboard_content().rect().width() / 2.f - (margin_ * 2.5f),
+			dashboard_content().rect().height() / 2.f - margin_
+		);
 
-	containers::pane content_summary(dashboard_content.get(), "summary_content");
-	content_summary().rect.set
-	(monthly_content().rect.right + margin_
-		, dashboard_title().rect.bottom + margin_
-		, dashboard_content().rect.width() / 2.f - (margin_ * 2.5)
-		, dashboard_content().rect.height() / 2.f - margin_
-	);
-	content_summary().border = 1;
-	content_summary().corner_radius_x = 0;
-	content_summary().corner_radius_y = 0;
-	content_summary().color_fill.alpha = 0;
-	content_summary().on_resize = { 50.f, 0.f, 50.f, 0.f };
+	containers::pane_builder content_summary(dashboard_content.get(), "summary_content");
+
+	content_summary()
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ 50.f, 0.f, 50.f, 0.f })
+		.rect().set
+		(monthly_content().rect().right() + margin_
+			, dashboard_title().rect().bottom() + margin_
+			, dashboard_content().rect().width() / 2.f - (margin_ * 2.5f)
+			, dashboard_content().rect().height() / 2.f - margin_
+		);
+
 	return true;
 }
 
-bool dashboard::coupon_handler(const page_management& page)
+bool dashboard::coupon_handler()
 {
-	widget_man.close(main_page_name_+"/dashboard_content");
+	widget_man_.close(main_page_name_ + "/dashboard_content");
 
 	rect sidebar_rect;
 	try
 	{
-		sidebar_rect = containers::pane::specs(*this, (main_page_name_ + "/sidebar")).rect;
+		sidebar_rect = containers::pane_builder::specs(*this, (main_page_name_ + "/sidebar")).rect();
 	}
 	catch (const std::exception& ex)
 	{
 		message("Error: " + std::string(ex.what()));
 	}
 
-	containers::pane coupon_content(page.get(*this, main_page_name_), "coupon_content");
-	coupon_content().rect.size({ 560.f, 510.f });
-	coupon_content().rect.snap_to(sidebar_rect, rect::snap_type::right, margin_);
-	coupon_content().border = 1;
-	coupon_content().corner_radius_x = 0;
-	coupon_content().corner_radius_y = 0;
-	coupon_content().color_fill.alpha = 100;
-	coupon_content().on_resize = { 0.f, 0.f, 100.f, 100.f };
-	coupon_content().color_fill.alpha = 0;
+	containers::pane_builder coupon_content(page_man_.get(*this, main_page_name_), "coupon_content");
+	coupon_content().border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ 0.f, 0.f, 100.f, 100.f })
+		.rect().size({ 560.f, 510.f })
+		.snap_to(sidebar_rect, rect::snap_type::right, margin_);
 
-	widgets::table_view coupons_table(coupon_content.get(), "coupons_table");
-	coupons_table().rect.set
-	(margin_
-		, margin_
-		, coupon_content().rect.width() / 2.f - (margin_ * 2.5)
-		, coupon_content().rect.height() - (3.f * margin_)
-	);
-	coupons_table().border = 1;
-	coupons_table().corner_radius_x = 0;
-	coupons_table().corner_radius_y = 0;
-	coupons_table().color_fill.alpha = 0;
-	coupons_table().on_resize = { -50.f, 0.f, 50.f, 0.f };
-	std::vector<table_column> coupons_table_cols = { { "#", 50}, { "Date", 100}, {"Issued to", 100}, {"Serial Number", 100} };
-	coupons_table().columns = coupons_table_cols;
-	coupons_table().data = {
+	std::vector<table_column> coupons_table_cols =
+	{
+		{ "#", 50},
+		{ "Date", 100},
+		{"Issued to", 100}, {"Serial Number", 100}
+	};
+
+	std::vector<std::map<std::string, std::string>> data = {
 		{ {"#", "1"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
 		{ {"#", "2"}, {"Date", "10-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
 		{ {"#", "3"}, {"Date", "10-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
@@ -257,98 +289,145 @@ bool dashboard::coupon_handler(const page_management& page)
 		{ {"#", "6"}, {"Date", "10-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
 	};
 
-	containers::pane coupon_details_pane(coupon_content.get(), "coupon_details_pane");
-	coupon_details_pane().rect.set
-	(coupons_table().rect.right + margin_
-		, coupons_table().rect.top 
-		, coupon_content().rect.width() / 2.f - (margin_ * 2.5)
-		, coupon_content().rect.height() - (3.f * margin_)
-	);
-	coupon_details_pane().border = 1;
-	coupon_details_pane().corner_radius_x = 0;
-	coupon_details_pane().corner_radius_y = 0;
-	coupon_details_pane().color_fill.alpha = 0;
-	coupon_details_pane().on_resize = { 50.f, 0.f, 50.f, 0.f };
+	widgets::table_view_builder coupons_table(coupon_content.get(), "coupons_table");
+	coupons_table()
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ -50.f, 0.f, 50.f, 0.f })
+		.columns(coupons_table_cols)
+		.data(data)
+		.rect().set(
+			margin_,
+			margin_,
+			coupon_content().rect().width() / 2.f - (margin_ * 2.5f),
+			coupon_content().rect().height() - (3.f * margin_)
+		);
+	coupons_table().events().action = [&]() {
+		try
+		{
+			const auto& data = widgets::table_view_builder::specs(*this, main_page_name_ + "/coupon_content/coupons_table").data();
+			return false;
+		}
+		catch (const std::exception& ex)
+		{
+			message("Error: " + std::string(ex.what()));
+			return false;
+		}
+	};
+
+	containers::pane_builder coupon_details_pane(coupon_content.get(), "coupon_details_pane");
+	coupon_details_pane()
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ 50.f, 0.f, 50.f, 0.f })
+		.rect().set(
+			coupons_table().rect().right() + margin_,
+			coupons_table().rect().top(),
+			coupon_content().rect().width() / 2.f - (margin_ * 2.5f),
+			coupon_content().rect().height() - (3.f * margin_)
+		);
+
 
 	//widgets on the pane.
-	widgets::label date_label(coupon_details_pane.get(), "date_label");
-	date_label().text = "Date";
-	date_label().color_text = caption_color_;
-	date_label().color_fill = { 32, 34, 244 };
-	date_label().rect.size({ 200, 20 });
-	date_label().rect.place(
-		{ margin_, 200, margin_, 20 }, 0.f, 0.f);
+	widgets::label_builder date_label(coupon_details_pane.get(), "date_label");
+	date_label()
+		.text("Date")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.place(
+			{
+				margin_,
+				200,
+				margin_,
+				20
+			}, 0.f, 0.f);
 
-	widgets::label date_details(coupon_details_pane.get(), "date_details");
-	date_details().text = "28-June-2021";
-	date_details().color_fill = { 32, 34, 244 };
-	date_details().rect.size({ 200, 20 });
-	date_details().rect.snap_to(date_label().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
+	date_details()
+		.text("28-June-2021")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(date_label().rect(), rect::snap_type::bottom, 2.f);
 
-	widgets::label coupon_serialno_caption(coupon_details_pane.get(), "coupon_serialno_caption");
-	coupon_serialno_caption().text = "Serial Number";
-	coupon_serialno_caption().color_text = caption_color_;
-	coupon_serialno_caption().color_fill = { 32, 34, 244 };
-	coupon_serialno_caption().rect.size({ 200, 20 });
-	coupon_serialno_caption().rect.snap_to(date_details().rect, rect::snap_type::bottom, margin_);
+	widgets::label_builder coupon_serialno_caption(coupon_details_pane.get(), "coupon_serialno_caption");
+	coupon_serialno_caption()
+		.text("Serial Number")
+		.color_text(caption_color_)
+		.color_fill({ 32, 34, 244, 0 })
+		.rect().size({ 200, 20 })
+		.snap_to(date_details().rect(), rect::snap_type::bottom, margin_);
 
-	widgets::label coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
-	coupon_serialno_details().text = "403859177-4038591780";
-	coupon_serialno_details().color_fill = { 32, 34, 244 };
-	coupon_serialno_details().rect.size({ 200, 20 });
-	coupon_serialno_details().rect.snap_to(coupon_serialno_caption().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
+	coupon_serialno_details()
+		.text("403859177-4038591780")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(coupon_serialno_caption().rect(), rect::snap_type::bottom, 2.f);
 
-	widgets::label quantity_issued_caption(coupon_details_pane.get(), "quantity_issued_caption");
-	quantity_issued_caption().text = "Quantity issued";
-	quantity_issued_caption().color_text = caption_color_;
-	quantity_issued_caption().color_fill = { 32, 34, 244 };
-	quantity_issued_caption().rect.size({ 200, 20 });
-	quantity_issued_caption().rect.snap_to(coupon_serialno_details().rect, rect::snap_type::bottom, margin_);
+	widgets::label_builder quantity_issued_caption(coupon_details_pane.get(), "quantity_issued_caption");
+	quantity_issued_caption()
+		.text("Quantity issued")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(coupon_serialno_details().rect(), rect::snap_type::bottom, margin_);
 
-	widgets::label quantity_issued_details(coupon_details_pane.get(), "quantity_issued_details");
-	quantity_issued_details().text = std::to_string(80) + " Litres";
-	quantity_issued_details().color_fill = { 32, 34, 244 };
-	quantity_issued_details().rect.size({ 200, 20 });
-	quantity_issued_details().rect.snap_to(quantity_issued_caption().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder quantity_issued_details(coupon_details_pane.get(), "quantity_issued_details");
+	quantity_issued_details()
+		.text(std::to_string(80) + " Litres")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(quantity_issued_caption().rect(), rect::snap_type::bottom, 2.f);
 
-	widgets::label issuedto_caption(coupon_details_pane.get(), "issuedto_caption");
-	issuedto_caption().text = "Issued to";
-	issuedto_caption().color_text = caption_color_;
-	issuedto_caption().color_fill = { 32, 34, 244 };
-	issuedto_caption().rect.size({ 200, 20 });
-	issuedto_caption().rect.snap_to(quantity_issued_details().rect, rect::snap_type::bottom, margin_);
+	widgets::label_builder issuedto_caption(coupon_details_pane.get(), "issuedto_caption");
+	issuedto_caption()
+		.text("Issued to")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(quantity_issued_details().rect(), rect::snap_type::bottom, margin_);
 
-	widgets::label issuedto_details(coupon_details_pane.get(), "issuedto_details");
-	issuedto_details().text = "Transport";
-	issuedto_details().color_fill = { 32, 34, 244 };
-	issuedto_details().rect.size({ 200, 20 });
-	issuedto_details().rect.snap_to(issuedto_caption().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder issuedto_details(coupon_details_pane.get(), "issuedto_details");
+	issuedto_details()
+		.text("Transport")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(issuedto_caption().rect(), rect::snap_type::bottom, 2.f);
 
-	widgets::label coupon_recvby_caption(coupon_details_pane.get(), "coupon_recvby_caption");
-	coupon_recvby_caption().text = "Coupon received by";
-	coupon_recvby_caption().color_text = caption_color_;
-	coupon_recvby_caption().color_fill = { 32, 34, 244 };
-	coupon_recvby_caption().rect.size({ 200, 20 });
-	coupon_recvby_caption().rect.snap_to(issuedto_details().rect, rect::snap_type::bottom, margin_);
+	widgets::label_builder coupon_recvby_caption(coupon_details_pane.get(), "coupon_recvby_caption");
+	coupon_recvby_caption()
+		.text("Coupon received by")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(issuedto_details().rect(), rect::snap_type::bottom, margin_);
 
-	widgets::label coupon_recvby_details(coupon_details_pane.get(), "coupon_recvby_details");
-	coupon_recvby_details().text = "Tawanda M. Nyoni";
-	coupon_recvby_details().color_fill = { 32, 34, 244 };
-	coupon_recvby_details().rect.size({ 200, 20 });
-	coupon_recvby_details().rect.snap_to(coupon_recvby_caption().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder coupon_recvby_details(coupon_details_pane.get(), "coupon_recvby_details");
+	coupon_recvby_details()
+		.text("Tawanda M. Nyoni")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(coupon_recvby_caption().rect(), rect::snap_type::bottom, 2.f);
 
-	widgets::label comments_caption(coupon_details_pane.get(), "comments_caption");
-	comments_caption().text = "Comments";
-	comments_caption().color_text = caption_color_;
-	comments_caption().color_fill = { 32, 34, 244 };
-	comments_caption().rect.size({ 200, 20 });
-	comments_caption().rect.snap_to(coupon_recvby_details().rect, rect::snap_type::bottom, margin_);
+	widgets::label_builder comments_caption(coupon_details_pane.get(), "comments_caption");
+	comments_caption()
+		.text("Comments")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(coupon_recvby_details().rect(), rect::snap_type::bottom, margin_);
 
-	widgets::label comments_details(coupon_details_pane.get(), "comments_details");
-	comments_details().text = "It was an emergency";
-	comments_details().color_fill = { 32, 34, 244 };
-	comments_details().rect.size({ 200, 20 });
-	comments_details().rect.snap_to(comments_caption().rect, rect::snap_type::bottom, 2.f);
+	widgets::label_builder comments_details(coupon_details_pane.get(), "comments_details");
+	comments_details()
+		.text("It was an emergency")
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.snap_to(comments_caption().rect(), rect::snap_type::bottom, 2.f);
 
 	return true;
 }
@@ -357,7 +436,6 @@ bool dashboard::on_select_coupon()
 {
 	try
 	{
-		auto& data = widgets::table_view::specs(*this, (main_page_name_ + "/coupons_table")).selected;
 		return true;
 	}
 	catch (const std::exception& ex)
@@ -365,5 +443,10 @@ bool dashboard::on_select_coupon()
 		message("Error: " + std::string(ex.what()));
 		return false;
 	}
+}
+
+color dashboard::rgba(unsigned short r, unsigned short g, unsigned short b, unsigned short a)
+{
+	return color({ r, g, b, a });
 }
 

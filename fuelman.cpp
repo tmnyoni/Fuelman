@@ -28,35 +28,35 @@ class login : public form{
 	const std::string password_ = "pass";
 
 	bool on_initialize(std::string& error) override {
-		controls_.minimize(false);
-		controls_.resize(false);
+		controls_.allow_minimize(false);
+		controls_.allow_resize(false);
 		appearance_.theme(themes::light);
-		dims_.size({ 280, 320 });
+		dims_.set_size({ 280, 320 });
 		return true;
 	}
 
 	bool on_layout(std::string& error) override {
 		auto& page = page_man.add("login_page");
 
-		widgets::image_view avatar(page, "avatar");
-		avatar().rect.size(130, 130);
-		avatar().rect.place({ margin_, page.size().width - margin_, margin_, margin_ + (dims_.size().height / 2.f) }, 50.f, 0.f);
-		avatar().quality = image_quality::high;
-		avatar().file = "assets\\pump.png";
-		avatar().border = 1;
-		avatar().color_border = { 2,3,4 };
+		widgets::image_view_builder avatar(page, "avatar");
+		avatar()
+			.file("assets\\pump.png")
+			.quality(image_quality::high)
+			.rect().size(130, 130)
+			.place({ margin_, page.size().width - margin_, margin_, margin_ + (dims_.get_size().height / 2.f) }, 50.f, 0.f);
 
-		widgets::text_field username(page, "username");
-		username().rect.snap_to(avatar().rect, rect::snap_type::bottom, 3.f * margin_);
+		widgets::text_field_builder username(page, "username");
+		username().rect().snap_to(avatar().rect(), rect::snap_type::bottom, 3.f * margin_);
 		username().events().action = [&]() { on_login(); };
 
-		widgets::password_field password(page, "password");
-		password().rect.snap_to(username().rect, rect::snap_type::bottom, margin_);
+		widgets::password_field_builder password(page, "password");
+		password().rect().snap_to(username().rect(), rect::snap_type::bottom, margin_);
 		password().events().action = [&]() { on_login(); };
 
-		widgets::button signin(page, "signin");
-		signin().rect.snap_to(password().rect, rect::snap_type::bottom, 1.5f * margin_);
-		signin().text = "sign in";
+		widgets::button_builder signin(page, "signin");
+		signin()
+			.text("sign in")
+			.rect().snap_to(password().rect(), rect::snap_type::bottom, 1.5f * margin_);
 		signin().events().action = [this]() {  on_login(); };
 
 		page_man.show("login_page");
@@ -66,8 +66,8 @@ class login : public form{
 	void on_login() {
 		try
 		{
-			auto& username = widgets::text_field::specs(*this, "login_page/username").text;
-			auto& password = widgets::password_field::specs(*this, "login_page/password").text;
+			auto& username = widgets::text_field_builder::specs(*this, "login_page/username").text();
+			auto& password = widgets::password_field_builder::specs(*this, "login_page/password").text();
 
 			if (username.empty() || password.empty())
 				return;
@@ -99,7 +99,8 @@ int main(){
 	//	if (!is_logged_in) {
 	//		login_window.message("signin successful");
 			dashboard dashboard_page("<em>FuelMan</em>");
-			dashboard_page.show(error);
+			if (!dashboard_page.show(error))
+				dashboard_page.message("Error: " + error);
 	//	}
 	//	else
 	//		login_window.message("Error: " + error);

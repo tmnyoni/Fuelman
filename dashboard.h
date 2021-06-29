@@ -18,10 +18,10 @@ class dashboard : public form {
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
-	page_management page_man{ *this };
-	widget_management widget_man{ *this };
+	page_management page_man_{ *this };
+	widget_management widget_man_{ *this };
 
-	const color caption_color_ = { 135, 133, 133 };
+	const color caption_color_ = rgba(135, 133, 133, 255);
 	const std::string main_page_name_ = "fuelman";
 
 	bool is_logged_in_;
@@ -31,10 +31,11 @@ class dashboard : public form {
 	bool on_initialize(std::string& error) override;
 	bool on_layout(std::string& error) override;
 
-	bool dashboard_handler(const page_management& page);
-	bool coupon_handler(const page_management& page);
+	bool dashboard_handler();
+	bool coupon_handler();
 
 	bool on_select_coupon();
+	static color rgba(unsigned short r, unsigned short g, unsigned short b, unsigned short a);
 
 public:
 	dashboard(const std::string& caption) :
