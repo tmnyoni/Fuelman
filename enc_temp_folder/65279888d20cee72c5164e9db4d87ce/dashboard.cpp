@@ -1,3 +1,5 @@
+#include <liblec/lecui/controls.h>
+#include <liblec/lecui/appearance.h>
 #include <liblec/lecui/containers/page.h>
 #include <liblec/lecui/containers/pane.h>
 #include <liblec/lecui/widgets/button.h>
@@ -8,7 +10,6 @@
 #include <liblec/lecui/widgets/line.h>
 #include <liblec/lecui/widgets/icon.h>
 #include <liblec/lecui/widgets/rectangle.h>
-#include <liblec/lecui/widgets/image_view.h>
 
 #include "dashboard.h"
 
@@ -211,13 +212,11 @@ bool dashboard::dashboard_handler() {
 		.on_resize({ 50.f, 0.f, 0.f, 0.f })
 		.rect().size({ 80, 20 })
 		.place(
-			{ 
-				dashboard_content().rect().width() / 2.f - 40,
-				dashboard_content().rect().width() / 2.f + 40,
-				dashboard_content().rect().top() + 20.f,
-				dashboard_content().rect().top() + 40.f
-			}, 0.f, 0.f
-		);
+			{ dashboard_content().rect().width() / 2.f - 40
+			, dashboard_content().rect().width() / 2.f + 40
+			, dashboard_content().rect().top() + 20.f
+			, dashboard_content().rect().top() + 40.f
+			}, 0.f, 0.f);
 
 	containers::pane_builder monthly_content(dashboard_content.get());
 	monthly_content()
@@ -304,11 +303,7 @@ bool dashboard::coupon_handler()
 			coupon_content().rect().width() / 2.f - (margin_ * 2.5f),
 			coupon_content().rect().height() - (3.f * margin_)
 		);
-	coupons_table().events().selection = [&]
-		(const std::vector<std::map<std::string, std::string>>& rows)
-	{
-		on_select_coupon(rows);
-	};
+	coupons_table().events().action = [&]() { on_select_coupon(); };
 
 	containers::pane_builder coupon_details_pane(coupon_content.get(), "coupon_details_pane");
 	coupon_details_pane()
@@ -425,8 +420,7 @@ bool dashboard::coupon_handler()
 	return true;
 }
 
-bool dashboard::on_select_coupon(
-	const std::vector<std::map<std::string, std::string>>& rows)
+bool dashboard::on_select_coupon()
 {
 	try
 	{
