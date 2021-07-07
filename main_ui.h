@@ -29,6 +29,7 @@ class dashboard : public form {
 
 	bool on_select_coupon(const std::vector<std::map<std::string, std::string>>& rows);
 	bool on_dispatch_coupon();
+	bool on_add_coupons();
 	bool on_delete_coupon();
 
 	static color rgba(const unsigned short& r,

@@ -706,6 +706,21 @@ bool dashboard::on_dispatch_coupon()
 		return false;
 	}
 
+	try
+	{
+		auto coupons_table =
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
+
+		auto table_size = std::to_string(coupons_table.data().size());
+		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
+			.data().push_back({ { "#", "7"}, {"Date", "10-June-20"}, {"Issued to", "new"}, {"Serial Number", "added-for-testing"}});
+	}
+	catch (const std::exception& ex)
+	{
+		message("Error: " + std::string(ex.what()));
+		return false;
+	}
+
 	return true;
 }
 

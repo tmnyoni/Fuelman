@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <any>
 
@@ -9,7 +11,10 @@
 #include <liblec/lecui/widgets/text_field.h>
 #include <liblec/lecui/widgets/password_field.h>
 #include <liblec/lecui/widgets/password_field.h>
+#include <liblec/lecui/widgets/combobox.h>
 #include <liblec/lecui/widgets/image_view.h>
+
+#include <liblec/lecui/utilities/date_time.h>
 
 #include "main_ui.h"
 
@@ -29,22 +34,45 @@ class dispatch_form : public form {
 		controls_.allow_minimize(false);
 		controls_.allow_resize(false);
 		appearance_.theme(themes::light);
-		dims_.set_size({ 350, 400 });
+		dims_.set_size({ 350, 450 });
 		return true;
 	}
 
 	bool on_layout(std::string& error) override {
 		auto& page = page_man.add("dispatch_page");
 
+		widgets::label_builder fueltype_caption(page);
+		fueltype_caption()
+			.text("Fuel type")
+			.rect().place(
+				{
+					margin_,
+					page.size().width - margin_,
+					margin_, margin_ + (dims_.get_size().height / 2.f) 
+				},  50.f, 0.f
+			);
+
+		std::vector<widgets::combobox_specs::combobox_item> fueltypes = 
+		{
+			{  "Petrol " }, {"Diesel"}
+		};
+
+		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
+		fueltype_cbo()
+			.items(fueltypes)
+			.color_fill({255,255,255,0})
+			.rect().size(200, 25)
+			.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
+		fueltype_cbo().events().selection = [](const std::string& selected) {};
+
 		widgets::label_builder serialno_caption(page);
 		serialno_caption()
 			.text("Serial Number")
-			.rect().place({ margin_, page.size().width - margin_, margin_, margin_ + (dims_.get_size().height / 2.f) }, 50.f, 0.f);
+			.rect().snap_to(fueltype_cbo().rect(), snap_type::bottom, margin_);
 
 		widgets::text_field_builder serialno_text(page, "serialno_text");
 		serialno_text()
-			.rect().size(200, 25)
-			.snap_to(serialno_caption().rect(), snap_type::bottom, 0);
+			.rect().snap_to(serialno_caption().rect(), snap_type::bottom, 0);
 		
 		widgets::label_builder quantity_caption(page);
 		quantity_caption()
@@ -116,10 +144,13 @@ class dispatch_form : public form {
 				return false;
 			}
 
+			auto date_of_dispatch = date_time::to_string(date_time::today());
+
 			/*if (!get_state.get_db().on_coupon_dispatch(quantity, error)) {
 				message("Error: " + error);
 				return false;
 			}*/
+
 		}
 		catch (std::exception& ex){
 			error = std::string(ex.what());
