@@ -13,6 +13,7 @@
 
 #include "main_ui.h"
 #include "dispatch.h"
+#include "new_voucher.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
@@ -21,7 +22,7 @@ bool dashboard::on_initialize(std::string& error) {
 	controls_.allow_minimize(true);
 	controls_.allow_resize(false);
 	appearance_.theme(themes::light);
-	dims_.set_size({ 800, 600 });
+	dims_.set_size({ 800, 700 });
 	return true;
 }
 
@@ -64,9 +65,10 @@ bool dashboard::on_layout(std::string& error) {
 
 	widgets::button_builder add_coupons(coupons_tab.get());
 	add_coupons()
-		.text("Add New")
+		.text("New voucher")
 		.rect().size({ 80, 20 })
 		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
+	add_coupons().events().click = [&]() { on_add_coupons(); };
 
 	std::vector<table_column> coupons_table_cols =
 	{
@@ -718,6 +720,18 @@ bool dashboard::on_dispatch_coupon()
 	catch (const std::exception& ex)
 	{
 		message("Error: " + std::string(ex.what()));
+		return false;
+	}
+
+	return true;
+}
+
+bool dashboard::on_add_coupons()
+{
+	std::string error;
+	voucher_form add_voucher_form("Fuelman", *this);
+	if (!add_voucher_form.show(error)) {
+		message("Error: " + error);
 		return false;
 	}
 

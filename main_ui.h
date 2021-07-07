@@ -19,7 +19,6 @@ class dashboard : public form {
 	const color caption_color_ = rgba(135, 133, 133, 255);
 	const color transparent = rgba(255, 255, 255, 0);
 
-
 	bool on_initialize(std::string& error) override;
 	bool on_layout(std::string& error) override;
 

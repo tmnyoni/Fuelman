@@ -9,7 +9,7 @@
 #include <liblec/lecui/widgets/password_field.h>
 #include <liblec/lecui/widgets/image_view.h>
 
-#include "dashboard.h"
+#include "main_ui.h"
 
 #pragma comment(linker, "/ENTRY:mainCRTStartup")
 

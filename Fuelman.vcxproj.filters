@@ -16,18 +16,36 @@
     <Filter Include="Source Files\assets">
       <UniqueIdentifier>{a3cbe65c-1538-4a57-a609-56a33d81a359}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{408b0b2d-6c65-4a84-9005-3c1cb7e4b5a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\NewFilter1">
+      <UniqueIdentifier>{3701a83a-0a00-40ee-a60a-d55b7b8833cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fuelman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dashboard.cpp">
+    <ClCompile Include="fuelman_db.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main_ui.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dashboard.h">
+    <ClInclude Include="fuelman_db.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main_ui.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="dispatch.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="new_voucher.h">
+      <Filter>Source Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
