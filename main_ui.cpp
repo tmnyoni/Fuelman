@@ -10,7 +10,9 @@
 #include <liblec/lecui/widgets/rectangle.h>
 #include <liblec/lecui/widgets/image_view.h>
 #include <liblec/lecui/containers/tab_pane.h>
-#include "dashboard.h"
+
+#include "main_ui.h"
+#include "dispatch.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
@@ -26,21 +28,45 @@ bool dashboard::on_initialize(std::string& error) {
 bool dashboard::on_layout(std::string& error) {
 	auto& page = page_man_.add(main_page_name_);
 
-	containers::tab_pane_builder tabs(page);
+	containers::tab_pane_builder tabs(page, "main_tab");
 	tabs()
 		.border(1)
 		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
+		//Todo.tab_side(containers::tab_pane_specs::side::left)
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
-	containers::tab_builder dashboard_tab(tabs, "Dashboard");
+
+	// dashboard.
+	containers::tab_builder dashboard_tab(tabs, "dashboard");
+
 	widgets::button_builder btn(dashboard_tab.get());
 	btn()
 		.text("Save")
 		.rect().size({ 100, 20 })
 		.set(margin_, margin_, 100, 20);
 
-	containers::tab_builder coupons_tab(tabs, "Coupons");
+	// Coupons.
+	containers::tab_builder coupons_tab(tabs, "coupons");
+	widgets::button_builder dispatch_coupons_button(coupons_tab.get());
+	dispatch_coupons_button()
+		.text("Dispatch")
+		.rect().size({ 89, 20 })
+		.place(
+			{
+				margin_,
+				margin_ * 10,
+				margin_ / 4,
+				margin_ * 2
+			}, 0.f, 0.f
+		);
+	dispatch_coupons_button().events().click = [&]() { on_dispatch_coupon();  };
+
+	widgets::button_builder add_coupons(coupons_tab.get());
+	add_coupons()
+		.text("Add New")
+		.rect().size({ 80, 20 })
+		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
 
 	std::vector<table_column> coupons_table_cols =
 	{
@@ -51,11 +77,11 @@ bool dashboard::on_layout(std::string& error) {
 
 	std::vector<std::map<std::string, std::string>> coupons_data = {
 		{ {"#", "1"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "2"}, {"Date", "10-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "3"}, {"Date", "10-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "4"}, {"Date", "10-June-20"}, {"Issued to", "ICT"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "5"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "6"}, {"Date", "10-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
+		{ {"#", "2"}, {"Date", "11-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
+		{ {"#", "3"}, {"Date", "12-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
+		{ {"#", "4"}, {"Date", "13-June-20"}, {"Issued to", "ICT"}, {"Serial Number", "fhdskfhasdfhasi34"} },
+		{ {"#", "5"}, {"Date", "14-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
+		{ {"#", "6"}, {"Date", "15-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
 	};
 
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
@@ -69,14 +95,14 @@ bool dashboard::on_layout(std::string& error) {
 		.data(coupons_data)
 		.rect().set(
 			margin_,
-			margin_,
+			margin_ * 3,
 			tabs().rect().width() / 2.f - (margin_ * 2.f),
-			tabs().rect().height() - (margin_ * 6)
+			tabs().rect().height() - (margin_ * 9)
 		);
 	coupons_table().events().selection = [&]
 	(const std::vector<std::map<std::string, std::string>>& rows)
 	{
-		//on_select_coupon(rows);
+		on_select_coupon(rows);
 	};
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
@@ -90,10 +116,10 @@ bool dashboard::on_layout(std::string& error) {
 			coupons_table().rect().right() + margin_,
 			coupons_table().rect().top(),
 			tabs().rect().width() / 2.f - (margin_ * 2.f),
-			tabs().rect().height() - (margin_ * 6)
+			tabs().rect().height() - (margin_ * 9)
 		);
 
-	//widgets on the pane.
+	// Coupons tab widgets.
 	widgets::label_builder date_label(coupon_details_pane.get());
 	date_label()
 		.text("Date")
@@ -189,6 +215,27 @@ bool dashboard::on_layout(std::string& error) {
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(comments_caption().rect(), snap_type::bottom, 2.f);
+
+	widgets::button_builder edit_coupons_button(coupon_details_pane.get());
+	edit_coupons_button()
+		.text("Edit")
+		.rect().size({ 50, 20 })
+		.place(
+			{
+				margin_,
+				100 + margin_,
+				comments_details().rect().get_bottom() + margin_,
+				comments_details().rect().get_bottom() + margin_ * 2
+			}, 0.f, 0.f
+		);
+
+	widgets::button_builder delete_coupons_button(coupon_details_pane.get());
+	delete_coupons_button()
+		.text("Delete")
+		.color_fill(rgba(122, 16, 27, 100))
+		.rect().size({ 50, 20 })
+		.snap_to(edit_coupons_button().rect(), snap_type::right, margin_);
+
 	//containers::pane_builder sidebar(dashboard_tab.get(), "sidebar");
 	//sidebar()
 	//	.border(1.f)
@@ -621,44 +668,46 @@ bool dashboard::on_layout(std::string& error) {
 //
 //	return false;
 //}
-//
-//bool dashboard::on_select_coupon(
-//	const std::vector<std::map<std::string, std::string>>& rows)
-//{
-//	try
-//	{
-//		message("Selection size: " + std::to_string(rows.size()));
-//		widget_man_.close(main_page_name_ + "/coupon_content/coupon_details_pane");
-//
-//		auto& coupon_content = containers::pane_builder::get(*this, main_page_name_ + "/coupon_content");
-//		auto& coupon_content_rect = containers::pane_builder::specs(*this, main_page_name_+"/coupon_content").rect();
-//		auto& coupons_table_rect = widgets::table_view_builder::specs(*this, main_page_name_+"/coupon_content/coupons_table").rect();
-//
-//		// Todo: Ask Mr Alec if there is no other way to do this, because this looks like a bug to me 
-//		// Todo: but I am not sure if its really a bug or something.
-//		// Todo: DESCIPTION: The widget is misaligned if designed on the fly.
-//		containers::pane_builder coupon_details_pane_(coupon_content);
-//		coupon_details_pane_()
-//			.border(1)
-//			.corner_radius_x(0)
-//			.corner_radius_y(0)
-//			.color_fill(rgba(34, 44, 30, 100))
-//			.on_resize({ 50.f, 0.f, 50.f, 0.f })
-//			.rect().set(
-//				coupons_table_rect.right() + margin_,
-//				coupons_table_rect.top(),
-//				coupon_content_rect.width() / 2.f - (margin_ * 2.5f),
-//				coupon_content_rect.height() - (3.f * margin_)
-//			);
-//		 
-//		return true;
-//	}
-//	catch (const std::exception& ex)
-//	{
-//		message("Error: " + std::string(ex.what()));
-//		return false;
-//	}
-//}
+
+bool dashboard::on_select_coupon(
+	const std::vector<std::map<std::string, std::string>>& rows)
+{
+	try
+	{
+		auto coupons_details_pane_alias = main_page_name_ + "/main_tab/coupons/coupon_details_pane/";
+
+		for (auto row : rows) {
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "date_details")
+				.text(row.at("Date"));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedto_details")
+				.text(row.at("Issued to"));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_serialno_details")
+				.text(row.at("Serial Number"));
+
+			return true;
+		}
+		return true;
+	}
+	catch (const std::exception& ex)
+	{
+		message("Error: " + std::string(ex.what()));
+		return false;
+	}
+}
+
+bool dashboard::on_dispatch_coupon()
+{
+	std::string error;
+	dispatch_form dispatch_fm("Fuelman", *this);
+	if (!dispatch_fm.show(error)) {
+		message("Error: " + error);
+		return false;
+	}
+
+	return true;
+}
 
 color dashboard::rgba(const unsigned short& r,
 	const unsigned short& g,
