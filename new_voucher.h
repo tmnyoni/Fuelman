@@ -198,6 +198,8 @@ class voucher_form : public form {
 			error = std::string(ex.what());
 			return false;
 		}
+
+		return true;
 	}
 public:
 	voucher_form(const std::string& caption, liblec::lecui::form& parent_form) :
