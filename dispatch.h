@@ -17,6 +17,7 @@
 #include <liblec/lecui/utilities/date_time.h>
 
 #include "main_ui.h"
+#include "app_state.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
@@ -29,6 +30,8 @@ class dispatch_form : public form {
 	dimensions dims_{ *this };
 	page_management page_man{ *this };
 	widget_management widget_man{ *this };
+
+	state& state_;
 
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
@@ -52,18 +55,20 @@ class dispatch_form : public form {
 				},  50.f, 0.f
 			);
 
-		std::vector<widgets::combobox_specs::combobox_item> fueltypes = 
-		{
-			{  "Petrol " }, {"Diesel"}
-		};
-
 		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
-		fueltype_cbo()
-			.items(fueltypes)
-			.color_fill({255,255,255,0})
-			.rect().size(200, 25)
-			.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
-		fueltype_cbo().events().selection = [](const std::string& selected) {};
+		{
+			std::vector<widgets::combobox_specs::combobox_item> fueltypes =
+			{
+				{  "Petrol " }, {"Diesel"}
+			};
+
+			fueltype_cbo()
+				.items(fueltypes)
+				.color_fill({ 255,255,255,0 })
+				.rect().size(200, 25)
+				.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
+			fueltype_cbo().events().selection = [](const std::string& selected) {};
+		}
 
 		widgets::label_builder serialno_caption(page);
 		serialno_caption()
@@ -146,10 +151,22 @@ class dispatch_form : public form {
 
 			auto date_of_dispatch = date_time::to_string(date_time::today());
 
-			/*if (!get_state.get_db().on_coupon_dispatch(quantity, error)) {
+			table_ table;
+			table.push_back(
+				{
+					{ "date", date_of_dispatch },
+					{ "serialno", serial_number },
+					{ "quantity", quantity },
+					{ "issuedto", issued_to },
+					{ "recvby", received_by },
+					{ "comments", comments },
+				}
+			);
+
+			if (!state_.get_db().on_dispatch_coupons(table, error)) {
 				message("Error: " + error);
 				return false;
-			}*/
+			}
 
 		}
 		catch (std::exception& ex){
@@ -160,8 +177,7 @@ class dispatch_form : public form {
 		return true;
 	}
 public:
-	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form) :
-		form(caption, parent_form) {}
-
+	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& app_state_) :
+		form(caption, parent_form), state_(app_state_) {}
 };
 
