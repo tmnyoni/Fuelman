@@ -14,6 +14,7 @@
 #include "main_ui.h"
 #include "dispatch.h"
 #include "new_voucher.h"
+#include "edit_coupon.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
@@ -68,44 +69,58 @@ bool dashboard::on_layout(std::string& error) {
 		.text("New voucher")
 		.rect().size({ 80, 20 })
 		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
-	add_coupons().events().click = [&]() { on_add_coupons(); };
-
-	std::vector<table_column> coupons_table_cols =
-	{
-		{ "#", 50},
-		{ "Date", 100},
-		{"Issued to", 100}, {"Serial Number", 100}
-	};
-
-	std::vector<std::map<std::string, std::string>> coupons_data = {
-		{ {"#", "1"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "2"}, {"Date", "11-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "3"}, {"Date", "12-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "4"}, {"Date", "13-June-20"}, {"Issued to", "ICT"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "5"}, {"Date", "14-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"#", "6"}, {"Date", "15-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
-	};
+	add_coupons().events().click = [&]() { on_get_voucher (); };
 
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
-	coupons_table()
-		.border(1)
-		.corner_radius_x(0)
-		.corner_radius_y(0)
-		.color_fill(rgba(255, 255, 255, 0))
-		.on_resize({ -50.f, 0.f, 50.f, 0.f })
-		.columns(coupons_table_cols)
-		.data(coupons_data)
-		.rect().set(
-			margin_,
-			margin_ * 3,
-			tabs().rect().width() / 2.f - (margin_ * 2.f),
-			tabs().rect().height() - (margin_ * 9)
-		);
-	coupons_table().events().selection = [&]
-	(const std::vector<std::map<std::string, std::string>>& rows)
 	{
-		on_select_coupon(rows);
-	};
+		std::vector<table_column> coupons_table_cols =
+		{
+			{ "#", 50},
+			{ "Date", 100},
+			{ "Issued to", 100},
+			{ "Serial Number", 100}
+		};
+
+		std::vector<std::map<std::string, std::string>> table_data;
+		{
+			table_ coupons_data;
+			if (!state_.get_db().on_get_coupons(coupons_data, error))
+				message("Error: " + error);
+
+			for (int i = 0;  auto & row : coupons_data) {
+				std::map<std::string, std::string> table_row;
+
+				table_row.insert(std::make_pair("#", std::to_string(i++)));
+				table_row.insert(std::make_pair("Date", std::any_cast<std::string>(row.at("Date"))));
+				table_row.insert(std::make_pair("Issued to", std::any_cast<std::string>(row.at("Issuedto"))));
+				table_row.insert(std::make_pair("Serial Number", std::any_cast<std::string>(row.at("SerialNo"))));
+
+				table_data.push_back(table_row);
+			}
+
+		}
+
+
+		coupons_table()
+			.border(1)
+			.corner_radius_x(0)
+			.corner_radius_y(0)
+			.color_fill(rgba(255, 255, 255, 0))
+			.on_resize({ -50.f, 0.f, 50.f, 0.f })
+			.columns(coupons_table_cols)
+			.data(table_data)
+			.rect().set(
+				margin_,
+				margin_ * 3,
+				tabs().rect().width() / 2.f - (margin_ * 2.f),
+				tabs().rect().height() - (margin_ * 9)
+			);
+		coupons_table().events().selection = [&]
+		(const std::vector<std::map<std::string, std::string>>& rows)
+		{
+			on_select_coupon(rows);
+		};
+	}
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
 	coupon_details_pane()
@@ -230,6 +245,9 @@ bool dashboard::on_layout(std::string& error) {
 				comments_details().rect().get_bottom() + margin_ * 2
 			}, 0.f, 0.f
 		);
+	edit_coupons_button().events().click = [&]() {
+		on_edit_coupons();
+	};
 
 	widgets::button_builder delete_coupons_button(coupon_details_pane.get());
 	delete_coupons_button()
@@ -237,7 +255,13 @@ bool dashboard::on_layout(std::string& error) {
 		.color_fill(rgba(122, 16, 27, 100))
 		.rect().size({ 50, 20 })
 		.snap_to(edit_coupons_button().rect(), snap_type::right, margin_);
+	delete_coupons_button().events().click = [&]() {
+		if (prompt("Are you sure you, delete?")) {
+			return;
+		}
+	};
 
+	tabs.select("dashboard");
 	//containers::pane_builder sidebar(dashboard_tab.get(), "sidebar");
 	//sidebar()
 	//	.border(1.f)
@@ -702,7 +726,7 @@ bool dashboard::on_select_coupon(
 bool dashboard::on_dispatch_coupon()
 {
 	std::string error;
-	dispatch_form dispatch_fm("Fuelman", *this);
+	dispatch_form dispatch_fm("Dispatch Coupon", *this, state_);
 	if (!dispatch_fm.show(error)) {
 		message("Error: " + error);
 		return false;
@@ -726,11 +750,24 @@ bool dashboard::on_dispatch_coupon()
 	return true;
 }
 
-bool dashboard::on_add_coupons()
+bool dashboard::on_get_voucher()
 {
 	std::string error;
-	voucher_form add_voucher_form("Fuelman", *this);
+	voucher_form add_voucher_form("Add Voucher", *this);
 	if (!add_voucher_form.show(error)) {
+		message("Error: " + error);
+		return false;
+	}
+
+	return true;
+}
+
+bool dashboard::on_edit_coupons()
+{
+	std::string error;
+
+	edit_coupon_form edit_form("Edit Coupon", *this);
+	if (!edit_form.show(error)) {
 		message("Error: " + error);
 		return false;
 	}

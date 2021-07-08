@@ -4,9 +4,12 @@
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 
+#include "app_state.h"
+
 using namespace liblec::lecui;
 
 class dashboard : public form {
+	state& state_;
 	const float margin_ = 10.f;
 	const std::string main_page_name_ = "fuelman";
 
@@ -28,7 +31,8 @@ class dashboard : public form {
 
 	bool on_select_coupon(const std::vector<std::map<std::string, std::string>>& rows);
 	bool on_dispatch_coupon();
-	bool on_add_coupons();
+	bool on_get_voucher();
+	bool on_edit_coupons();
 	bool on_delete_coupon();
 
 	static color rgba(const unsigned short& r,
@@ -36,7 +40,7 @@ class dashboard : public form {
 		const unsigned short& b,
 		const unsigned short& a);
 public:
-	dashboard(const std::string& caption) :
-		form(caption) {}
+	dashboard(const std::string& caption, state& app_state_) :
+		form(caption), state_(app_state_) {}
 
 };
