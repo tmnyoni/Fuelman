@@ -19,9 +19,6 @@
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{408b0b2d-6c65-4a84-9005-3c1cb7e4b5a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\NewFilter1">
-      <UniqueIdentifier>{3701a83a-0a00-40ee-a60a-d55b7b8833cb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fuelman.cpp">
@@ -45,6 +42,12 @@
       <Filter>Source Files\gui</Filter>
     </ClInclude>
     <ClInclude Include="new_voucher.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="app_state.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="edit_coupon.h">
       <Filter>Source Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
