@@ -157,7 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="edit_coupon.h" />
-    <ClInclude Include="new_voucher.h" />
+    <ClInclude Include="addcoupons.h" />
     <ClInclude Include="dispatch.h" />
     <ClInclude Include="main_ui.h" />
     <ClInclude Include="fuelman_db.h" />

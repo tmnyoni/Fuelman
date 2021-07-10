@@ -13,7 +13,7 @@
 
 #include "main_ui.h"
 #include "dispatch.h"
-#include "new_voucher.h"
+#include "addcoupons.h"
 #include "edit_coupon.h"
 
 using namespace liblec::lecui;
@@ -66,24 +66,35 @@ bool dashboard::on_layout(std::string& error) {
 
 	widgets::button_builder add_coupons(coupons_tab.get());
 	add_coupons()
-		.text("New voucher")
+		.text("New Coupons")
 		.rect().size({ 80, 20 })
 		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
-	add_coupons().events().click = [&]() { on_get_voucher(); };
+	add_coupons().events().click = [&]() {
+		std::string error;
+		if (!on_add_coupons(error)) {
+			message("Error: " + error);
+			return;
+		}
+	};
 
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
 	{
 		std::vector<table_column> coupons_table_cols =
 		{
-			{ "#", 50},
-			{ "Date", 100},
-			{ "IssuedTo", 100},
-			{ "SerialNumber", 100}
+			{ "#", 50 },
+			{ "Serial Number", 150 },
+			{ "Fuel", 90 },
+			{ "Volume", 80 },
+			{ "Date", 90 },
 		};
 
 		std::vector<database::row> coupons_data;
 		if (!state_.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
+
+		for (int i = 1; auto & row : coupons_data) {
+			row.insert(std::make_pair("#", i++));
+		}
 
 		coupons_table()
 			.border(1)
@@ -741,6 +752,7 @@ bool dashboard::on_dispatch_coupon()
 
 		auto table_size = coupons_table.data().size();
 
+
 		if (!saved_coupon_to_display.empty()) {
 			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
 				.data().push_back(
@@ -764,12 +776,42 @@ bool dashboard::on_dispatch_coupon()
 	return true;
 }
 
-bool dashboard::on_get_voucher()
-{
-	std::string error;
-	voucher_form add_voucher_form("Add Voucher", *this);
-	if (!add_voucher_form.show(error)) {
+bool dashboard::on_add_coupons(std::string& error) {
+	std::vector<table_row> saved_coupons;
+
+	addcopoupons_form addcoupons("Add Coupons", *this, state_, saved_coupons);
+	if (!addcoupons.show(error)) {
 		message("Error: " + error);
+		return false;
+	}
+
+	try
+	{
+		auto coupons_table =
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
+
+		auto table_size = coupons_table.data().size();
+
+		if (!saved_coupons.empty()) {
+			for (int i = 1;  const auto & row : saved_coupons) {
+				widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
+					.data().push_back(
+						{
+							{ "#", std::to_string(table_size + i)},
+							{ "Date", row.at("Date")},
+							{ "Volume", row.at("Volume")},
+							{ "Serial Number", row.at("Serial Number")},
+							{ "Fuel", row.at("Fuel")},
+						}
+				);
+			}
+		}
+
+		update();
+	}
+	catch (const std::exception& ex)
+	{
+		error = std::string(ex.what());
 		return false;
 	}
 
@@ -782,7 +824,7 @@ bool dashboard::on_edit_coupons()
 	std::map<std::string, std::string> edited_coupon_data;
 	{
 		auto serial_number =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").selected(); /// Added here.
 
 		std::string serial_number_;
 		std::vector<database::row> table;

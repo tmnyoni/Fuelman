@@ -65,7 +65,7 @@
     <ClInclude Include="edit_coupon.h">
       <Filter>Source Files\gui\forms</Filter>
     </ClInclude>
-    <ClInclude Include="new_voucher.h">
+    <ClInclude Include="addcoupons.h">
       <Filter>Source Files\gui\forms</Filter>
     </ClInclude>
   </ItemGroup>

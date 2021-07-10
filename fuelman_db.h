@@ -18,7 +18,7 @@ public:
 			return false;
 
 		if (!con.execute("CREATE TABLE IF NOT EXISTS Coupons"
-			"( Date TEXT, FuelType TEXT, SerialNumber TEXT, QuantityIssued TEXT, IssuedTo TEXT, ReceivedBy TEXT, Comments TEXT)",
+			"( Date TEXT, Fuel TEXT, 'Serial Number' TEXT, Volume TEXT, 'Issued By' TEXT);",
 			{}, error)
 			)
 			return false;
@@ -55,6 +55,26 @@ public:
 			return false;
 		return true;
 	}
+
+	bool on_save_coupons(const std::vector<database::row>& table, std::string& error) {
+
+		using db_get = database::get;
+		for (auto& row : table) {
+			if (!con.execute("INSERT INTO Coupons VALUES(?, ?, ?, ?, ?);",
+				{
+					db_get::text(row.at("Date")).c_str(),
+					db_get::text(row.at("Fuel")).c_str(),
+					db_get::text(row.at("Serial Number")).c_str(),
+					db_get::text(row.at("Volume")).c_str(),
+					db_get::text(row.at("Issued By")).c_str(),
+				},
+				error))
+				return false;
+		}
+
+		return true;
+	}
+
 
 	bool on_get_coupons(std::vector<database::row>& table, std::string& error) {
 
