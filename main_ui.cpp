@@ -69,7 +69,7 @@ bool dashboard::on_layout(std::string& error) {
 		.text("New voucher")
 		.rect().size({ 80, 20 })
 		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
-	add_coupons().events().click = [&]() { on_get_voucher (); };
+	add_coupons().events().click = [&]() { on_get_voucher(); };
 
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
 	{
@@ -77,29 +77,13 @@ bool dashboard::on_layout(std::string& error) {
 		{
 			{ "#", 50},
 			{ "Date", 100},
-			{ "Issued to", 100},
-			{ "Serial Number", 100}
+			{ "IssuedTo", 100},
+			{ "SerialNumber", 100}
 		};
 
-		std::vector<std::map<std::string, std::string>> table_data;
-		{
-			table_ coupons_data;
-			if (!state_.get_db().on_get_coupons(coupons_data, error))
-				message("Error: " + error);
-
-			for (int i = 0;  auto & row : coupons_data) {
-				std::map<std::string, std::string> table_row;
-
-				table_row.insert(std::make_pair("#", std::to_string(i++)));
-				table_row.insert(std::make_pair("Date", std::any_cast<std::string>(row.at("Date"))));
-				table_row.insert(std::make_pair("Issued to", std::any_cast<std::string>(row.at("Issuedto"))));
-				table_row.insert(std::make_pair("Serial Number", std::any_cast<std::string>(row.at("SerialNo"))));
-
-				table_data.push_back(table_row);
-			}
-
-		}
-
+		std::vector<database::row> coupons_data;
+		if (!state_.get_db().on_get_coupons(coupons_data, error))
+			message("Error: " + error);
 
 		coupons_table()
 			.border(1)
@@ -108,7 +92,7 @@ bool dashboard::on_layout(std::string& error) {
 			.color_fill(rgba(255, 255, 255, 0))
 			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(coupons_table_cols)
-			.data(table_data)
+			.data(coupons_data)
 			.rect().set(
 				margin_,
 				margin_ * 3,
@@ -116,8 +100,7 @@ bool dashboard::on_layout(std::string& error) {
 				tabs().rect().height() - (margin_ * 9)
 			);
 		coupons_table().events().selection = [&]
-		(const std::vector<std::map<std::string, std::string>>& rows)
-		{
+		(const std::vector<table_row>& rows) {
 			on_select_coupon(rows);
 		};
 	}
@@ -696,21 +679,39 @@ bool dashboard::on_layout(std::string& error) {
 //}
 
 bool dashboard::on_select_coupon(
-	const std::vector<std::map<std::string, std::string>>& rows)
+	const std::vector<table_row>& rows)
 {
 	try
 	{
+		std::string error;
+		auto serial_number = rows[0].at("SerialNumber");
+		std::vector<database::row>  data_to_display;
+
+		if (!state_.get_db().on_get_coupon(database::get::text(serial_number), data_to_display, error)) {
+			message("Error: " + error);	//todo: remove this line.
+			return false;
+		}
+
 		auto coupons_details_pane_alias = main_page_name_ + "/main_tab/coupons/coupon_details_pane/";
 
-		for (auto row : rows) {
+		for (auto row : data_to_display) {
 			widgets::label_builder::specs(*this, coupons_details_pane_alias + "date_details")
-				.text(row.at("Date"));
-
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedto_details")
-				.text(row.at("Issued to"));
+				.text(database::get::text(row.at("Date")));
 
 			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_serialno_details")
-				.text(row.at("Serial Number"));
+				.text(database::get::text(row.at("SerialNumber")));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedto_details")
+				.text(database::get::text(row.at("IssuedTo")));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "quantity_issued_details")
+				.text(database::get::text(row.at("QuantityIssued")));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_recvby_details")
+				.text(database::get::text(row.at("ReceivedBy")));
+
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "comments_details")
+				.text(database::get::text(row.at("Comments")));
 
 			return true;
 		}
@@ -726,7 +727,8 @@ bool dashboard::on_select_coupon(
 bool dashboard::on_dispatch_coupon()
 {
 	std::string error;
-	dispatch_form dispatch_fm("Dispatch Coupon", *this, state_);
+	std::map<std::string, std::string> saved_coupon_to_display;
+	dispatch_form dispatch_fm("Dispatch Coupon", *this, state_, saved_coupon_to_display);
 	if (!dispatch_fm.show(error)) {
 		message("Error: " + error);
 		return false;
@@ -737,9 +739,21 @@ bool dashboard::on_dispatch_coupon()
 		auto coupons_table =
 			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
 
-		auto table_size = std::to_string(coupons_table.data().size());
-		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
-			.data().push_back({ { "#", "7"}, {"Date", "10-June-20"}, {"Issued to", "new"}, {"Serial Number", "added-for-testing"}});
+		auto table_size = coupons_table.data().size();
+
+		if (!saved_coupon_to_display.empty()) {
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
+				.data().push_back(
+					{
+						{ "#", std::to_string(table_size + 1)},
+						{ "Date",saved_coupon_to_display.at("Date")},
+						{ "IssuedTo", saved_coupon_to_display.at("IssuedTo")},
+						{ "SerialNumber", saved_coupon_to_display.at("SerialNumber")}
+					}
+			);
+		}
+
+		update();
 	}
 	catch (const std::exception& ex)
 	{
@@ -765,8 +779,35 @@ bool dashboard::on_get_voucher()
 bool dashboard::on_edit_coupons()
 {
 	std::string error;
+	std::map<std::string, std::string> edited_coupon_data;
+	{
+		auto serial_number =
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
 
-	edit_coupon_form edit_form("Edit Coupon", *this);
+		std::string serial_number_;
+		std::vector<database::row> table;
+		if (!state_.get_db().on_get_coupon(serial_number_, table, error)) {
+			message("Error: " + error);	//todo: remove this line.
+			return false;
+		}
+
+		for (int i = 1; auto & row : table) {
+			std::map<std::string, std::string> table_row;
+
+			table_row.insert(std::make_pair("Date", database::get::text(row.at("Date"))));
+			table_row.insert(std::make_pair("IssuedTo", database::get::text(row.at("IssuedTo"))));
+			table_row.insert(std::make_pair("SerialNumber", database::get::text(row.at("SerialNumber"))));
+			table_row.insert(std::make_pair("QuantityIssued", database::get::text(row.at("QuantityIssued"))));
+			table_row.insert(std::make_pair("ReceivedBy", database::get::text(row.at("ReceivedBy"))));
+
+			edited_coupon_data = table_row;
+		}
+	}
+
+	if (edited_coupon_data.empty())
+		return false;
+
+	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon_data);
 	if (!edit_form.show(error)) {
 		message("Error: " + error);
 		return false;

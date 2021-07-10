@@ -4,7 +4,7 @@
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 
-#include "app_state.h"
+#include "appstate/app_state.h"
 
 using namespace liblec::lecui;
 
@@ -16,8 +16,8 @@ class dashboard : public form {
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
-	page_management page_man_{ *this };
-	widget_management widget_man_{ *this };
+	page_manager page_man_{ *this };
+	widget_manager widget_man_{ *this };
 
 	const color caption_color_ = rgba(135, 133, 133, 255);
 	const color transparent = rgba(255, 255, 255, 0);
@@ -29,7 +29,7 @@ class dashboard : public form {
 	bool coupon_handler();
 	bool report_handler();
 
-	bool on_select_coupon(const std::vector<std::map<std::string, std::string>>& rows);
+	bool on_select_coupon(const std::vector<table_row>& rows);
 	bool on_dispatch_coupon();
 	bool on_get_voucher();
 	bool on_edit_coupons();

@@ -7,9 +7,9 @@
 #include <liblec/leccore/database.h>
 
 using namespace liblec::leccore;
-using table_ = std::vector<std::map<std::string, std::any>>;
+using row = std::map<std::string, std::string>;
 
-class fuelman_db{
+class fuelman_db {
 	database::connection con{ "sqlcipher", "fuelman.db", "pass@123" };
 
 public:
@@ -18,19 +18,19 @@ public:
 			return false;
 
 		if (!con.execute("CREATE TABLE IF NOT EXISTS Coupons"
-			"( Date TEXT, SerialNo TEXT, Quantity TEXT, Issuedto TEXT, Recvby TEXT, Comments TEXT)",
+			"( Date TEXT, FuelType TEXT, SerialNumber TEXT, QuantityIssued TEXT, IssuedTo TEXT, ReceivedBy TEXT, Comments TEXT)",
 			{}, error)
 			)
 			return false;
 
 		if (!con.execute("CREATE TABLE IF NOT EXISTS Users"
-			"( Username TEXT, Password TEXT, Usertype TEXT, Firstname TEXT, Lastname TEXT, IDNo TEXT)",
+			"( Username TEXT, Password TEXT, UserType TEXT, FirstName TEXT, LastName TEXT, IDNo TEXT)",
 			{}, error)
 			)
 			return false;
 
 		if (!con.execute("CREATE TABLE IF NOT EXISTS Vouchers"
-			"( VoucherNo TEXT, FuelVolume TEXT, RecvDate TEXT, RecvFrom TEXT)",
+			"( VoucherNumber TEXT, FuelVolume TEXT, ReceivedDate TEXT, ReceivedFrom TEXT)",
 			{}, error)
 			)
 			return false;
@@ -38,40 +38,42 @@ public:
 		return true;
 	}
 
-	bool on_dispatch_coupons(const table_& table, std::string& error){
-		
-		for (const auto& row : table)
-			if (!con.execute("INSERT INTO Coupons VALUES(?, ?, ?, ?, ?, ?);",
-				{ row.at("date"), row.at("serialno"), row.at("quantity"), row.at("issuedto"), row.at("recvby"), row.at("comments") },
-				error))
-				return false;
+	bool on_dispatch_coupons(row& table, std::string& error) {
 
+		if (!con.execute("INSERT INTO Coupons VALUES(?, ?, ?, ?, ?, ?, ?);",
+			//"'" + table.at("date") + "','" + table.at("serialno") + "', '" + table.at("quantity") + "','" + table.at("issuedto") + "', '" + table.at("recvby") + "', '" + table.at("comments") + "');",
+			{
+				table.at("Date").c_str(),
+				table.at("FuelType").c_str(),
+				table.at("SerialNumber").c_str(),
+				table.at("QuantityIssued").c_str(),
+				table.at("IssuedTo").c_str(),
+				table.at("ReceivedBy").c_str(),
+				table.at("Comments").c_str()
+			},
+			error))
+			return false;
 		return true;
 	}
-	
-	bool on_get_coupons(table_& table, std::string& error){
-		
+
+	bool on_get_coupons(std::vector<database::row>& table, std::string& error) {
+
 		database::table results_table;
 		if (!con.execute_query("SELECT * FROM Coupons;", results_table, error))
 			return false;
 
 		table = results_table.data;
-
 		return true;
 	}
 
-	table_ coupons_data = {
-		{ {"Id", "1"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"Id", "2"}, {"Date", "11-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"Id", "3"}, {"Date", "12-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"Id", "4"}, {"Date", "13-June-20"}, {"Issued to", "ICT"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"Id", "5"}, {"Date", "14-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-		{ {"Id", "6"}, {"Date", "15-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
-	};
+	bool on_get_coupon(const std::string& serial_number, std::vector<database::row>& table_, std::string& error) {
 
-public:
-	bool get_coupons(table_& coupons, std::string& error){
-		coupons = coupons_data;
+		database::table results_table;
+		if (!con.execute_query("SELECT * FROM Coupons WHERE SerialNumber = '" + serial_number + "';", results_table, error))
+			return false;
+
+		table_ = results_table.data;
 		return true;
 	}
+
 };

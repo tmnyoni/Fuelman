@@ -26,8 +26,8 @@ class voucher_form : public form {
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
-	page_management page_man{ *this };
-	widget_management widget_man{ *this };
+	page_manager page_man{ *this };
+	widget_manager widget_man{ *this };
 
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
@@ -125,7 +125,7 @@ class voucher_form : public form {
 			.rect().size({ page.size().width - margin_, 200})
 			.set(margin_, add_to_table().rect().get_bottom() +2.f, page.size().width - (margin_ * 2),200);
 		vouchers_table().events().selection = [&]
-			(const std::vector<std::map<std::string, std::string>>& rows){};
+			(const std::vector<table_row>& rows){};
 
 		widgets::button_builder voucher_button(page, "voucher_button");
 		voucher_button()

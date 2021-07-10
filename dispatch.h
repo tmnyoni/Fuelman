@@ -17,7 +17,7 @@
 #include <liblec/lecui/utilities/date_time.h>
 
 #include "main_ui.h"
-#include "app_state.h"
+#include "appstate/app_state.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
@@ -28,10 +28,11 @@ class dispatch_form : public form {
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
-	page_management page_man{ *this };
-	widget_management widget_man{ *this };
+	page_manager page_man{ *this };
+	widget_manager widget_man{ *this };
 
 	state& state_;
+	std::map<std::string, std::string>& saved_coupon_to_display_;
 
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
@@ -134,6 +135,7 @@ class dispatch_form : public form {
 
 	bool on_dispatch(std::string& error){
 		try {
+			auto fueltype = widgets::combobox_builder::specs(*this, "dispatch_page/fueltype_cbo").text();
 			auto serial_number = widgets::text_field_builder::specs(*this, "dispatch_page/serialno_text").text();
 			auto quantity = widgets::text_field_builder::specs(*this, "dispatch_page/quantity_text").text();
 			auto issued_to = widgets::text_field_builder::specs(*this, "dispatch_page/issuedto_text").text();
@@ -141,33 +143,38 @@ class dispatch_form : public form {
 			auto comments = widgets::text_field_builder::specs(*this, "dispatch_page/comments_text").text();
 
 			if (serial_number.empty() ||
+				fueltype.empty() ||
 				quantity.empty() ||
 				issued_to.empty() ||
-				received_by.empty()
-				) {
+				received_by.empty()) {
+
 				error = "fill in all important fields.";
 				return false;
 			}
 
-			auto date_of_dispatch = date_time::to_string(date_time::today());
+			{
+				auto date_of_dispatch = date_time::to_string(date_time::today());
 
-			table_ table;
-			table.push_back(
-				{
-					{ "date", date_of_dispatch },
-					{ "serialno", serial_number },
-					{ "quantity", quantity },
-					{ "issuedto", issued_to },
-					{ "recvby", received_by },
-					{ "comments", comments },
-				}
-			);
+				row row_;
+				row_.insert(
+					{
+						{ "Date", date_of_dispatch },
+						{ "FuelType", fueltype },
+						{ "SerialNumber", serial_number },
+						{ "QuantityIssued", quantity },
+						{ "IssuedTo", issued_to },
+						{ "ReceivedBy", received_by },
+						{ "Comments", comments },
+					}
+				);
 
-			if (!state_.get_db().on_dispatch_coupons(table, error)) {
-				message("Error: " + error);
-				return false;
+				if (!state_.get_db().on_dispatch_coupons(row_, error)) {
+					message("Error: " + error);
+					return false;
+				} 
+
+				saved_coupon_to_display_ = row_;
 			}
-
 		}
 		catch (std::exception& ex){
 			error = std::string(ex.what());
@@ -177,7 +184,7 @@ class dispatch_form : public form {
 		return true;
 	}
 public:
-	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& app_state_) :
-		form(caption, parent_form), state_(app_state_) {}
+	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& app_state_, std::map<std::string, std::string>& saved_coupon_to_display) :
+		form(caption, parent_form), state_(app_state_), saved_coupon_to_display_(saved_coupon_to_display){}
 };
 

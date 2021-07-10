@@ -24,11 +24,14 @@ using snap_type = rect::snap_type;
 class edit_coupon_form : public form {
 	const float margin_ = 10.f;
 
+	state& state_;
+	std::map<std::string, std::string>& edited_coupon_data_;
+	
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
-	page_management page_man{ *this };
-	widget_management widget_man{ *this };
+	page_manager page_man{ *this };
+	widget_manager widget_man{ *this };
 
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
@@ -160,8 +163,8 @@ class edit_coupon_form : public form {
 		return true;
 	}
 public:
-	edit_coupon_form(const std::string& caption, liblec::lecui::form& parent_form) :
-		form(caption, parent_form) {}
+	edit_coupon_form(const std::string& caption, liblec::lecui::form& parent_form, state& state_, std::map<std::string, std::string>& edited_coupon_data) :
+		form(caption, parent_form), state_(state_), edited_coupon_data_(edited_coupon_data) {}
 
 };
 
