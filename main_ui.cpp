@@ -48,7 +48,9 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 100, 20 })
 		.set(margin_, margin_, 100, 20);
 
-	// Coupons.
+	////////////////////////////////////////////////////////
+											// Coupons tab.
+
 	containers::tab_builder coupons_tab(tabs, "coupons");
 	widgets::button_builder dispatch_coupons_button(coupons_tab.get());
 	dispatch_coupons_button()
@@ -77,6 +79,7 @@ bool dashboard::on_layout(std::string& error) {
 		}
 	};
 
+	std::vector<database::row> coupons_data;
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
 	{
 		std::vector<table_column> coupons_table_cols =
@@ -88,7 +91,6 @@ bool dashboard::on_layout(std::string& error) {
 			{ "Date", 90 },
 		};
 
-		std::vector<database::row> coupons_data;
 		if (!state_.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
 
@@ -116,6 +118,9 @@ bool dashboard::on_layout(std::string& error) {
 		};
 	}
 
+	/////////////////////////////////////////////////
+											// Coupons details pane.
+
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
 	coupon_details_pane()
 		.border(1)
@@ -130,7 +135,9 @@ bool dashboard::on_layout(std::string& error) {
 			tabs().rect().height() - (margin_ * 9)
 		);
 
-	// Coupons tab widgets.
+	
+	auto coupon = coupons_data[0]; //data to display.
+	using get = database::get;
 	widgets::label_builder date_label(coupon_details_pane.get());
 	date_label()
 		.text("Date")
@@ -162,70 +169,55 @@ bool dashboard::on_layout(std::string& error) {
 
 	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
 	coupon_serialno_details()
-		.text("403859177-4038591780")
+		.text(get::text(coupon.at("Serial Number")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder quantity_issued_caption(coupon_details_pane.get());
 	quantity_issued_caption()
-		.text("Quantity issued")
+		.text("Volume")
 		.color_text(caption_color_)
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_details().rect(), snap_type::bottom, margin_);
 
-	widgets::label_builder quantity_issued_details(coupon_details_pane.get(), "quantity_issued_details");
+	widgets::label_builder quantity_issued_details(coupon_details_pane.get(), "volume_details");
 	quantity_issued_details()
-		.text(std::to_string(80) + " Litres")
+		.text(get::text(coupon.at("Volume")) + " Litres")
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(quantity_issued_caption().rect(), snap_type::bottom, 2.f);
 
-	widgets::label_builder issuedto_caption(coupon_details_pane.get());
-	issuedto_caption()
-		.text("Issued to")
+	widgets::label_builder fuel_caption(coupon_details_pane.get());
+	fuel_caption()
+		.text("Fuel")
 		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200, 20 })
+		.color_fill().green();
+	fuel_caption().rect().size({ 200, 20 })
 		.snap_to(quantity_issued_details().rect(), snap_type::bottom, margin_);
 
-	widgets::label_builder issuedto_details(coupon_details_pane.get(), "issuedto_details");
-	issuedto_details()
-		.text("Transport")
+	widgets::label_builder fuel_details(coupon_details_pane.get(), "fuel_details");
+	fuel_details()
+		.text(get::text(coupon.at("Fuel")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
-		.snap_to(issuedto_caption().rect(), snap_type::bottom, 2.f);
+		.snap_to(fuel_caption().rect(), snap_type::bottom, 2.f);
 
-	widgets::label_builder coupon_recvby_caption(coupon_details_pane.get());
-	coupon_recvby_caption()
-		.text("Coupon received by")
+	widgets::label_builder issuedby_caption(coupon_details_pane.get());
+	issuedby_caption()
+		.text("Issued by")
 		.color_text(caption_color_)
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
-		.snap_to(issuedto_details().rect(), snap_type::bottom, margin_);
+		.snap_to(fuel_details().rect(), snap_type::bottom, margin_);
 
-	widgets::label_builder coupon_recvby_details(coupon_details_pane.get(), "coupon_recvby_details");
-	coupon_recvby_details()
-		.text("Tawanda M. Nyoni")
+	widgets::label_builder issuedby_details(coupon_details_pane.get(), "issuedby_details");
+	issuedby_details()
+		.text(get::text(coupon.at("Issued By")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
-		.snap_to(coupon_recvby_caption().rect(), snap_type::bottom, 2.f);
-
-	widgets::label_builder comments_caption(coupon_details_pane.get());
-	comments_caption()
-		.text("Comments")
-		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200, 20 })
-		.snap_to(coupon_recvby_details().rect(), snap_type::bottom, margin_);
-
-	widgets::label_builder comments_details(coupon_details_pane.get(), "comments_details");
-	comments_details()
-		.text("It was an emergency")
-		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200, 20 })
-		.snap_to(comments_caption().rect(), snap_type::bottom, 2.f);
+		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::button_builder edit_coupons_button(coupon_details_pane.get());
 	edit_coupons_button()
@@ -235,8 +227,8 @@ bool dashboard::on_layout(std::string& error) {
 			{
 				margin_,
 				100 + margin_,
-				comments_details().rect().get_bottom() + margin_,
-				comments_details().rect().get_bottom() + margin_ * 2
+				issuedby_details().rect().get_bottom() + margin_,
+				issuedby_details().rect().get_bottom() + margin_ * 2
 			}, 0.f, 0.f
 		);
 	edit_coupons_button().events().click = [&]() {
@@ -695,7 +687,7 @@ bool dashboard::on_select_coupon(
 	try
 	{
 		std::string error;
-		auto serial_number = rows[0].at("SerialNumber");
+		auto serial_number = rows[0].at("Serial Number");
 		std::vector<database::row>  data_to_display;
 
 		if (!state_.get_db().on_get_coupon(database::get::text(serial_number), data_to_display, error)) {
@@ -710,19 +702,16 @@ bool dashboard::on_select_coupon(
 				.text(database::get::text(row.at("Date")));
 
 			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_serialno_details")
-				.text(database::get::text(row.at("SerialNumber")));
+				.text(database::get::text(row.at("Serial Number")));
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedto_details")
-				.text(database::get::text(row.at("IssuedTo")));
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "volume_details")
+				.text(database::get::text(row.at("Volume")) + " Litres");
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "quantity_issued_details")
-				.text(database::get::text(row.at("QuantityIssued")));
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "fuel_details")
+				.text(database::get::text(row.at("Fuel")));
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_recvby_details")
-				.text(database::get::text(row.at("ReceivedBy")));
-
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "comments_details")
-				.text(database::get::text(row.at("Comments")));
+			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedby_details")
+				.text(database::get::text(row.at("Issued By")));
 
 			return true;
 		}
@@ -793,11 +782,11 @@ bool dashboard::on_add_coupons(std::string& error) {
 		auto table_size = coupons_table.data().size();
 
 		if (!saved_coupons.empty()) {
-			for (int i = 1;  const auto & row : saved_coupons) {
+			for (int i = 1; const auto & row : saved_coupons) {
 				widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
 					.data().push_back(
 						{
-							{ "#", std::to_string(table_size + i)},
+							{ "#", std::to_string(table_size + i++)},
 							{ "Date", row.at("Date")},
 							{ "Volume", row.at("Volume")},
 							{ "Serial Number", row.at("Serial Number")},
@@ -821,35 +810,29 @@ bool dashboard::on_add_coupons(std::string& error) {
 bool dashboard::on_edit_coupons()
 {
 	std::string error;
-	std::map<std::string, std::string> edited_coupon_data;
+	std::map<std::string, std::any> edited_coupon;
 	{
-		auto serial_number =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").selected(); /// Added here.
+		auto table_view =
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
 
-		std::string serial_number_;
-		std::vector<database::row> table;
-		if (!state_.get_db().on_get_coupon(serial_number_, table, error)) {
+		auto selected_ = table_view.selected();
+		auto first_row = table_view.data()[selected_[0]];
+
+		std::any serial_number_ = first_row.at("Serial Number");
+		std::vector<database::row> selected_coupons;
+		if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
 			message("Error: " + error);	//todo: remove this line.
 			return false;
 		}
 
-		for (int i = 1; auto & row : table) {
-			std::map<std::string, std::string> table_row;
-
-			table_row.insert(std::make_pair("Date", database::get::text(row.at("Date"))));
-			table_row.insert(std::make_pair("IssuedTo", database::get::text(row.at("IssuedTo"))));
-			table_row.insert(std::make_pair("SerialNumber", database::get::text(row.at("SerialNumber"))));
-			table_row.insert(std::make_pair("QuantityIssued", database::get::text(row.at("QuantityIssued"))));
-			table_row.insert(std::make_pair("ReceivedBy", database::get::text(row.at("ReceivedBy"))));
-
-			edited_coupon_data = table_row;
-		}
+		edited_coupon = selected_coupons[0];
+		
 	}
 
-	if (edited_coupon_data.empty())
+	if (edited_coupon.empty())
 		return false;
 
-	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon_data);
+	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon);
 	if (!edit_form.show(error)) {
 		message("Error: " + error);
 		return false;
