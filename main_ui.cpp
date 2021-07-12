@@ -48,13 +48,14 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 100, 20 })
 		.set(margin_, margin_, 100, 20);
 
-	////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////
 											// Coupons tab.
 
 	containers::tab_builder coupons_tab(tabs, "coupons");
-	widgets::button_builder dispatch_coupons_button(coupons_tab.get());
-	dispatch_coupons_button()
-		.text("Dispatch")
+
+	widgets::button_builder add_coupons(coupons_tab.get());
+	add_coupons()
+		.text("New Coupons")
 		.rect().size({ 89, 20 })
 		.place(
 			{
@@ -64,20 +65,7 @@ bool dashboard::on_layout(std::string& error) {
 				margin_ * 2
 			}, 0.f, 0.f
 		);
-	dispatch_coupons_button().events().click = [&]() { on_dispatch_coupon();  };
-
-	widgets::button_builder add_coupons(coupons_tab.get());
-	add_coupons()
-		.text("New Coupons")
-		.rect().size({ 80, 20 })
-		.snap_to(dispatch_coupons_button().rect(), snap_type::right, margin_);
-	add_coupons().events().click = [&]() {
-		std::string error;
-		if (!on_add_coupons(error)) {
-			message("Error: " + error);
-			return;
-		}
-	};
+	add_coupons().events().click = [&]() { on_add_coupons(error);  };
 
 	std::vector<database::row> coupons_data;
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
@@ -118,7 +106,7 @@ bool dashboard::on_layout(std::string& error) {
 		};
 	}
 
-	/////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////
 											// Coupons details pane.
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
@@ -135,8 +123,20 @@ bool dashboard::on_layout(std::string& error) {
 			tabs().rect().height() - (margin_ * 9)
 		);
 
-	
+	if (coupons_data.empty()) {
+		std::map<std::string, std::any> row =
+		{
+			{ "Date", "---"},
+			{ "Serial Number", "---"},
+			{ "Volume", "---"},
+			{ "Fuel", "---"},
+			{ "Issued By", "---"},
+		};
+		coupons_data.push_back(row);
+	}
+
 	auto coupon = coupons_data[0]; //data to display.
+
 	using get = database::get;
 	widgets::label_builder date_label(coupon_details_pane.get());
 	date_label()
@@ -152,9 +152,10 @@ bool dashboard::on_layout(std::string& error) {
 				20
 			}, 0.f, 0.f);
 
+
 	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
 	date_details()
-		.text("28-June-2021")
+		.text(get::text(coupon.at("Date")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(date_label().rect(), snap_type::bottom, 2.f);
@@ -219,10 +220,10 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 200, 20 })
 		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
 
-	widgets::button_builder edit_coupons_button(coupon_details_pane.get());
-	edit_coupons_button()
-		.text("Edit")
-		.rect().size({ 50, 20 })
+	widgets::button_builder dispatch_coupon(coupon_details_pane.get());
+	dispatch_coupon()
+		.text("Dispatch")
+		.rect().size({ 80, 20 })
 		.place(
 			{
 				margin_,
@@ -231,16 +232,29 @@ bool dashboard::on_layout(std::string& error) {
 				issuedby_details().rect().get_bottom() + margin_ * 2
 			}, 0.f, 0.f
 		);
-	edit_coupons_button().events().click = [&]() {
-		on_edit_coupons();
+	dispatch_coupon().events().click = [&]() {
+		on_dispatch_coupon();
+	};
+
+	widgets::button_builder btn_return_coupoon(coupon_details_pane.get());
+	btn_return_coupoon()
+		.text("Return")
+		.color_fill(rgba(124, 78, 229, 255))
+		.color_border(rgba(124, 78, 229, 255))
+		.rect().size({ 80, 20 })
+		.snap_to(dispatch_coupon().rect(), snap_type::right, margin_);
+	btn_return_coupoon().events().click = [&]() {
+		if (prompt("Are you sure you, return?")) {
+			return;
+		}
 	};
 
 	widgets::button_builder delete_coupons_button(coupon_details_pane.get());
 	delete_coupons_button()
 		.text("Delete")
 		.color_fill(rgba(122, 16, 27, 100))
-		.rect().size({ 50, 20 })
-		.snap_to(edit_coupons_button().rect(), snap_type::right, margin_);
+		.rect().size({ 80, 20 })
+		.snap_to(btn_return_coupoon().rect(), snap_type::right, margin_);
 	delete_coupons_button().events().click = [&]() {
 		if (prompt("Are you sure you, delete?")) {
 			return;
@@ -724,45 +738,98 @@ bool dashboard::on_select_coupon(
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///								This function needs a lot of cleaning.
 bool dashboard::on_dispatch_coupon()
 {
 	std::string error;
-	std::map<std::string, std::string> saved_coupon_to_display;
-	dispatch_form dispatch_fm("Dispatch Coupon", *this, state_, saved_coupon_to_display);
-	if (!dispatch_fm.show(error)) {
+	std::map<std::string, std::any> edited_coupon;
+	auto table_view =
+		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
+
+	auto selected_ = table_view.selected();
+
+	if (selected_.empty()) {
+		message("Error: No coupon selected!");
+		return false;
+	}
+
+	auto first_row = table_view.data()[selected_[0]];
+
+	std::any serial_number_ = first_row.at("Serial Number");
+	std::vector<database::row> selected_coupons;
+	if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
+		message("Error: " + error);	//todo: remove this line.
+		return false;
+	}
+
+	edited_coupon = selected_coupons[0];
+
+
+	if (edited_coupon.empty())
+		return false;
+
+	dispatch_form dispatch_form_("Dispatch Coupon", *this, state_, edited_coupon);
+	if (!dispatch_form_.show(error)) {
 		message("Error: " + error);
 		return false;
 	}
 
-	try
-	{
-		auto coupons_table =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
+	auto& old_coupons = 
+		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").data();
 
-		auto table_size = coupons_table.data().size();
+	std::vector<table_row> new_coupons;
+	new_coupons.reserve(old_coupons.size() - 1);
 
-
-		if (!saved_coupon_to_display.empty()) {
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
-				.data().push_back(
-					{
-						{ "#", std::to_string(table_size + 1)},
-						{ "Date",saved_coupon_to_display.at("Date")},
-						{ "IssuedTo", saved_coupon_to_display.at("IssuedTo")},
-						{ "SerialNumber", saved_coupon_to_display.at("SerialNumber")}
-					}
-			);
+	for (const auto& row : old_coupons){
+		if (get::text(row.at("Serial Number")) != get::text(serial_number_)) {
+			new_coupons.push_back(row);
 		}
+	}
 
-		update();
-	}
-	catch (const std::exception& ex)
-	{
-		message("Error: " + std::string(ex.what()));
-		return false;
-	}
+	old_coupons = new_coupons;
+
+	update();
 
 	return true;
+
+	//std::string error;
+	//std::map<std::string, std::string> saved_coupon_to_display;
+	//dispatch_form dispatch_fm("Dispatch Coupon", *this, state_, saved_coupon_to_display);
+	//if (!dispatch_fm.show(error)) {
+	//	message("Error: " + error);
+	//	return false;
+	//}
+
+	//try
+	//{
+	//	auto coupons_table =
+	//		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
+
+	//	auto table_size = coupons_table.data().size();
+
+
+	//	if (!saved_coupon_to_display.empty()) {
+	//		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
+	//			.data().push_back(
+	//				{
+	//					{ "#", std::to_string(table_size + 1)},
+	//					{ "Date",saved_coupon_to_display.at("Date")},
+	//					{ "IssuedTo", saved_coupon_to_display.at("IssuedTo")},
+	//					{ "SerialNumber", saved_coupon_to_display.at("SerialNumber")}
+	//				}
+	//		);
+	//	}
+
+	//	update();
+	//}
+	//catch (const std::exception& ex)
+	//{
+	//	message("Error: " + std::string(ex.what()));
+	//	return false;
+	//}
+
+	//return true;
 }
 
 bool dashboard::on_add_coupons(std::string& error) {
@@ -807,39 +874,43 @@ bool dashboard::on_add_coupons(std::string& error) {
 	return true;
 }
 
-bool dashboard::on_edit_coupons()
-{
-	std::string error;
-	std::map<std::string, std::any> edited_coupon;
-	{
-		auto table_view =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
-
-		auto selected_ = table_view.selected();
-		auto first_row = table_view.data()[selected_[0]];
-
-		std::any serial_number_ = first_row.at("Serial Number");
-		std::vector<database::row> selected_coupons;
-		if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
-			message("Error: " + error);	//todo: remove this line.
-			return false;
-		}
-
-		edited_coupon = selected_coupons[0];
-		
-	}
-
-	if (edited_coupon.empty())
-		return false;
-
-	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon);
-	if (!edit_form.show(error)) {
-		message("Error: " + error);
-		return false;
-	}
-
-	return true;
-}
+//bool dashboard::on_edit_coupons()
+//{
+//	std::string error;
+//	std::map<std::string, std::any> edited_coupon;
+//	{
+//		auto table_view =
+//			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
+//
+//		auto selected_ = table_view.selected();
+//
+//		if (selected_.empty())
+//			return false;
+//
+//		auto first_row = table_view.data()[selected_[0]];
+//
+//		std::any serial_number_ = first_row.at("Serial Number");
+//		std::vector<database::row> selected_coupons;
+//		if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
+//			message("Error: " + error);	//todo: remove this line.
+//			return false;
+//		}
+//
+//		edited_coupon = selected_coupons[0];
+//		
+//	}
+//
+//	if (edited_coupon.empty())
+//		return false;
+//
+//	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon);
+//	if (!edit_form.show(error)) {
+//		message("Error: " + error);
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 color dashboard::rgba(const unsigned short& r,
 	const unsigned short& g,

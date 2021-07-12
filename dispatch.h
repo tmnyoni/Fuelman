@@ -17,22 +17,22 @@
 #include <liblec/lecui/utilities/date_time.h>
 
 #include "main_ui.h"
-#include "appstate/app_state.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
 
 class dispatch_form : public form {
 	const float margin_ = 10.f;
+	const std::string page_name_ = "dispatch_page";
+
+	state& state_;
+	std::map<std::string, std::any>& edited_coupon_;
 
 	appearance appearance_{ *this };
 	controls controls_{ *this };
 	dimensions dims_{ *this };
 	page_manager page_man{ *this };
 	widget_manager widget_man{ *this };
-
-	state& state_;
-	std::map<std::string, std::string>& saved_coupon_to_display_;
 
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
@@ -43,7 +43,8 @@ class dispatch_form : public form {
 	}
 
 	bool on_layout(std::string& error) override {
-		auto& page = page_man.add("dispatch_page");
+		auto& page = page_man.add(page_name_);
+		using get_ = database::get;
 
 		widgets::label_builder fueltype_caption(page);
 		fueltype_caption()
@@ -52,19 +53,20 @@ class dispatch_form : public form {
 				{
 					margin_,
 					page.size().width - margin_,
-					margin_, margin_ + (dims_.get_size().height / 2.f) 
-				},  50.f, 0.f
+					margin_, margin_ + (dims_.get_size().height / 2.f)
+				}, 50.f, 0.f
 			);
 
 		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
 		{
 			std::vector<widgets::combobox_specs::combobox_item> fueltypes =
 			{
-				{  "Petrol " }, {"Diesel"}
+				{  "Petrol" }, {"Diesel"}
 			};
 
 			fueltype_cbo()
 				.items(fueltypes)
+				.selected("Petrol")
 				.color_fill({ 255,255,255,0 })
 				.rect().size(200, 25)
 				.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
@@ -78,8 +80,9 @@ class dispatch_form : public form {
 
 		widgets::text_field_builder serialno_text(page, "serialno_text");
 		serialno_text()
+			.text(get_::text(edited_coupon_.at("Serial Number")))
 			.rect().snap_to(serialno_caption().rect(), snap_type::bottom, 0);
-		
+
 		widgets::label_builder quantity_caption(page);
 		quantity_caption()
 			.text("Quantity")
@@ -87,6 +90,7 @@ class dispatch_form : public form {
 
 		widgets::text_field_builder quantity_text(page, "quantity_text");
 		quantity_text()
+			.text(get_::text(edited_coupon_.at("Volume")))
 			.rect().snap_to(quantity_caption().rect(), snap_type::bottom, 0);
 
 		widgets::label_builder issuedto_caption(page);
@@ -116,12 +120,12 @@ class dispatch_form : public form {
 		comments_text()
 			.rect().snap_to(comments_caption().rect(), snap_type::bottom, 0);
 
-		widgets::button_builder dispatch_button(page, "dispatch_button");
-		dispatch_button()
+		widgets::button_builder edit_coupon_button(page, "edit_coupon_button");
+		edit_coupon_button()
 			.text("Dispatch")
 			.rect().snap_to(comments_text().rect(), snap_type::bottom, 3.f * margin_);
-		dispatch_button().events().click = [&]() {
-			if (!on_dispatch(error)){
+		edit_coupon_button().events().click = [&]() {
+			if (!on_edit_coupon(error)) {
 				message("Error: " + error);
 				return;
 			}
@@ -129,54 +133,53 @@ class dispatch_form : public form {
 			close();
 		};
 
-		page_man.show("dispatch_page");
+		page_man.show(page_name_);
 		return true;
 	}
 
-	bool on_dispatch(std::string& error){
+	bool on_edit_coupon(std::string& error) {
 		try {
-			auto fueltype = widgets::combobox_builder::specs(*this, "dispatch_page/fueltype_cbo").text();
-			auto serial_number = widgets::text_field_builder::specs(*this, "dispatch_page/serialno_text").text();
-			auto quantity = widgets::text_field_builder::specs(*this, "dispatch_page/quantity_text").text();
-			auto issued_to = widgets::text_field_builder::specs(*this, "dispatch_page/issuedto_text").text();
-			auto received_by = widgets::text_field_builder::specs(*this, "dispatch_page/recvby_text").text();
-			auto comments = widgets::text_field_builder::specs(*this, "dispatch_page/comments_text").text();
+
+			auto serial_number = widgets::text_field_builder::specs(*this, page_name_ + "/serialno_text").text();
+			auto fuel_type = widgets::combobox_builder::specs(*this, page_name_ + "/fueltype_cbo").text();
+			auto volume = widgets::text_field_builder::specs(*this, page_name_ + "/quantity_text").text();
+
+			auto issued_to = widgets::text_field_builder::specs(*this, page_name_ + "/issuedto_text").text();
+			auto received_by = widgets::text_field_builder::specs(*this, page_name_ + "/recvby_text").text();
+			auto comments = widgets::text_field_builder::specs(*this, page_name_ + "/comments_text").text();
 
 			if (serial_number.empty() ||
-				fueltype.empty() ||
-				quantity.empty() ||
+				volume.empty() ||
 				issued_to.empty() ||
-				received_by.empty()) {
-
+				received_by.empty()
+				) {
 				error = "fill in all important fields.";
 				return false;
 			}
 
-			{
-				auto date_of_dispatch = date_time::to_string(date_time::today());
+			auto dispatch_date = date_time::to_string(date_time::today());
 
-				row row_;
-				row_.insert(
-					{
-						{ "Date", date_of_dispatch },
-						{ "FuelType", fueltype },
-						{ "SerialNumber", serial_number },
-						{ "QuantityIssued", quantity },
-						{ "IssuedTo", issued_to },
-						{ "ReceivedBy", received_by },
-						{ "Comments", comments },
-					}
-				);
+			database::row dispatched_coupon = {
+				{ "Date", dispatch_date },
+				{ "Serial Number", serial_number },
+				{ "Fuel Type", fuel_type },
+				{ "Volume", volume },
+				{ "Issued To", issued_to },
+				{ "Receiver", received_by },
+				{ "Comments", comments }
+			};
 
-				if (!state_.get_db().on_dispatch_coupons(row_, error)) {
-					message("Error: " + error);
-					return false;
-				} 
+			if (!state_.get_db().on_dispatch_coupons(dispatched_coupon, error))
+				return false;
 
-				saved_coupon_to_display_ = row_;
-			}
+
+			/*if (!get_state.get_db().on_coupon_edit_coupon(quantity, error)) {
+				message("Error: " + error);
+				return false;
+			}*/
+
 		}
-		catch (std::exception& ex){
+		catch (std::exception& ex) {
 			error = std::string(ex.what());
 			return false;
 		}
@@ -184,7 +187,8 @@ class dispatch_form : public form {
 		return true;
 	}
 public:
-	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& app_state_, std::map<std::string, std::string>& saved_coupon_to_display) :
-		form(caption, parent_form), state_(app_state_), saved_coupon_to_display_(saved_coupon_to_display){}
+	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& state_, std::map<std::string, std::any>& edited_coupon) :
+		form(caption, parent_form), state_(state_), edited_coupon_(edited_coupon) {}
+
 };
 
