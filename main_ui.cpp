@@ -22,7 +22,7 @@ using snap_type = rect::snap_type;
 bool dashboard::on_initialize(std::string& error) {
 	controls_.allow_minimize(true);
 	controls_.allow_resize(false);
-	appearance_.theme(themes::light);
+	appearance_.theme(themes::dark);
 	dims_.set_size({ 800, 700 });
 	return true;
 }
@@ -38,15 +38,91 @@ bool dashboard::on_layout(std::string& error) {
 		//Todo.tab_side(containers::tab_pane_specs::side::left)
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
-
 	// dashboard.
 	containers::tab_builder dashboard_tab(tabs, "dashboard");
 
-	widgets::button_builder btn(dashboard_tab.get());
-	btn()
-		.text("Save")
+	containers::pane_builder top_left_pane(dashboard_tab.get(), "left_pane");
+	top_left_pane()
+		.border(1.f)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 0, 0, 0))
+		.on_resize({ 0.f, 0.f, 0.f, 100.f })
+		.rect().set(
+			margin_ / 2,
+			margin_, 
+			(dashboard_tab.get().size().width / 2) - margin_,
+			(dashboard_tab.get().size().height / 2) - margin_
+		);
+
+	widgets::label_builder fuel_volume_caption(top_left_pane.get());
+	fuel_volume_caption()
+		.text("<strong>Fuel total volume </strong>")
+		.font_size(11)
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 200, 20 })
+		.place(
+			{
+				margin_,
+				200,
+				margin_,
+				20
+			}, 0.f, 0.f
+		);
+
+	widgets::label_builder total_petrol_caption(top_left_pane.get());
+	total_petrol_caption()
+		.text("Petrol")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 100, 20 })
-		.set(margin_, margin_, 100, 20);
+		.place(
+			{
+				margin_,
+				80,
+				fuel_volume_caption().rect().bottom() + margin_,
+				fuel_volume_caption().rect().bottom() + (margin_ * 3)
+			}, 0.f, 0.f
+		);
+
+
+	widgets::label_builder total_petrol_details (top_left_pane.get(), "petrol_details");
+	//coupon.empty() ? date_details().text("") :
+	//	date_details().text(get::text(coupon.at("Date")));
+	total_petrol_details().text("100, Litres");
+	total_petrol_details()
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 100, 20 })
+		.snap_to(total_petrol_caption().rect(), snap_type::bottom, 2.f);
+
+	widgets::label_builder total_diesel_caption(top_left_pane.get());
+	total_diesel_caption()
+		.text("Diesel")
+		.color_text(caption_color_)
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 100, 20 })
+		.snap_to(total_petrol_details().rect(), snap_type::bottom, margin_);
+
+	widgets::label_builder total_diesel_details(top_left_pane.get(), "diesel_details");
+	//coupon.empty() ? date_details().text("") :
+	//	date_details().text(get::text(coupon.at("Date")));
+	total_diesel_details().text("100, Litres");
+	total_diesel_details()
+		.color_fill(rgba(32, 34, 244, 0))
+		.rect().size({ 100, 20 })
+		.snap_to(total_diesel_caption().rect(), snap_type::bottom, 2.f);
+
+	containers::pane_builder right_pane(dashboard_tab.get(), "right_pane");
+	right_pane()
+		.border(1.f)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
+		.color_fill(rgba(255, 0, 0, 0))
+		.on_resize({ 0.f, 0.f, 0.f, 100.f })
+		.rect().size((dashboard_tab.get().size().width / 2) - margin_, (dashboard_tab.get().size().height / 2) - margin_)
+		.snap_to(top_left_pane().rect(), snap_type::right, margin_);
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 											// Coupons tab.
@@ -228,7 +304,11 @@ bool dashboard::on_layout(std::string& error) {
 			}, 0.f, 0.f
 		);
 	dispatch_coupon().events().click = [&]() {
-		on_dispatch_coupon();
+		std::string error_;
+		if (!on_dispatch_coupon(error_)){
+			message("Error: " + error_);
+			return;
+		}
 	};
 
 	widgets::button_builder btn_return_coupoon(coupon_details_pane.get());
@@ -256,439 +336,30 @@ bool dashboard::on_layout(std::string& error) {
 		}
 	};
 
+	/// //////////////////////////
+	/// Reports
+	containers::tab_builder reports_tab(tabs, "reports");
+
+	/// //////////////////////////
+	/// Settings
+	containers::tab_builder settings_tab(tabs, "settings");
+
+	containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
+	settings_tabs()
+		.border(1)
+		.tabs_border(0)
+		.color_tabs({ 255, 255, 255, 0 })
+		//Todo.tab_side(containers::tab_pane_specs::side::left)
+		.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
+
+	containers::tab_builder appearance_settings(settings_tabs, "appearance");
+
+	settings_tabs.select("appearance");
 	tabs.select("dashboard");
-	//containers::pane_builder sidebar(dashboard_tab.get(), "sidebar");
-	//sidebar()
-	//	.border(1.f)
-	//	.corner_radius_x(0)
-	//	.corner_radius_y(0)
-	//	.color_fill(rgba(255, 255, 255, 0))
-	//	.on_resize({ 0.f, 0.f, 0.f, 100.f })
-	//	.rect().set(margin_, 0.f, 200.f, page.size().height - 6 * margin_);
-
-	//// Home widgets.
-	//widgets::rectangle_builder home(sidebar.get(), "test");
-	//home()
-	//	.border(0)
-	//	.color_fill({ 255, 255, 255, 0 })
-	//	.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
-	//	.place(
-	//		{
-	//			0,
-	//			sidebar().rect().width() - margin_,
-	//			margin_,
-	//			margin_ * 2.f
-	//		}, 0.f, 0.f
-	//	);
-	////home().events().action = [&]() { dashboard_handler(); };
-
-	//widgets::image_view_builder dasboard_icon(sidebar.get(), "icon");
-	//dasboard_icon()
-	//	.border(1)
-	//	.file("assets\\dashboard.png")
-	//	.rect().size({ 30, 30 })
-	//	.place(
-	//		{
-	//			home.specs().rect().left() + 2.5f,
-	//			40,
-	//			home.specs().rect().top() + 2.5f,
-	//			home.specs().rect().top() + 2.5f + (margin_ * 2.5f)
-	//		}, 50.f, 0.f
-	//	);
-
-
-	//widgets::label_builder dashboard_label(sidebar.get(), "dashboard_label");
-	//dashboard_label()
-	//	.text("Dashboard")
-	//	.center_v(true)
-	//	.rect().snap_to(dasboard_icon().rect(), snap_type::right, margin_);
-
-
-	//// Coupons widgets
-	//widgets::rectangle_builder coupons(sidebar.get(), "coupons");
-	//coupons()
-	//	.border(0)
-	//	.color_fill(rgba(255, 255, 255, 0))
-	//	.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
-	//	.snap_to(home().rect(), snap_type::bottom, margin_);
-	////coupons().events().action = [&]() { coupon_handler(); };
-
-
-	//widgets::image_view_builder coupons_icon(sidebar.get(), "coupons_icon");
-	//coupons_icon()
-	//	.border(1)
-	//	.file("assets\\pump.png")
-	//	.rect().size({ 30, 30 })
-	//	.place(
-	//		{
-	//			coupons.specs().rect().left() + 2.5f,
-	//			40,
-	//			coupons.specs().rect().top() + 2.5f,
-	//			coupons.specs().rect().top() + 2.5f + (margin_ * 2.5f)
-	//		}, 50.f, 0.f
-	//	);
-
-
-	//widgets::label_builder coupons_label(sidebar.get(), "coupon_label");
-	//coupons_label()
-	//	.text("Coupons")
-	//	.center_v(true)
-	//	.rect().snap_to(coupons_icon().rect(),snap_type::right, 10.f);
-
-
-	//// reports widgets
-	//widgets::rectangle_builder reports(sidebar.get(), "reports");
-	//reports()
-	//	.border(0)
-	//	.color_fill(rgba(255, 255, 255, 0))
-	//	.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
-	//	.snap_to(coupons().rect(),snap_type::bottom, margin_);
-	////reports().events().action = [&]() { report_handler(); };
-
-	//widgets::image_view_builder reports_icon(sidebar.get(), "reports_icon");
-	//reports_icon()
-	//	.border(1)
-	//	.file("assets\\reports.png")
-	//	.rect().size({ 30, 30 })
-	//	.place(
-	//		{
-	//			reports.specs().rect().left() + 2.5f,
-	//			40,
-	//			reports.specs().rect().top() + 2.5f,
-	//			reports.specs().rect().top() + 2.5f + (margin_ * 2.5f)
-	//		}, 50.f, 0.f);
-
-	//widgets::label_builder reports_label(sidebar.get(), "reports_label");
-	//reports_label()
-	//	.text("Reports")
-	//	.center_v(true)
-	//	.rect().snap_to(reports_icon().rect(),snap_type::right, margin_);
-
-
-	//// Settings widgets
-	//widgets::rectangle_builder settings(sidebar.get(), "settings");
-	//settings()
-	//	.border(0)
-	//	.color_fill({ 255, 255, 255, 0 })
-	//	.on_resize({ 0.f, 100.f, 0.f, 0.f })
-	//	.rect().size({ sidebar().rect().width() - (margin_ * 2.f), 35 })
-	//	.place(
-	//		{
-	//			0,
-	//			sidebar().rect().width() - margin_,
-	//			margin_ + (sidebar().rect().height() - 70),
-	//			(margin_ * 2.f) + (sidebar().rect().height() - 70)
-	//		}, 0.f, 0.f
-	//	);
-	////settings().events().action = [&]() {};
-
-	//widgets::image_view_builder settings_icon(sidebar.get(), "settings_icon");
-	//settings_icon()
-	//	.border(1)
-	//	.file("assets\\settings.png")
-	//	.on_resize({ 0.f, 100.f, 0.f, 0.f })
-	//	.rect().size({ 30, 30 })
-	//	.place(
-	//		{ settings.specs().rect().left() + 2.5f
-	//		, 40
-	//		, settings.specs().rect().top() + 2.5f
-	//		, settings.specs().rect().top() + 2.5f + (margin_ * 2.5f)
-	//		}, 50.f, 0.f);
-
-	//widgets::label_builder settings_label(sidebar.get(), "settings_label");
-	//settings_label()
-	//	.text("Settings")
-	//	.center_v(true)
-	//	.on_resize({ 0.f, 100.f, 0.f, 0.f })
-	//	.rect().snap_to(settings_icon().rect(),snap_type::right, margin_);
-
-	////render dashboard widgets.
-	//dashboard_handler();
 
 	page_man_.show(main_page_name_);
 	return true;
 }
-
-//bool dashboard::dashboard_handler() {
-//	widget_man_.close(main_page_name_ + "/coupon_content");
-//	widget_man_.close(main_page_name_ + "/report_content");
-//
-//	// Dashboard Panel.
-//	rect sidebar_rect;
-//	try
-//	{
-//		sidebar_rect = containers::pane_builder::specs(*this, (main_page_name_ + "/sidebar")).rect();
-//	}
-//	catch (const std::exception& ex)
-//	{
-//		message("Error: " + std::string(ex.what()));
-//	}
-//
-//	containers::pane_builder dashboard_content(page_man_.get(*this, main_page_name_), "dashboard_content");
-//	dashboard_content()
-//		.border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 250, 0))
-//		.on_resize({ 0.f, 0.f, 100.f, 100.f })
-//		.rect().size({ 560.f, 510.f })
-//		.snap_to(sidebar_rect,snap_type::right, margin_);
-//
-//
-//	widgets::label_builder dashboard_title(dashboard_content.get());
-//	dashboard_title()
-//		.text("Overview")
-//		.font_size(12.f)
-//		.center_h(true)
-//		.on_resize({ 50.f, 0.f, 0.f, 0.f })
-//		.rect().size({ 80, 20 })
-//		.place(
-//			{ 
-//				dashboard_content().rect().width() / 2.f - 40,
-//				dashboard_content().rect().width() / 2.f + 40,
-//				dashboard_content().rect().top() + 20.f,
-//				dashboard_content().rect().top() + 40.f
-//			}, 0.f, 0.f
-//		);
-//
-//	containers::pane_builder monthly_content(dashboard_content.get());
-//	monthly_content()
-//		.border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ -50.f, 0.f, 50.f, 0.f })
-//		.rect().set(
-//			margin_,
-//			dashboard_title().rect().bottom() + margin_,
-//			dashboard_content().rect().width() / 2.f - (margin_ * 2.5f),
-//			dashboard_content().rect().height() / 2.f - margin_
-//		);
-//
-//	containers::pane_builder content_summary(dashboard_content.get());
-//	content_summary()
-//		.border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ 50.f, 0.f, 50.f, 0.f })
-//		.rect().set
-//		(monthly_content().rect().right() + margin_
-//			, dashboard_title().rect().bottom() + margin_
-//			, dashboard_content().rect().width() / 2.f - (margin_ * 2.5f)
-//			, dashboard_content().rect().height() / 2.f - margin_
-//		);
-//
-//	return true;
-//}
-//
-//bool dashboard::coupon_handler()
-//{
-//	widget_man_.close(main_page_name_ + "/dashboard_content");
-//	widget_man_.close(main_page_name_ + "/report_content");
-//
-//	rect sidebar_rect;
-//	try
-//	{
-//		sidebar_rect = containers::pane_builder::specs(*this, (main_page_name_ + "/sidebar")).rect();
-//	}
-//	catch (const std::exception& ex)
-//	{
-//		message("Error: " + std::string(ex.what()));
-//	}
-//
-//	containers::pane_builder coupon_content(page_man_.get(*this, main_page_name_), "coupon_content");
-//	coupon_content().border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ 0.f, 0.f, 100.f, 100.f })
-//		.rect().size({ 560.f, 510.f })
-//		.snap_to(sidebar_rect, snap_type::right, margin_);
-//
-//	std::vector<table_column> coupons_table_cols =
-//	{
-//		{ "#", 50},
-//		{ "Date", 100},
-//		{"Issued to", 100}, {"Serial Number", 100}
-//	};
-//
-//	std::vector<std::map<std::string, std::string>> coupons_data = {
-//		{ {"#", "1"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-//		{ {"#", "2"}, {"Date", "10-June-20"}, {"Issued to", "Accounts"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-//		{ {"#", "3"}, {"Date", "10-June-20"}, {"Issued to", "Admini"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-//		{ {"#", "4"}, {"Date", "10-June-20"}, {"Issued to", "ICT"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-//		{ {"#", "5"}, {"Date", "10-June-20"}, {"Issued to", "Transport"}, {"Serial Number", "fhdskfhasdfhasi34"} },
-//		{ {"#", "6"}, {"Date", "10-June-20"}, {"Issued to", "Ambulance"}, {"Serial Number", "fhdskfhasdfhasi34"} }
-//	};
-//
-//	widgets::table_view_builder coupons_table(coupon_content.get(), "coupons_table");
-//	coupons_table()
-//		.border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ -50.f, 0.f, 50.f, 0.f })
-//		.columns(coupons_table_cols)
-//		.data(coupons_data)
-//		.rect().set(
-//			margin_,
-//			margin_,
-//			coupon_content().rect().width() / 2.f - (margin_ * 2.5f),
-//			coupon_content().rect().height() - (3.f * margin_)
-//		);
-//	coupons_table().events().selection = [&]
-//		(const std::vector<std::map<std::string, std::string>>& rows)
-//	{
-//		on_select_coupon(rows);
-//	};
-//
-//	containers::pane_builder coupon_details_pane(coupon_content.get(), "coupon_details_pane");
-//	coupon_details_pane()
-//		.border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ 50.f, 0.f, 50.f, 0.f })
-//		.rect().set(
-//			coupons_table().rect().right() + margin_,
-//			coupons_table().rect().top(),
-//			coupon_content().rect().width() / 2.f - (margin_ * 2.5f),
-//			coupon_content().rect().height() - (3.f * margin_)
-//		);
-//
-//
-//	//widgets on the pane.
-//	widgets::label_builder date_label(coupon_details_pane.get());
-//	date_label()
-//		.text("Date")
-//		.color_text(caption_color_)
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.place(
-//			{
-//				margin_,
-//				200,
-//				margin_,
-//				20
-//			}, 0.f, 0.f);
-//
-//	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
-//	date_details()
-//		.text("28-June-2021")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(date_label().rect(),snap_type::bottom, 2.f);
-//
-//	widgets::label_builder coupon_serialno_caption(coupon_details_pane.get());
-//	coupon_serialno_caption()
-//		.text("Serial Number")
-//		.color_text(caption_color_)
-//		.color_fill({ 32, 34, 244, 0 })
-//		.rect().size({ 200, 20 })
-//		.snap_to(date_details().rect(),snap_type::bottom, margin_);
-//
-//	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
-//	coupon_serialno_details()
-//		.text("403859177-4038591780")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(coupon_serialno_caption().rect(),snap_type::bottom, 2.f);
-//
-//	widgets::label_builder volume_issued_caption(coupon_details_pane.get());
-//	volume_issued_caption()
-//		.text("Quantity issued")
-//		.color_text(caption_color_)
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(coupon_serialno_details().rect(),snap_type::bottom, margin_);
-//
-//	widgets::label_builder volume_details(coupon_details_pane.get(), "volume_details");
-//	volume_details()
-//		.text(std::to_string(80) + " Litres")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(volume_issued_caption().rect(),snap_type::bottom, 2.f);
-//
-//	widgets::label_builder issuedto_caption(coupon_details_pane.get());
-//	issuedto_caption()
-//		.text("Issued to")
-//		.color_text(caption_color_)
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(volume_details().rect(),snap_type::bottom, margin_);
-//
-//	widgets::label_builder issuedto_details(coupon_details_pane.get(), "issuedto_details");
-//	issuedto_details()
-//		.text("Transport")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(issuedto_caption().rect(),snap_type::bottom, 2.f);
-//
-//	widgets::label_builder coupon_recvby_caption(coupon_details_pane.get());
-//	coupon_recvby_caption()
-//		.text("Coupon received by")
-//		.color_text(caption_color_)
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(issuedto_details().rect(),snap_type::bottom, margin_);
-//
-//	widgets::label_builder coupon_recvby_details(coupon_details_pane.get(), "coupon_recvby_details");
-//	coupon_recvby_details()
-//		.text("Tawanda M. Nyoni")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(coupon_recvby_caption().rect(),snap_type::bottom, 2.f);
-//
-//	widgets::label_builder comments_caption(coupon_details_pane.get());
-//	comments_caption()
-//		.text("Comments")
-//		.color_text(caption_color_)
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(coupon_recvby_details().rect(),snap_type::bottom, margin_);
-//
-//	widgets::label_builder comments_details(coupon_details_pane.get(), "comments_details");
-//	comments_details()
-//		.text("It was an emergency")
-//		.color_fill(rgba(32, 34, 244, 0))
-//		.rect().size({ 200, 20 })
-//		.snap_to(comments_caption().rect(),snap_type::bottom, 2.f);
-//
-//	return true;
-//}
-//
-//bool dashboard::report_handler()
-//{
-//	widget_man_.close(main_page_name_ + "/dashboard_content");
-//	widget_man_.close(main_page_name_ + "/coupon_content");
-//
-//	rect sidebar_rect;
-//	try
-//	{
-//		sidebar_rect = containers::pane_builder::specs(*this, (main_page_name_ + "/sidebar")).rect();
-//	}
-//	catch (const std::exception& ex)
-//	{
-//		message("Error: " + std::string(ex.what()));
-//	}
-//
-//	containers::pane_builder report_content(page_man_.get(*this, main_page_name_), "report_content");
-//	report_content().border(1)
-//		.corner_radius_x(0)
-//		.corner_radius_y(0)
-//		.color_fill(rgba(255, 255, 255, 0))
-//		.on_resize({ 0.f, 0.f, 100.f, 100.f })
-//		.rect().size({ 560.f, 510.f })
-//		.snap_to(sidebar_rect, snap_type::right, margin_);
-//
-//	widgets::text_field_builder report_date(report_content.get());
-//	report_content()
-//		.rect().size({ 130,130 })
-//		.set(margin_, margin_, 140, 140);
-//
-//	return false;
-//}
 
 bool dashboard::on_select_coupon(
 	const std::vector<table_row>& rows)
@@ -735,96 +406,57 @@ bool dashboard::on_select_coupon(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///								This function needs a lot of cleaning.
-bool dashboard::on_dispatch_coupon()
+bool dashboard::on_dispatch_coupon(std::string& error)
 {
-	std::string error;
-	std::map<std::string, std::any> edited_coupon;
 	auto table_view =
 		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
 
 	auto selected_ = table_view.selected();
 
 	if (selected_.empty()) {
-		message("Error: No coupon selected!");
+		error = "Error: No coupon selected!";
 		return false;
 	}
 
 	auto first_row = table_view.data()[selected_[0]];
-
 	std::any serial_number_ = first_row.at("Serial Number");
+
 	std::vector<database::row> selected_coupons;
 	if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
-		message("Error: " + error);	//todo: remove this line.
 		return false;
 	}
 
+	std::map<std::string, std::any> edited_coupon;
 	edited_coupon = selected_coupons[0];
-
 
 	if (edited_coupon.empty())
 		return false;
 
-	dispatch_form dispatch_form_("Dispatch Coupon", *this, state_, edited_coupon);
+	bool is_changed = false;
+	dispatch_form dispatch_form_("Dispatch Coupon", *this, state_, edited_coupon, is_changed);
 	if (!dispatch_form_.show(error)) {
-		message("Error: " + error);
 		return false;
 	}
 
-	auto& old_coupons = 
-		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").data();
+	// Updating the coupons table.
+	if (is_changed) { 
+		auto& old_coupons =
+			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").data();
 
-	std::vector<table_row> new_coupons;
-	new_coupons.reserve(old_coupons.size() - 1);
+		std::vector<table_row> new_coupons;
+		new_coupons.reserve(old_coupons.size() - 1);
 
-	for (const auto& row : old_coupons){
-		if (get::text(row.at("Serial Number")) != get::text(serial_number_)) {
-			new_coupons.push_back(row);
+		for (const auto& row : old_coupons) {
+			if (get::text(row.at("Serial Number")) != get::text(serial_number_)) {
+				new_coupons.push_back(row);
+			}
 		}
+
+		old_coupons = new_coupons;
+		update();
 	}
 
-	old_coupons = new_coupons;
-
-	update();
-
 	return true;
-
-	//std::string error;
-	//std::map<std::string, std::string> saved_coupon_to_display;
-	//dispatch_form dispatch_fm("Dispatch Coupon", *this, state_, saved_coupon_to_display);
-	//if (!dispatch_fm.show(error)) {
-	//	message("Error: " + error);
-	//	return false;
-	//}
-
-	//try
-	//{
-	//	auto coupons_table =
-	//		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
-
-	//	auto table_size = coupons_table.data().size();
-
-
-	//	if (!saved_coupon_to_display.empty()) {
-	//		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table")
-	//			.data().push_back(
-	//				{
-	//					{ "#", std::to_string(table_size + 1)},
-	//					{ "Date",saved_coupon_to_display.at("Date")},
-	//					{ "IssuedTo", saved_coupon_to_display.at("IssuedTo")},
-	//					{ "SerialNumber", saved_coupon_to_display.at("SerialNumber")}
-	//				}
-	//		);
-	//	}
-
-	//	update();
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	message("Error: " + std::string(ex.what()));
-	//	return false;
-	//}
-
-	//return true;
 }
 
 bool dashboard::on_add_coupons(std::string& error) {
@@ -868,44 +500,6 @@ bool dashboard::on_add_coupons(std::string& error) {
 
 	return true;
 }
-
-//bool dashboard::on_edit_coupons()
-//{
-//	std::string error;
-//	std::map<std::string, std::any> edited_coupon;
-//	{
-//		auto table_view =
-//			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table"); /// Added here.
-//
-//		auto selected_ = table_view.selected();
-//
-//		if (selected_.empty())
-//			return false;
-//
-//		auto first_row = table_view.data()[selected_[0]];
-//
-//		std::any serial_number_ = first_row.at("Serial Number");
-//		std::vector<database::row> selected_coupons;
-//		if (!state_.get_db().on_get_coupon(serial_number_, selected_coupons, error)) {
-//			message("Error: " + error);	//todo: remove this line.
-//			return false;
-//		}
-//
-//		edited_coupon = selected_coupons[0];
-//		
-//	}
-//
-//	if (edited_coupon.empty())
-//		return false;
-//
-//	edit_coupon_form edit_form("Edit Coupon", *this, state_, edited_coupon);
-//	if (!edit_form.show(error)) {
-//		message("Error: " + error);
-//		return false;
-//	}
-//
-//	return true;
-//}
 
 color dashboard::rgba(const unsigned short& r,
 	const unsigned short& g,

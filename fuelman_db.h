@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <any>
+#include <algorithm>
 
 #include <liblec/leccore/database.h>
 
@@ -114,6 +115,22 @@ public:
 			return false;
 
 		table_ = results_table.data;
+		return true;
+	}
+
+	bool on_get_total_volume(double& total_volume, std::string& error){
+		std::vector<database::row> table_;
+
+		on_get_coupons(table_, error);
+
+		double total_volume_ = 0;
+
+		for (auto& row_ : table_){
+			if (std::all_of(database::get::text(row_.at("Volume")).begin(), database::get::text(row_.at("Volume")).end(), ::isdigit))
+				total_volume_ += database::get::real(row_.at("Volume"));
+		}
+
+		total_volume = total_volume_;
 		return true;
 	}
 };

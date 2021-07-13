@@ -30,7 +30,7 @@ class dashboard : public form {
 	bool report_handler();
 
 	bool on_select_coupon(const std::vector<table_row>& rows);
-	bool on_dispatch_coupon();
+	bool on_dispatch_coupon(std::string& error);
 	bool on_add_coupons(std::string& error);
 	bool on_edit_coupons();
 	bool on_delete_coupon();

@@ -24,9 +24,10 @@ using snap_type = rect::snap_type;
 class dispatch_form : public form {
 	const float margin_ = 10.f;
 	const std::string page_name_ = "dispatch_page";
-
+	
 	state& state_;
 	std::map<std::string, std::any>& edited_coupon_;
+	bool& is_changed_;
 
 	appearance appearance_{ *this };
 	controls controls_{ *this };
@@ -172,11 +173,7 @@ class dispatch_form : public form {
 			if (!state_.get_db().on_dispatch_coupons(dispatched_coupon, error))
 				return false;
 
-
-			/*if (!get_state.get_db().on_coupon_edit_coupon(quantity, error)) {
-				message("Error: " + error);
-				return false;
-			}*/
+			is_changed_ = true;
 
 		}
 		catch (std::exception& ex) {
@@ -187,8 +184,16 @@ class dispatch_form : public form {
 		return true;
 	}
 public:
-	dispatch_form(const std::string& caption, liblec::lecui::form& parent_form, state& state_, std::map<std::string, std::any>& edited_coupon) :
-		form(caption, parent_form), state_(state_), edited_coupon_(edited_coupon) {}
+	dispatch_form(const std::string& caption,
+		liblec::lecui::form& parent_form,
+		state& state_,
+		std::map<std::string, std::any>& edited_coupon,
+		bool& is_changed
+	) :
+		form(caption, parent_form),
+		state_(state_),
+		edited_coupon_(edited_coupon),
+		is_changed_(is_changed)
+	{}
 
 };
-
