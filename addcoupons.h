@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <any>
+#include <algorithm>
 
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
@@ -162,10 +163,16 @@ class addcopoupons_form : public form {
 				volume.empty() ||
 				issued_by.empty()
 				) {
-				error = "fill in all fields.";
+				error = "fill in all fields!";
 				return false;
 			}
 
+			//Checking if volume is int.
+			if (!std::all_of(volume.begin(), volume.end(), ::isdigit)) {
+				error = "Volume not a number!";
+				return false;
+			}
+			
 			auto table = widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table");
 			auto table_size = table.data().size();
 
@@ -188,7 +195,6 @@ class addcopoupons_form : public form {
 						{"Issued By", issued_by }
 					}
 			);
-
 			update();
 
 		}
