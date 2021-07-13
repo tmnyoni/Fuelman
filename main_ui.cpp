@@ -123,19 +123,9 @@ bool dashboard::on_layout(std::string& error) {
 			tabs().rect().height() - (margin_ * 9)
 		);
 
-	if (coupons_data.empty()) {
-		std::map<std::string, std::any> row =
-		{
-			{ "Date", "---"},
-			{ "Serial Number", "---"},
-			{ "Volume", "---"},
-			{ "Fuel", "---"},
-			{ "Issued By", "---"},
-		};
-		coupons_data.push_back(row);
-	}
-
-	auto coupon = coupons_data[0]; //data to display.
+	std::map<std::string, std::any> coupon;
+	if (!coupons_data.empty())
+		coupon = coupons_data[0]; //data to display.
 
 	using get = database::get;
 	widgets::label_builder date_label(coupon_details_pane.get());
@@ -154,8 +144,9 @@ bool dashboard::on_layout(std::string& error) {
 
 
 	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
+	coupon.empty() ? date_details().text("") :
+		date_details().text(get::text(coupon.at("Date")));
 	date_details()
-		.text(get::text(coupon.at("Date")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(date_label().rect(), snap_type::bottom, 2.f);
@@ -169,26 +160,28 @@ bool dashboard::on_layout(std::string& error) {
 		.snap_to(date_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
+	coupon.empty() ? coupon_serialno_details().text("") :
+		coupon_serialno_details().text(get::text(coupon.at("Serial Number")));
 	coupon_serialno_details()
-		.text(get::text(coupon.at("Serial Number")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_caption().rect(), snap_type::bottom, 2.f);
 
-	widgets::label_builder quantity_issued_caption(coupon_details_pane.get());
-	quantity_issued_caption()
+	widgets::label_builder volume_issued_caption(coupon_details_pane.get());
+	volume_issued_caption()
 		.text("Volume")
 		.color_text(caption_color_)
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_details().rect(), snap_type::bottom, margin_);
 
-	widgets::label_builder quantity_issued_details(coupon_details_pane.get(), "volume_details");
-	quantity_issued_details()
-		.text(get::text(coupon.at("Volume")) + " Litres")
+	widgets::label_builder volume_details(coupon_details_pane.get(), "volume_details");
+	coupon.empty() ? volume_details().text("") :
+		volume_details().text(get::text(coupon.at("Volume")) + " Litres");
+	volume_details()
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
-		.snap_to(quantity_issued_caption().rect(), snap_type::bottom, 2.f);
+		.snap_to(volume_issued_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder fuel_caption(coupon_details_pane.get());
 	fuel_caption()
@@ -196,11 +189,12 @@ bool dashboard::on_layout(std::string& error) {
 		.color_text(caption_color_)
 		.color_fill().green();
 	fuel_caption().rect().size({ 200, 20 })
-		.snap_to(quantity_issued_details().rect(), snap_type::bottom, margin_);
+		.snap_to(volume_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder fuel_details(coupon_details_pane.get(), "fuel_details");
+	coupon.empty() ? fuel_details().text("") :
+		fuel_details().text(get::text(coupon.at("Fuel")));
 	fuel_details()
-		.text(get::text(coupon.at("Fuel")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(fuel_caption().rect(), snap_type::bottom, 2.f);
@@ -214,8 +208,9 @@ bool dashboard::on_layout(std::string& error) {
 		.snap_to(fuel_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder issuedby_details(coupon_details_pane.get(), "issuedby_details");
+	coupon.empty() ? issuedby_details().text("") :
+		issuedby_details().text(get::text(coupon.at("Issued By")));
 	issuedby_details()
-		.text(get::text(coupon.at("Issued By")))
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
@@ -600,20 +595,20 @@ bool dashboard::on_layout(std::string& error) {
 //		.rect().size({ 200, 20 })
 //		.snap_to(coupon_serialno_caption().rect(),snap_type::bottom, 2.f);
 //
-//	widgets::label_builder quantity_issued_caption(coupon_details_pane.get());
-//	quantity_issued_caption()
+//	widgets::label_builder volume_issued_caption(coupon_details_pane.get());
+//	volume_issued_caption()
 //		.text("Quantity issued")
 //		.color_text(caption_color_)
 //		.color_fill(rgba(32, 34, 244, 0))
 //		.rect().size({ 200, 20 })
 //		.snap_to(coupon_serialno_details().rect(),snap_type::bottom, margin_);
 //
-//	widgets::label_builder quantity_issued_details(coupon_details_pane.get(), "quantity_issued_details");
-//	quantity_issued_details()
+//	widgets::label_builder volume_details(coupon_details_pane.get(), "volume_details");
+//	volume_details()
 //		.text(std::to_string(80) + " Litres")
 //		.color_fill(rgba(32, 34, 244, 0))
 //		.rect().size({ 200, 20 })
-//		.snap_to(quantity_issued_caption().rect(),snap_type::bottom, 2.f);
+//		.snap_to(volume_issued_caption().rect(),snap_type::bottom, 2.f);
 //
 //	widgets::label_builder issuedto_caption(coupon_details_pane.get());
 //	issuedto_caption()
@@ -621,7 +616,7 @@ bool dashboard::on_layout(std::string& error) {
 //		.color_text(caption_color_)
 //		.color_fill(rgba(32, 34, 244, 0))
 //		.rect().size({ 200, 20 })
-//		.snap_to(quantity_issued_details().rect(),snap_type::bottom, margin_);
+//		.snap_to(volume_details().rect(),snap_type::bottom, margin_);
 //
 //	widgets::label_builder issuedto_details(coupon_details_pane.get(), "issuedto_details");
 //	issuedto_details()
