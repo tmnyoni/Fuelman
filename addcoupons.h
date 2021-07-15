@@ -37,7 +37,6 @@ class addcopoupons_form : public form {
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
 		controls_.allow_resize(false);
-		appearance_.theme(themes::light);
 		dims_.set_size({ 500, 600 });
 		return true;
 	}

@@ -38,7 +38,6 @@ class dispatch_form : public form {
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
 		controls_.allow_resize(false);
-		appearance_.theme(themes::light);
 		dims_.set_size({ 350, 450 });
 		return true;
 	}

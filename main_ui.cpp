@@ -339,6 +339,8 @@ bool dashboard::on_layout(std::string& error) {
 	/// //////////////////////////
 	/// Reports
 	containers::tab_builder reports_tab(tabs, "reports");
+	
+
 
 	/// //////////////////////////
 	/// Settings
