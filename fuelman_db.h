@@ -99,9 +99,13 @@ public:
 	}
 
 	bool on_get_coupons(std::vector<database::row>& table, std::string& error) {
-
+		const std::string sql_query = 
+			"SELECT * FROM Coupons WHERE \"Serial Number\" NOT IN "
+				"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+					"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+		
 		database::table results_table;
-		if (!con.execute_query("SELECT * FROM Coupons WHERE \"Serial Number\" NOT IN (SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\"); ", results_table, error))
+		if (!con.execute_query(sql_query, results_table, error))
 			return false;
 
 		table = results_table.data;
@@ -109,6 +113,7 @@ public:
 	}
 
 	bool on_get_coupon(const std::any& serial_number, std::vector<database::row>& table_, std::string& error) {
+		const std::string sql_query = "SELECT * FR";
 
 		database::table results_table;
 		if (!con.execute_query("SELECT * FROM Coupons WHERE \"Serial Number\" = '" + database::get::text(serial_number) + "';", results_table, error))
@@ -118,19 +123,43 @@ public:
 		return true;
 	}
 
-	bool on_get_total_volume(double& total_volume, std::string& error){
+	bool on_get_petrol_volume(int& petrol_volume, std::string& error){
 		std::vector<database::row> table_;
+		
+		if (!on_get_coupons(table_, error))
+			return false;
 
-		on_get_coupons(table_, error);
-
-		double total_volume_ = 0;
-
+		int petrol_volume_ = 0;
 		for (auto& row_ : table_){
-			if (std::all_of(database::get::text(row_.at("Volume")).begin(), database::get::text(row_.at("Volume")).end(), ::isdigit))
-				total_volume_ += database::get::real(row_.at("Volume"));
+			if (db_get::text(row_.at("Fuel")).compare("Petrol") == 0) {
+
+				const auto volume = db_get::text(row_.at("Volume"));
+				if (std::all_of(volume.begin(), volume.end(), ::isdigit))
+					petrol_volume_ += std::atoi(volume.c_str());
+			}
 		}
 
-		total_volume = total_volume_;
+		petrol_volume = petrol_volume_;
+		return true;
+	}
+
+	bool on_get_diesel_volume(int& diesel_volume, std::string& error) {
+		std::vector<database::row> table_;
+		
+		if (!on_get_coupons(table_, error))
+			return false;
+		
+		int diesel_volume_ = 0;
+		for (auto& row_ : table_) {
+			if (db_get::text(row_.at("Fuel")).compare("Diesel") == 0) {
+
+				const auto volume = database::get::text(row_.at("Volume"));
+				if (std::all_of(volume.begin(), volume.end(), ::isdigit))
+					diesel_volume_ += std::atoi(volume.c_str());
+			}
+		}
+
+		diesel_volume = diesel_volume_;
 		return true;
 	}
 };

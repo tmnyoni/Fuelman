@@ -86,11 +86,12 @@ bool dashboard::on_layout(std::string& error) {
 			}, 0.f, 0.f
 		);
 
-
+	int petrol_volume_ = 0;
+	if (!state_.get_db().on_get_petrol_volume(petrol_volume_, error))
+		message("Error: " + error);
+	
 	widgets::label_builder total_petrol_details (top_left_pane.get(), "petrol_details");
-	//coupon.empty() ? date_details().text("") :
-	//	date_details().text(get::text(coupon.at("Date")));
-	total_petrol_details().text("100, Litres");
+	total_petrol_details().text(std::to_string(petrol_volume_) + "  Litres");
 	total_petrol_details()
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 100, 20 })
@@ -104,10 +105,12 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 100, 20 })
 		.snap_to(total_petrol_details().rect(), snap_type::bottom, margin_);
 
+	int diesel_volume_ = 0;
+	if (!state_.get_db().on_get_diesel_volume(diesel_volume_, error))
+		message("Error: " + error);
+
 	widgets::label_builder total_diesel_details(top_left_pane.get(), "diesel_details");
-	//coupon.empty() ? date_details().text("") :
-	//	date_details().text(get::text(coupon.at("Date")));
-	total_diesel_details().text("100, Litres");
+	total_diesel_details().text(std::to_string(diesel_volume_) + "<span style = 'font-size: 10.0pt;'>" + " Litres  </span> ");
 	total_diesel_details()
 		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 100, 20 })
@@ -208,7 +211,6 @@ bool dashboard::on_layout(std::string& error) {
 	date_label()
 		.text("Date")
 		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.place(
 			{
@@ -231,7 +233,6 @@ bool dashboard::on_layout(std::string& error) {
 	coupon_serialno_caption()
 		.text("Serial Number")
 		.color_text(caption_color_)
-		.color_fill({ 32, 34, 244, 0 })
 		.rect().size({ 200, 20 })
 		.snap_to(date_details().rect(), snap_type::bottom, margin_);
 
@@ -239,7 +240,6 @@ bool dashboard::on_layout(std::string& error) {
 	coupon.empty() ? coupon_serialno_details().text("") :
 		coupon_serialno_details().text(get::text(coupon.at("Serial Number")));
 	coupon_serialno_details()
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_caption().rect(), snap_type::bottom, 2.f);
 
@@ -247,7 +247,6 @@ bool dashboard::on_layout(std::string& error) {
 	volume_issued_caption()
 		.text("Volume")
 		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_details().rect(), snap_type::bottom, margin_);
 
@@ -255,15 +254,13 @@ bool dashboard::on_layout(std::string& error) {
 	coupon.empty() ? volume_details().text("") :
 		volume_details().text(get::text(coupon.at("Volume")) + " Litres");
 	volume_details()
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(volume_issued_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder fuel_caption(coupon_details_pane.get());
 	fuel_caption()
 		.text("Fuel")
-		.color_text(caption_color_)
-		.color_fill().green();
+		.color_text(caption_color_);
 	fuel_caption().rect().size({ 200, 20 })
 		.snap_to(volume_details().rect(), snap_type::bottom, margin_);
 
@@ -271,7 +268,6 @@ bool dashboard::on_layout(std::string& error) {
 	coupon.empty() ? fuel_details().text("") :
 		fuel_details().text(get::text(coupon.at("Fuel")));
 	fuel_details()
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(fuel_caption().rect(), snap_type::bottom, 2.f);
 
@@ -279,7 +275,6 @@ bool dashboard::on_layout(std::string& error) {
 	issuedby_caption()
 		.text("Issued by")
 		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(fuel_details().rect(), snap_type::bottom, margin_);
 
@@ -287,12 +282,11 @@ bool dashboard::on_layout(std::string& error) {
 	coupon.empty() ? issuedby_details().text("") :
 		issuedby_details().text(get::text(coupon.at("Issued By")));
 	issuedby_details()
-		.color_fill(rgba(32, 34, 244, 0))
 		.rect().size({ 200, 20 })
 		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
 
-	widgets::button_builder dispatch_coupon(coupon_details_pane.get());
-	dispatch_coupon()
+	widgets::button_builder btn_dispatch_coupon(coupon_details_pane.get());
+	btn_dispatch_coupon()
 		.text("Dispatch")
 		.rect().size({ 80, 20 })
 		.place(
@@ -303,7 +297,7 @@ bool dashboard::on_layout(std::string& error) {
 				issuedby_details().rect().get_bottom() + margin_ * 2
 			}, 0.f, 0.f
 		);
-	dispatch_coupon().events().click = [&]() {
+	btn_dispatch_coupon().events().click = [&]() {
 		std::string error_;
 		if (!on_dispatch_coupon(error_)){
 			message("Error: " + error_);
@@ -314,23 +308,20 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::button_builder btn_return_coupoon(coupon_details_pane.get());
 	btn_return_coupoon()
 		.text("Return")
-		.color_fill(rgba(124, 78, 229, 255))
-		.color_border(rgba(124, 78, 229, 255))
 		.rect().size({ 80, 20 })
-		.snap_to(dispatch_coupon().rect(), snap_type::right, margin_);
+		.snap_to(btn_dispatch_coupon().rect(), snap_type::right, margin_);
 	btn_return_coupoon().events().click = [&]() {
 		if (prompt("Are you sure you, return?")) {
 			return;
 		}
 	};
 
-	widgets::button_builder delete_coupons_button(coupon_details_pane.get());
-	delete_coupons_button()
+	widgets::button_builder btn_delete_coupons_button(coupon_details_pane.get());
+	btn_delete_coupons_button()
 		.text("Delete")
-		.color_fill(rgba(122, 16, 27, 100))
 		.rect().size({ 80, 20 })
 		.snap_to(btn_return_coupoon().rect(), snap_type::right, margin_);
-	delete_coupons_button().events().click = [&]() {
+	btn_delete_coupons_button().events().click = [&]() {
 		if (prompt("Are you sure you, delete?")) {
 			return;
 		}
@@ -351,7 +342,6 @@ bool dashboard::on_layout(std::string& error) {
 		.border(1)
 		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
-		//Todo.tab_side(containers::tab_pane_specs::side::left)
 		.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
 
 	containers::tab_builder appearance_settings(settings_tabs, "appearance");

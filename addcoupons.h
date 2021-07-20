@@ -59,7 +59,7 @@ class addcopoupons_form : public form {
 		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
 		{
 			std::vector<widgets::combobox_specs::combobox_item> fueltypes = {
-				{  "Petrol " }, {"Diesel"}
+				{  "Petrol" }, {"Diesel"}
 			};
 
 			fueltype_cbo()
