@@ -430,6 +430,20 @@ bool dashboard::on_dispatch_coupon(std::string& error)
 		return false;
 	}
 
+	// Updating dashboard.
+	{
+		int petrol_volume_ = 0;
+		if (!state_.get_db().on_get_petrol_volume(petrol_volume_, error))
+			message("Error: " + error);
+		widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/petrol_details").text(std::to_string(petrol_volume_) + " Litres");
+
+
+		int diesel_volume_ = 0;
+		if (!state_.get_db().on_get_diesel_volume(diesel_volume_, error))
+			message("Error: " + error);
+		widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/diesel_details").text(std::to_string(diesel_volume_) + " Litres");
+	}
+
 	// Updating the coupons table.
 	if (is_changed) { 
 		auto& old_coupons =
@@ -462,6 +476,19 @@ bool dashboard::on_add_coupons(std::string& error) {
 
 	try
 	{
+		// updating dashboard.
+		{
+			int petrol_volume_ = 0;
+			if (!state_.get_db().on_get_diesel_volume(petrol_volume_, error))
+				message("Error: " + error);
+			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/petrol_details").text(std::to_string(petrol_volume_) + " Litres");
+
+			int diesel_volume_ = 0;
+			if (!state_.get_db().on_get_diesel_volume(diesel_volume_, error))
+				message("Error: " + error);
+			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/diesel_details").text(std::to_string(diesel_volume_) + " Litres");
+		}
+
 		auto coupons_table =
 			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
 
