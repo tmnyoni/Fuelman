@@ -44,8 +44,8 @@ class addcopoupons_form : public form {
 	bool on_layout(std::string& error) override {
 		auto& page = page_man.add(page_name_);
 
-		widgets::label_builder fueltype_caption(page);
-		fueltype_caption()
+		widgets::label_builder fuel_type_caption(page);
+		fuel_type_caption()
 			.text("Fuel")
 			.rect().place(
 				{
@@ -56,33 +56,33 @@ class addcopoupons_form : public form {
 				}, 50.f, 0.f
 			);
 
-		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
+		widgets::combobox_builder fuel_type_cbo(page, "fueltype_cbo");
 		{
 			std::vector<widgets::combobox_specs::combobox_item> fueltypes = {
 				{  "Petrol" }, {"Diesel"}
 			};
 
-			fueltype_cbo()
+			fuel_type_cbo()
 				.items(fueltypes)
 				.color_fill({ 255,255,255,0 })
 				.rect().size(200, 25)
-				.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
-			fueltype_cbo().events().selection = [](const std::string& selected) {};
+				.snap_to(fuel_type_caption().rect(), snap_type::bottom, 0);
+			fuel_type_cbo().events().selection = [](const std::string& selected) {};
 		}
 
-		widgets::label_builder couponno_caption(page);
-		couponno_caption()
+		widgets::label_builder serial_number_caption(page);
+		serial_number_caption()
 			.text("Serial Number")
-			.rect().snap_to(fueltype_cbo().rect(), snap_type::bottom, margin_);
+			.rect().snap_to(fuel_type_cbo().rect(), snap_type::bottom, margin_);
 
-		widgets::text_field_builder couponno_text(page, "couponno_text");
-		couponno_text()
-			.rect().snap_to(couponno_caption().rect(), snap_type::bottom, 0);
+		widgets::text_field_builder serial_number_text(page, "couponno_text");
+		serial_number_text()
+			.rect().snap_to(serial_number_caption().rect(), snap_type::bottom, 0);
 
 		widgets::label_builder volume_caption(page);
 		volume_caption()
 			.text("Volume")
-			.rect().snap_to(couponno_text().rect(), snap_type::bottom, margin_);
+			.rect().snap_to(serial_number_text().rect(), snap_type::bottom, margin_);
 
 		widgets::text_field_builder volume_text(page, "volume_text");
 		volume_text()
@@ -121,7 +121,7 @@ class addcopoupons_form : public form {
 			};
 
 			coupons_table()
-				.border(1)
+				.border(0)
 				.corner_radius_x(0)
 				.corner_radius_y(0)
 				.color_fill({ 255, 255, 255, 0 })
