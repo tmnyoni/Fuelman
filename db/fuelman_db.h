@@ -123,43 +123,57 @@ public:
 		return true;
 	}
 
-	bool on_get_petrol_volume(int& petrol_volume, std::string& error){
+	int on_get_petrol_volume() {
+
+		std::string error;
 		std::vector<database::row> table_;
-		
 		if (!on_get_coupons(table_, error))
-			return false;
+			throw error;
 
 		int petrol_volume_ = 0;
-		for (auto& row_ : table_){
-			if (db_get::text(row_.at("Fuel")).compare("Petrol") == 0) {
+		try
+		{
+			for (auto& row_ : table_) {
+				if (db_get::text(row_.at("Fuel")).compare("Petrol") == 0) {
 
-				const auto volume = db_get::text(row_.at("Volume"));
-				if (std::all_of(volume.begin(), volume.end(), ::isdigit))
-					petrol_volume_ += std::atoi(volume.c_str());
+					const auto volume = db_get::text(row_.at("Volume"));
+					if (std::all_of(volume.begin(), volume.end(), ::isdigit))
+						petrol_volume_ += std::atoi(volume.c_str());
+				}
 			}
 		}
+		catch (const std::exception& ex)
+		{
+			throw std::string(ex.what());
+		}
+		
 
-		petrol_volume = petrol_volume_;
-		return true;
+		return petrol_volume_;
 	}
 
-	bool on_get_diesel_volume(int& diesel_volume, std::string& error) {
-		std::vector<database::row> table_;
-		
-		if (!on_get_coupons(table_, error))
-			return false;
-		
-		int diesel_volume_ = 0;
-		for (auto& row_ : table_) {
-			if (db_get::text(row_.at("Fuel")).compare("Diesel") == 0) {
+	int on_get_diesel_volume() {
 
-				const auto volume = database::get::text(row_.at("Volume"));
-				if (std::all_of(volume.begin(), volume.end(), ::isdigit))
-					diesel_volume_ += std::atoi(volume.c_str());
+		std::string error;
+		std::vector<database::row> table_;
+		if (!on_get_coupons(table_, error))
+			throw error;
+
+		int diesel_volume_ = 0;
+		try
+		{
+			for (auto& row_ : table_) {
+				if (db_get::text(row_.at("Fuel")).compare("Diesel") == 0) {
+
+					const auto volume = database::get::text(row_.at("Volume"));
+					if (std::all_of(volume.begin(), volume.end(), ::isdigit))
+						diesel_volume_ += std::atoi(volume.c_str());
+				}
 			}
 		}
+		catch (const std::exception& ex) {
+			throw std::string(ex.what());
+		}
 
-		diesel_volume = diesel_volume_;
-		return true;
+		return diesel_volume_;
 	}
 };
