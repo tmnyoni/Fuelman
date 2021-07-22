@@ -36,7 +36,8 @@ bool dashboard::on_layout(std::string& error) {
 		.border(1)
 		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
-		//Todo.tab_side(containers::tab_pane_specs::side::left)
+		.tab_side(containers::tab_pane_specs::side::left)
+		.caption_reserve({ "dashboard", "coupons", "reports", "settings" })
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
 	// dashboard.
