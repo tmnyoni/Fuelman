@@ -1,4 +1,3 @@
-#include <iostream>
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/containers/page.h>

@@ -153,7 +153,7 @@ bool dashboard::on_layout(std::string& error) {
 		std::vector<table_column> coupons_table_cols =
 		{
 			{ "#", 50 },
-			{ "Serial Number", 150 },
+			{ "Serial Number", 100 },
 			{ "Fuel", 90 },
 			{ "Volume", 80 },
 			{ "Date", 90 },
@@ -174,12 +174,13 @@ bool dashboard::on_layout(std::string& error) {
 			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(coupons_table_cols)
 			.data(coupons_data)
-			.rect().set(
-				margin_,
-				margin_ * 3,
-				tabs().rect().width() / 2.f - (margin_ * 2.f),
-				tabs().rect().height() - (margin_ * 9)
-			);
+			.rect(
+				{
+					margin_,
+					coupons_tab.get().size().width / 2.f - margin_,
+					add_coupons().rect().bottom() + margin_,
+					coupons_tab.get().size().height - margin_
+				});
 		coupons_table().events().selection = [&]
 		(const std::vector<table_row>& rows) {
 			on_select_coupon(rows);
@@ -196,12 +197,13 @@ bool dashboard::on_layout(std::string& error) {
 		.corner_radius_y(0)
 		.color_fill(rgba(255, 255, 255, 0))
 		.on_resize({ 50.f, 0.f, 50.f, 0.f })
-		.rect().set(
-			coupons_table().rect().right() + margin_,
-			coupons_table().rect().top(),
-			tabs().rect().width() / 2.f - (margin_ * 2.f),
-			tabs().rect().height() - (margin_ * 9)
-		);
+		.rect(
+			{
+				coupons_table().rect().right() + margin_,
+				coupons_tab.get().size().width - margin_,
+				coupons_table().rect().top(),
+				coupons_table().rect().bottom()
+			});
 
 	std::map<std::string, std::any> coupon;
 	if (!coupons_data.empty())
