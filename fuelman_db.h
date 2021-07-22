@@ -19,38 +19,38 @@ public:
 		if (!con.connect(error))
 			return false;
 
-		if (!con.execute("CREATE TABLE IF NOT EXISTS Coupons"
-			"( Date TEXT, 'Serial Number' TEXT, Fuel TEXT, Volume TEXT, 'Issued By' TEXT);",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS Coupons "
+			"(Date TEXT, 'Serial Number' TEXT, Fuel TEXT, Volume TEXT, 'Issued By' TEXT);",
 			{}, error)
 			)
 			return false;
 
-		if (!con.execute("CREATE TABLE IF NOT EXISTS DispatchedStatus"
-			"( Date TEXT, 'Serial Number' TEXT);",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS DispatchedStatus "
+			"(Date TEXT, 'Serial Number' TEXT);",
 			{}, error)
 			)
 			return false;
 
-		if (!con.execute("CREATE TABLE IF NOT EXISTS DispatchedTo"
-			"( 'Serial Number' TEXT, Department TEXT, Receiver TEXT );",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS DispatchedTo "
+			"('Serial Number' TEXT, Department TEXT, Receiver TEXT);",
 			{}, error)
 			)
 			return false;
 
-		if (!con.execute("CREATE TABLE IF NOT EXISTS Departments"
-			"( ID TEXT, Department TEXT);",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS Departments "
+			"(ID TEXT, Department TEXT);",
 			{}, error)
 			)
 
 			return false;
-		if (!con.execute("CREATE TABLE IF NOT EXISTS Users"
-			"( Username TEXT, Password TEXT, UserType TEXT, FirstName TEXT, LastName TEXT, IDNo TEXT)",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS Users "
+			"(Username TEXT, Password TEXT, UserType TEXT, FirstName TEXT, LastName TEXT, IDNo TEXT)",
 			{}, error)
 			)
 			return false;
 
-		if (!con.execute("CREATE TABLE IF NOT EXISTS Vouchers"
-			"( VoucherNumber TEXT, FuelVolume TEXT, ReceivedDate TEXT, ReceivedFrom TEXT)",
+		if (!con.execute("CREATE TABLE IF NOT EXISTS Vouchers "
+			"(VoucherNumber TEXT, FuelVolume TEXT, ReceivedDate TEXT, ReceivedFrom TEXT)",
 			{}, error)
 			)
 			return false;

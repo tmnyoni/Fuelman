@@ -20,8 +20,9 @@ using namespace liblec::lecui;
 using snap_type = rect::snap_type;
 
 bool dashboard::on_initialize(std::string& error) {
-	controls_.allow_minimize(true);
-	controls_.allow_resize(false);
+	controls_
+		.allow_minimize(true)
+		.allow_resize(false);
 	appearance_.theme(themes::dark);
 	dims_.set_size({ 800, 700 });
 	return true;

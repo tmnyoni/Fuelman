@@ -175,7 +175,7 @@ class dispatch_form : public form {
 			is_changed_ = true;
 
 		}
-		catch (std::exception& ex) {
+		catch (const std::exception& ex) {
 			error = std::string(ex.what());
 			return false;
 		}
