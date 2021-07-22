@@ -36,36 +36,36 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main_ui.cpp">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="fuelman_db.cpp">
+    <ClCompile Include="db\fuelman_db.cpp">
       <Filter>Source Files\db</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\main_ui.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main_ui.h">
-      <Filter>Source Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="fuelman_db.h">
-      <Filter>Source Files\db</Filter>
-    </ClInclude>
     <ClInclude Include="app_state.h">
       <Filter>Source Files\appstate</Filter>
     </ClInclude>
-    <ClInclude Include="signup.h">
+    <ClInclude Include="db\fuelman_db.h">
+      <Filter>Source Files\db</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\main_ui.h">
+      <Filter>Source Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\auth\signin.h">
       <Filter>Source Files\gui\auth</Filter>
     </ClInclude>
-    <ClInclude Include="signin.h">
+    <ClInclude Include="gui\auth\signup.h">
       <Filter>Source Files\gui\auth</Filter>
     </ClInclude>
-    <ClInclude Include="dispatch.h">
+    <ClInclude Include="gui\forms\addcoupons.h">
       <Filter>Source Files\gui\forms</Filter>
     </ClInclude>
-    <ClInclude Include="edit_coupon.h">
+    <ClInclude Include="gui\forms\dispatch.h">
       <Filter>Source Files\gui\forms</Filter>
     </ClInclude>
-    <ClInclude Include="addcoupons.h">
+    <ClInclude Include="gui\forms\edit_coupon.h">
       <Filter>Source Files\gui\forms</Filter>
     </ClInclude>
   </ItemGroup>

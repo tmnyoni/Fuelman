@@ -12,9 +12,9 @@
 #include <liblec/lecui/containers/tab_pane.h>
 
 #include "main_ui.h"
-#include "dispatch.h"
-#include "addcoupons.h"
-#include "edit_coupon.h"
+#include "forms/dispatch.h"
+#include "forms/addcoupons.h"
+#include "forms/edit_coupon.h"
 
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;

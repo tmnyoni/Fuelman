@@ -4,7 +4,7 @@
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 
-#include "appstate/app_state.h"
+#include "../appstate/app_state.h"
 
 using namespace liblec::lecui;
 

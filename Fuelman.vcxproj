@@ -151,19 +151,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="db\fuelman_db.cpp" />
+    <ClCompile Include="gui\main_ui.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="main_ui.cpp" />
-    <ClCompile Include="fuelman_db.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="edit_coupon.h" />
-    <ClInclude Include="addcoupons.h" />
-    <ClInclude Include="dispatch.h" />
-    <ClInclude Include="main_ui.h" />
-    <ClInclude Include="fuelman_db.h" />
+    <ClInclude Include="db\fuelman_db.h" />
     <ClInclude Include="app_state.h" />
-    <ClInclude Include="signin.h" />
-    <ClInclude Include="signup.h" />
+    <ClInclude Include="gui\auth\signin.h" />
+    <ClInclude Include="gui\auth\signup.h" />
+    <ClInclude Include="gui\forms\addcoupons.h" />
+    <ClInclude Include="gui\forms\dispatch.h" />
+    <ClInclude Include="gui\forms\edit_coupon.h" />
+    <ClInclude Include="gui\main_ui.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\dashboard.png" />
