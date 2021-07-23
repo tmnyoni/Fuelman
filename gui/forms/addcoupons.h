@@ -208,8 +208,6 @@ class addcopoupons_form : public form {
 	bool on_save(std::string& error) {
 		try
 		{
-			auto date_received = date_time::to_string(date_time::today());
-
 			auto coupons = 
 				widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table").data();
 
@@ -217,6 +215,8 @@ class addcopoupons_form : public form {
 				error = "There is nothing to save!";
 				return false;
 			}
+
+			auto date_received = date_time::to_string(date_time::today());
 
 			for (auto& row : coupons){
 				row.erase("#");

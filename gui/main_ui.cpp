@@ -40,9 +40,13 @@ bool dashboard::on_layout(std::string& error) {
 		.caption_reserve({ "dashboard", "coupons", "reports", "settings" })
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
-	// dashboard.
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	/// Dashboard.
 	containers::tab_builder dashboard_tab(tabs, "dashboard");
 
+
+
+	///////////////////// Left Pane
 	containers::pane_builder top_left_pane(dashboard_tab.get(), "left_pane");
 	top_left_pane()
 		.border(1.f)
@@ -72,6 +76,7 @@ bool dashboard::on_layout(std::string& error) {
 				20
 			}, 0.f, 0.f
 		);
+
 	try {
 		widgets::label_builder total_petrol_caption(top_left_pane.get());
 		total_petrol_caption()
@@ -110,6 +115,7 @@ bool dashboard::on_layout(std::string& error) {
 			.rect().size({ 100, 20 })
 			.snap_to(total_diesel_caption().rect(), snap_type::bottom, 2.f);
 
+		///////////////////////// Right pane.
 		containers::pane_builder right_pane(dashboard_tab.get(), "right_pane");
 		right_pane()
 			.border(1.f)
@@ -125,7 +131,7 @@ bool dashboard::on_layout(std::string& error) {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-											// Coupons tab.
+	/// Coupons tab.
 
 	containers::tab_builder coupons_tab(tabs, "coupons");
 
@@ -148,7 +154,6 @@ bool dashboard::on_layout(std::string& error) {
 	{
 		std::vector<table_column> coupons_table_cols =
 		{
-			{ "#", 50 },
 			{ "Serial Number", 100 },
 			{ "Fuel", 90 },
 			{ "Volume", 80 },
@@ -158,14 +163,12 @@ bool dashboard::on_layout(std::string& error) {
 		if (!state_.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
 
-		for (int i = 1; auto & row : coupons_data) {
-			row.insert(std::make_pair("#", i++));
-		}
-
 		coupons_table()
 			.border(1)
+			.fixed_number_column(true)
 			.corner_radius_x(0)
 			.corner_radius_y(0)
+			.user_sort(true)
 			.color_fill(rgba(255, 255, 255, 0))
 			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(coupons_table_cols)
@@ -184,7 +187,7 @@ bool dashboard::on_layout(std::string& error) {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-											// Coupons details pane.
+	/// Coupons details pane.
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
 	coupon_details_pane()
@@ -326,13 +329,89 @@ bool dashboard::on_layout(std::string& error) {
 		}
 	};
 
-	/// //////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
 	containers::tab_builder reports_tab(tabs, "reports");
 	
+	widgets::label_builder report_date_caption(reports_tab.get());
+	report_date_caption()
+		.text("Date")
+		.color_text(caption_color_)
+		.rect().size({ 200, 20 })
+		.set(margin_, margin_, 200, 20);
 
+	widgets::combobox_builder reports_dates_cbo(reports_tab.get(), "fueltype_cbo");
+	{
+		std::vector<widgets::combobox_specs::combobox_item> fueltypes = {
+			{  "today" }, {"yesterday"}
+		};
 
-	/// //////////////////////////
+		reports_dates_cbo()
+			.items(fueltypes)
+			.color_fill({ 255,255,255,0 })
+			.rect().size(200, 25)
+			.snap_to(report_date_caption().rect(), snap_type::bottom, 0);
+		reports_dates_cbo().events().selection = [](const std::string& selected) {};
+	}
+
+	std::vector<database::row> reports_items_data;
+	widgets::table_view_builder reports_items_table(reports_tab.get(), "reports_items_table");
+	{
+		std::vector<table_column> reports_table_columns =
+		{
+			{ "Serial Number", 150 },
+			{ "Fuel", 90 },
+			{ "Volume", 80 },
+		};
+
+		if (!state_.get_db().on_get_coupons(coupons_data, error))
+			message("Error: " + error);
+
+		reports_items_table()
+			.border(0)
+			.fixed_number_column(true)
+			.corner_radius_x(0)
+			.corner_radius_y(0)
+			.user_sort(true)
+			.color_fill(rgba(255, 255, 255, 0))
+			.on_resize({ -50.f, 0.f, 50.f, 0.f })
+			.columns(reports_table_columns)
+			.data(reports_items_data)
+			.rect(
+				{
+					margin_,
+					450,
+					reports_dates_cbo().rect().bottom() + margin_,
+					400
+				});
+		reports_items_table().events().selection = [&]
+		(const std::vector<table_row>& rows) {
+			on_select_coupon(rows);
+		};
+
+		widgets::button_builder print_button(reports_tab.get());
+		print_button()
+			.text("Print")
+			.rect().size({ 80, 20 })
+			.snap_to(reports_items_table().rect(), snap_type::bottom, margin_);
+		print_button().events().click = [&]() {};
+
+		widgets::button_builder share_button(reports_tab.get());
+		share_button()
+			.text("Share")
+			.rect().size({ 80, 20 })
+			.snap_to(print_button().rect(), snap_type::right, margin_);
+		share_button().events().click = [&]() {};
+
+		widgets::button_builder preview_button(reports_tab.get());
+		preview_button()
+			.text("Preview")
+			.rect().size({ 80, 20 })
+			.snap_to(share_button().rect(), snap_type::right, margin_);
+		preview_button().events().click = [&]() {};
+	}
+
+	/// ///////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
 	containers::tab_builder settings_tab(tabs, "settings");
 
