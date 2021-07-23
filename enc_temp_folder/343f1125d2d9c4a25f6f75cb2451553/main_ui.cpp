@@ -9,6 +9,7 @@
 #include <liblec/lecui/widgets/icon.h>
 #include <liblec/lecui/widgets/rectangle.h>
 #include <liblec/lecui/widgets/image_view.h>
+#include <liblec/lecui/widgets/line.h>
 #include <liblec/lecui/widgets/toggle.h>
 #include <liblec/lecui/containers/tab_pane.h>
 
@@ -38,12 +39,12 @@ bool dashboard::on_layout(std::string& error) {
 		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
 		.tab_side(containers::tab_pane_specs::side::left)
-		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
+		.caption_reserve({ "dashboard", "coupons", "reports", "settings" })
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Dashboard.
-	containers::tab_builder dashboard_tab(tabs, "Dashboard");
+	containers::tab_builder dashboard_tab(tabs, "dashboard");
 
 
 
@@ -134,7 +135,7 @@ bool dashboard::on_layout(std::string& error) {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Coupons tab.
 
-	containers::tab_builder coupons_tab(tabs, "Coupons");
+	containers::tab_builder coupons_tab(tabs, "coupons");
 
 	widgets::button_builder add_coupons(coupons_tab.get());
 	add_coupons()
@@ -331,7 +332,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	containers::tab_builder reports_tab(tabs, "Reports");
+	containers::tab_builder reports_tab(tabs, "reports");
 	
 	widgets::label_builder report_date_caption(reports_tab.get());
 	report_date_caption()
@@ -441,14 +442,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
-	containers::tab_builder settings_tab(tabs, "Settings");
-
-	containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
-	settings_tabs()
-		.border(1)
-		.tabs_border(0)
-		.color_tabs({ 255, 255, 255, 0 })
-		.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
+	containers::tab_builder settings_tab(tabs, "settings");
 
 	///////////////// Appearance settings.
 	widgets::label_builder appearance_settings_caption(settings_tab.get());
@@ -536,8 +530,7 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 100, 20 })
 		.set(margin_, backup_restore_caption().rect().bottom() + margin_, 100, 20);
 
-	settings_tabs.select("Appearance");
-	tabs.select("Dashboard");
+	tabs.select("dashboard");
 
 	page_man_.show(main_page_name_);
 	return true;

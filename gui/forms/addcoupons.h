@@ -113,7 +113,6 @@ class addcopoupons_form : public form {
 		{
 			std::vector<table_column> coupons_table_cols =
 			{
-				{ "#", 50 },
 				{ "Serial Number", 150 },
 				{ "Fuel", 90 },
 				{ "Volume", 90 },
@@ -122,6 +121,7 @@ class addcopoupons_form : public form {
 
 			coupons_table()
 				.border(0)
+				.fixed_number_column(true)
 				.corner_radius_x(0)
 				.corner_radius_y(0)
 				.color_fill({ 255, 255, 255, 0 })
@@ -187,7 +187,6 @@ class addcopoupons_form : public form {
 			widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table")
 				.data().push_back(
 					{
-						{"#", std::to_string(table_size + 1)},
 						{"Serial Number", serial_number },
 						{"Fuel", fuel_type},
 						{"Volume", volume },
@@ -219,7 +218,6 @@ class addcopoupons_form : public form {
 			auto date_received = date_time::to_string(date_time::today());
 
 			for (auto& row : coupons){
-				row.erase("#");
 				row.insert(std::make_pair("Date", date_received));
 			}
 
