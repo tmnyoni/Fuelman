@@ -186,8 +186,7 @@ bool dashboard::on_layout(std::string& error) {
 		};
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	/// Coupons details pane.
+	//////////////////////// Coupons details pane.
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
 	coupon_details_pane()
@@ -338,7 +337,7 @@ bool dashboard::on_layout(std::string& error) {
 		.text("Date")
 		.color_text(caption_color_)
 		.rect().size({ 200, 20 })
-		.set(margin_, margin_, 200, 20);
+		.set(margin_ * 2, margin_, 200, 20);
 
 	widgets::combobox_builder reports_dates_cbo(reports_tab.get(), "fueltype_cbo");
 	{
@@ -361,6 +360,8 @@ bool dashboard::on_layout(std::string& error) {
 		{
 			{ "Serial Number", 150 },
 			{ "Fuel", 90 },
+			{ "Issued By", 80 },
+			{ "Receiver", 80 },
 			{ "Volume", 80 },
 		};
 
@@ -380,7 +381,7 @@ bool dashboard::on_layout(std::string& error) {
 			.rect(
 				{
 					margin_,
-					450,
+					550,
 					reports_dates_cbo().rect().bottom() + margin_,
 					400
 				});
@@ -389,11 +390,26 @@ bool dashboard::on_layout(std::string& error) {
 			on_select_coupon(rows);
 		};
 
+		widgets::label_builder volume_total_caption(reports_tab.get());
+		volume_total_caption()
+			.text("TOTAL")
+			.color_text(caption_color_)
+			.rect().size({ 80, 20 })
+			.set(reports_items_table().rect().right() - 180, reports_items_table().rect().bottom(), 100, 20);
+
+		widgets::label_builder volume_total_text(reports_tab.get());
+		volume_total_text()
+			.text("0000 Litres")
+			.color_text(caption_color_)
+			.rect().size({ 80, 20 })
+			.snap_to(volume_total_caption().rect(), snap_type::right, margin_);
+
+
 		widgets::button_builder print_button(reports_tab.get());
 		print_button()
 			.text("Print")
 			.rect().size({ 80, 20 })
-			.snap_to(reports_items_table().rect(), snap_type::bottom, margin_);
+			.set(reports_items_table().rect().right() - 270, volume_total_text().rect().bottom() + (margin_ * 3), 80, 20);
 		print_button().events().click = [&]() {};
 
 		widgets::button_builder share_button(reports_tab.get());
@@ -409,9 +425,20 @@ bool dashboard::on_layout(std::string& error) {
 			.rect().size({ 80, 20 })
 			.snap_to(share_button().rect(), snap_type::right, margin_);
 		preview_button().events().click = [&]() {};
+
+		widgets::icon_builder share_rectangle(reports_tab.get());
+		share_rectangle()
+			.border(1)
+			.text("Share")
+			.color_fill({ 255, 255, 255, 0 });
+		share_rectangle()
+			.rect().size({ 80, 20 })
+			.snap_to(preview_button().rect(), snap_type::right, margin_);
+		share_rectangle().events().click = [&]() {};
+
 	}
 
-	/// ///////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
 	containers::tab_builder settings_tab(tabs, "Settings");
 
