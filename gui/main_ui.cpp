@@ -10,6 +10,8 @@
 #include <liblec/lecui/widgets/rectangle.h>
 #include <liblec/lecui/widgets/image_view.h>
 #include <liblec/lecui/widgets/toggle.h>
+#include <liblec/lecui/widgets/progress_bar.h>
+#include <liblec/lecui/widgets/progress_indicator.h>
 #include <liblec/lecui/containers/tab_pane.h>
 
 #include "main_ui.h"
@@ -50,84 +52,160 @@ bool dashboard::on_layout(std::string& error) {
 	///////////////////// Left Pane
 	containers::pane_builder top_left_pane(dashboard_tab.get(), "left_pane");
 	top_left_pane()
-		.border(1.f)
+		.border(0.f)
 		.corner_radius_x(0)
 		.corner_radius_y(0)
 		.color_fill(rgba(255, 0, 0, 0))
 		.on_resize({ 0.f, 0.f, 0.f, 100.f })
 		.rect().set(
 			margin_ / 2,
-			margin_, 
+			margin_,
 			(dashboard_tab.get().size().width / 2) - margin_,
 			(dashboard_tab.get().size().height / 2) - margin_
 		);
 
-	widgets::label_builder fuel_volume_caption(top_left_pane.get());
-	fuel_volume_caption()
-		.text("<strong>Fuel total volume </strong>")
-		.font_size(11)
-		.color_text(caption_color_)
-		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200, 20 })
-		.place(
-			{
-				margin_,
-				200,
-				margin_,
-				20
-			}, 0.f, 0.f
-		);
-
 	try {
-		widgets::label_builder total_petrol_caption(top_left_pane.get());
-		total_petrol_caption()
-			.text("Petrol")
+		widgets::label_builder fuel_consumption_caption(top_left_pane.get());
+		fuel_consumption_caption()
+			.text("Fuel Consumption (%)")
+			.center_h(true)
+			.font_size(12)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100, 20 })
+			.rect().size({ top_left_pane.get().size().width, 25 })
 			.place(
 				{
 					margin_,
-					80,
-					fuel_volume_caption().rect().bottom() + margin_,
-					fuel_volume_caption().rect().bottom() + (margin_ * 3)
+					200,
+					margin_,
+					20
 				}, 0.f, 0.f
 			);
+
+		// Petrol summary.
+		widgets::label_builder total_petrol_caption(top_left_pane.get());
+		total_petrol_caption()
+			.text("Petrol")
+			.center_h(true)
+			.color_text(caption_color_)
+			.color_fill(rgba(32, 34, 244, 0))
+			.rect().size({ 100, 20 })
+			.set(margin_, fuel_consumption_caption().rect().bottom() + margin_ * 2, (top_left_pane.get().size().width / 2) - 5, 20);
+
+		widgets::progress_indicator_builder petrol_progress(top_left_pane.get(), "petrol-progress");
+		petrol_progress()
+			.percentage(50.f)
+			.rect().size(80.f, 80.f)
+			.snap_to(total_petrol_caption().rect(), snap_type::bottom, margin_);
 
 		widgets::label_builder total_petrol_details(top_left_pane.get(), "petrol_details");
 		total_petrol_details().text(std::to_string(state_.get_db().on_get_petrol_volume()) + "  Litres");
 		total_petrol_details()
+			.center_h(true)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100, 20 })
-			.snap_to(total_petrol_caption().rect(), snap_type::bottom, 2.f);
+			.rect().size({ top_left_pane.get().size().width / 2, 20 })
+			.set(margin_, petrol_progress().rect().bottom() + margin_, top_left_pane.get().size().width / 2, 20);
 
+
+		// diesel summary.
 		widgets::label_builder total_diesel_caption(top_left_pane.get());
 		total_diesel_caption()
 			.text("Diesel")
+			.center_h(true)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100, 20 })
-			.snap_to(total_petrol_details().rect(), snap_type::bottom, margin_);
+			.rect().size({ (top_left_pane.get().size().width / 2) - margin_, 20 })
+			.snap_to(total_petrol_caption().rect(), snap_type::right, margin_);
+
+		widgets::progress_indicator_builder diesel_progress(top_left_pane.get(), "diesel-progress");
+		diesel_progress()
+			.percentage(50.f)
+			.rect().size(80.f, 80.f)
+			.snap_to(total_diesel_caption().rect(), snap_type::bottom, margin_);
+
 
 		widgets::label_builder total_diesel_details(top_left_pane.get(), "diesel_details");
 		total_diesel_details().text(std::to_string(state_.get_db().on_get_diesel_volume()) + "<span style = 'font-size: 10.0pt;'>" + " Litres  </span> ");
 		total_diesel_details()
+			.center_h(true)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100, 20 })
-			.snap_to(total_diesel_caption().rect(), snap_type::bottom, 2.f);
+			.rect().size({ top_left_pane.get().size().width / 2, 20 })
+			.snap_to(diesel_progress().rect(), snap_type::bottom, margin_);
 
+		//widgets::button_builder add_coupons(top_left_pane.get());
+		//add_coupons()
+		//	.text("View")
+		//	.rect().size({ 89, 20 })
+		//	.set(
+		//		(top_left_pane.get().size().width / 2) - 40,
+		//		total_diesel_details().rect().bottom() + margin_,
+		//		80,
+		//		margin_ * 2
+		//	);
+		//add_coupons().events().click = [&]() { /*on_add_coupons(error);*/  };
+	}
+	catch (const std::exception& ex) {
+		message(std::string(ex.what()));
+	}
+
+	try{
 		///////////////////////// Right pane.
 		containers::pane_builder right_pane(dashboard_tab.get(), "right_pane");
 		right_pane()
-			.border(1.f)
+			.border(0.f)
 			.corner_radius_x(0)
 			.corner_radius_y(0)
 			.color_fill(rgba(255, 0, 0, 0))
 			.on_resize({ 0.f, 0.f, 0.f, 100.f })
 			.rect().size((dashboard_tab.get().size().width / 2) - margin_, (dashboard_tab.get().size().height / 2) - margin_)
 			.snap_to(top_left_pane().rect(), snap_type::right, margin_);
+
+		widgets::label_builder fuel_consumption_caption(right_pane.get());
+		fuel_consumption_caption()
+			.text("Fuel Consumption (Departments)")
+			.center_h(true)
+			.font_size(12)
+			.color_text(caption_color_)
+			.color_fill(rgba(32, 34, 244, 0))
+			.rect().size({ top_left_pane.get().size().width, 25 })
+			.set(
+				margin_,
+				margin_,
+				right_pane.get().size().width - margin_,
+				20
+			);
+
+		std::vector<database::row> fuel_stats;
+		widgets::table_view_builder fuel_stats_table(right_pane.get(), "fuel-stats-departments");
+		{
+			std::vector<table_column> fuel_stats_columns =
+			{
+				{ "Issued To", 180 },
+				{ "Volume", 100 },
+			};
+
+			fuel_stats_table()
+				.border(0)
+				.fixed_number_column(true)
+				.corner_radius_x(0)
+				.corner_radius_y(0)
+				.user_sort(true)
+				.color_fill(rgba(255, 255, 255, 0))
+				.columns(fuel_stats_columns)
+				.rect(
+					{
+						margin_,
+						right_pane.get().size().width - margin_,
+						fuel_consumption_caption().rect().bottom() + margin_,
+						280
+					});
+			fuel_stats_table().events().selection = [&]
+			(const std::vector<table_row>& rows) {
+				on_select_coupon(rows);
+			};
+		}
 	}
-	catch(const std::exception& ex){
+	catch (const std::exception& ex) {
 		message(std::string(ex.what()));
 	}
 
@@ -301,7 +379,7 @@ bool dashboard::on_layout(std::string& error) {
 		);
 	btn_dispatch_coupon().events().click = [&]() {
 		std::string error_;
-		if (!on_dispatch_coupon(error_)){
+		if (!on_dispatch_coupon(error_)) {
 			message("Error: " + error_);
 			return;
 		}
@@ -331,8 +409,8 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	containers::tab_builder reports_tab(tabs, "Reports");
-	
+	containers::tab_builder reports_tab(tabs, "reports");
+
 	widgets::label_builder report_date_caption(reports_tab.get());
 	report_date_caption()
 		.text("Date")
@@ -518,7 +596,7 @@ bool dashboard::on_layout(std::string& error) {
 		.tooltip("Select whether to automatically download updates")
 		.on(true)
 		.rect(autocheck_updates_caption().rect());
-	autodownload_updates().rect().snap_to(autodownload_updates_caption	().rect(), snap_type::bottom, 0.f);
+	autodownload_updates().rect().snap_to(autodownload_updates_caption().rect(), snap_type::bottom, 0.f);
 	autodownload_updates().events().toggle = [&](bool on) { /*on_autocheck_updates(on); */};
 
 	//////////////////// Backup and Restore settings.
@@ -630,7 +708,7 @@ bool dashboard::on_dispatch_coupon(std::string& error)
 	}
 
 	// Updating the coupons table.
-	if (is_changed) { 
+	if (is_changed) {
 		auto& old_coupons =
 			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table").data();
 
@@ -665,7 +743,7 @@ bool dashboard::on_add_coupons(std::string& error) {
 		{
 			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/petrol_details")
 				.text(std::to_string(state_.get_db().on_get_petrol_volume()) + " Litres");
-			
+
 			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/diesel_details")
 				.text(std::to_string(state_.get_db().on_get_diesel_volume()) + " Litres");
 		}
