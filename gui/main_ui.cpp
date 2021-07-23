@@ -37,12 +37,12 @@ bool dashboard::on_layout(std::string& error) {
 		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
 		.tab_side(containers::tab_pane_specs::side::left)
-		.caption_reserve({ "dashboard", "coupons", "reports", "settings" })
+		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
 		.rect().set(margin_, 0, page.size().width - (margin_ * 2), page.size().height - margin_);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Dashboard.
-	containers::tab_builder dashboard_tab(tabs, "dashboard");
+	containers::tab_builder dashboard_tab(tabs, "Dashboard");
 
 
 
@@ -133,7 +133,7 @@ bool dashboard::on_layout(std::string& error) {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Coupons tab.
 
-	containers::tab_builder coupons_tab(tabs, "coupons");
+	containers::tab_builder coupons_tab(tabs, "Coupons");
 
 	widgets::button_builder add_coupons(coupons_tab.get());
 	add_coupons()
@@ -331,7 +331,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	containers::tab_builder reports_tab(tabs, "reports");
+	containers::tab_builder reports_tab(tabs, "Reports");
 	
 	widgets::label_builder report_date_caption(reports_tab.get());
 	report_date_caption()
@@ -413,7 +413,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	/// ///////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
-	containers::tab_builder settings_tab(tabs, "settings");
+	containers::tab_builder settings_tab(tabs, "Settings");
 
 	containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
 	settings_tabs()
@@ -422,10 +422,10 @@ bool dashboard::on_layout(std::string& error) {
 		.color_tabs({ 255, 255, 255, 0 })
 		.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
 
-	containers::tab_builder appearance_settings(settings_tabs, "appearance");
+	containers::tab_builder appearance_settings(settings_tabs, "Appearance");
 
-	settings_tabs.select("appearance");
-	tabs.select("dashboard");
+	settings_tabs.select("Appearance");
+	tabs.select("Dashboard");
 
 	page_man_.show(main_page_name_);
 	return true;
