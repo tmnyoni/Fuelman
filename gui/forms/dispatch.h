@@ -124,7 +124,7 @@ class dispatch_form : public form {
 		edit_coupon_button()
 			.text("Dispatch")
 			.rect().snap_to(comments_text().rect(), snap_type::bottom, 3.f * margin_);
-		edit_coupon_button().events().click = [&]() {
+		edit_coupon_button().events().action = [&]() {
 			if (!on_edit_coupon(error)) {
 				message("Error: " + error);
 				return;

@@ -102,7 +102,7 @@ class addcopoupons_form : public form {
 			.text("Add")
 			.rect().size({ 80, 20 })
 			.set(page.size().width - 90.f, issuedby_text().rect().bottom() + margin_ * 2, 80.f, 20.f);
-		add_to_table().events().click = [&]() {
+		add_to_table().events().action = [&]() {
 			if (!on_add_coupon(error)) {
 				message("Error: " + error);
 				return;
@@ -137,7 +137,7 @@ class addcopoupons_form : public form {
 		coupon_button()
 			.text("Save")
 			.rect().snap_to(coupons_table().rect(), snap_type::bottom, 3.f * margin_);
-		coupon_button().events().click = [&]() {
+		coupon_button().events().action = [&]() {
 			if (!on_save(error)) {
 				message("Error: " + error);
 				return;

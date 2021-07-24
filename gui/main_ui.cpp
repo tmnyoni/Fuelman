@@ -210,7 +210,7 @@ bool dashboard::on_layout(std::string& error) {
 				margin_ * 2.f
 			}, 0.f, 0.f
 		);
-	add_coupons().events().click = [&]() { on_add_coupons(error);  };
+	add_coupons().events().action = [&]() { on_add_coupons(error);  };
 
 	std::vector<database::row> coupons_data;
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
@@ -359,7 +359,7 @@ bool dashboard::on_layout(std::string& error) {
 				issuedby_details().rect().get_bottom() + margin_ * 2.f
 			}, 0.f, 0.f
 		);
-	btn_dispatch_coupon().events().click = [&]() {
+	btn_dispatch_coupon().events().action = [&]() {
 		std::string error_;
 		if (!on_dispatch_coupon(error_)) {
 			message("Error: " + error_);
@@ -372,7 +372,7 @@ bool dashboard::on_layout(std::string& error) {
 		.text("Return")
 		.rect().size({ 80.f, 20.f })
 		.snap_to(btn_dispatch_coupon().rect(), snap_type::right, margin_);
-	btn_return_coupoon().events().click = [&]() {
+	btn_return_coupoon().events().action = [&]() {
 		if (prompt("Are you sure you, return?")) {
 			return;
 		}
@@ -383,7 +383,7 @@ bool dashboard::on_layout(std::string& error) {
 		.text("Delete")
 		.rect().size({ 80.f, 20.f })
 		.snap_to(btn_return_coupoon().rect(), snap_type::right, margin_);
-	btn_delete_coupons_button().events().click = [&]() {
+	btn_delete_coupons_button().events().action = [&]() {
 		if (prompt("Are you sure you, delete?")) {
 			return;
 		}
@@ -474,7 +474,7 @@ bool dashboard::on_layout(std::string& error) {
 			.max_image_size(20.f)
 			.rect().set(reports_items_table().rect().right() - (80.f * 3.f) - 2.f * (margin_ / 3.f), volume_total_text().rect().bottom() + 2.f * margin_,
 				icon_size.width, icon_size.height);
-		print_button().events().click = [&]() {};
+		print_button().events().action = [&]() {};
 
 		widgets::icon_builder share_button(reports_tab.get());
 		share_button()
@@ -484,7 +484,7 @@ bool dashboard::on_layout(std::string& error) {
 			.max_image_size(20.f)
 			.rect(print_button().rect())
 			.rect().snap_to(print_button().rect(), snap_type::right, margin_ / 3.f);
-		share_button().events().click = [&]() {};
+		share_button().events().action = [&]() {};
 
 		widgets::icon_builder preview_button(reports_tab.get());
 		preview_button()
@@ -494,7 +494,7 @@ bool dashboard::on_layout(std::string& error) {
 			.max_image_size(20.f)
 			.rect(print_button().rect())
 			.rect().snap_to(share_button().rect(), snap_type::right, margin_ / 3.f);
-		preview_button().events().click = [&]() {};
+		preview_button().events().action = [&]() {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
