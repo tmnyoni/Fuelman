@@ -25,7 +25,7 @@ using snap_type = rect::snap_type;
 bool dashboard::on_initialize(std::string& error) {
 	controls_
 		.allow_minimize(true)
-		.allow_resize(false);
+		.allow_resize(true);
 	appearance_.theme(themes::dark);
 	dims_.set_size({ 800.f, 700.f });
 	return true;
@@ -56,7 +56,6 @@ bool dashboard::on_layout(std::string& error) {
 		.corner_radius_x(0.f)
 		.corner_radius_y(0.f)
 		.color_fill(rgba(255, 0, 0, 0))
-		.on_resize({ 0.f, 0.f, 0.f, 100.f })
 		.rect().set(
 			margin_ / 2.f,
 			margin_,
@@ -156,7 +155,6 @@ bool dashboard::on_layout(std::string& error) {
 			.corner_radius_x(0.f)
 			.corner_radius_y(0.f)
 			.color_fill(rgba(255, 0, 0, 0))
-			.on_resize({ 0.f, 0.f, 0.f, 100.f })
 			.rect().size((dashboard_tab.get().size().width / 2.f) - margin_, (dashboard_tab.get().size().height / 2.f) - margin_)
 			.snap_to(top_left_pane().rect(), snap_type::right, margin_);
 
@@ -249,7 +247,6 @@ bool dashboard::on_layout(std::string& error) {
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.color_fill(rgba(255, 255, 255, 0))
-			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(coupons_table_cols)
 			.data(coupons_data)
 			.rect(
@@ -273,7 +270,6 @@ bool dashboard::on_layout(std::string& error) {
 		.corner_radius_x(0.f)
 		.corner_radius_y(0.f)
 		.color_fill(rgba(255, 255, 255, 0))
-		.on_resize({ 50.f, 0.f, 50.f, 0.f })
 		.rect(
 			{
 				coupons_table().rect().right() + margin_,
@@ -454,7 +450,6 @@ bool dashboard::on_layout(std::string& error) {
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.color_fill(rgba(255, 255, 255, 0))
-			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(reports_table_columns)
 			.data(reports_items_data)
 			.rect(
