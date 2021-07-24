@@ -47,8 +47,6 @@ bool dashboard::on_layout(std::string& error) {
 	/// Dashboard.
 	containers::tab_builder dashboard_tab(tabs, "Dashboard");
 
-
-
 	///////////////////// Left Pane
 	containers::pane_builder top_left_pane(dashboard_tab.get(), "left_pane");
 	top_left_pane()
@@ -541,7 +539,7 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::combobox_builder theme_settings_cbo(settings_tab.get(), "theme-settings-theme");
 	{
 		std::vector<widgets::combobox_specs::combobox_item> themes = {
-			{  "light" }, {"dark"}
+			{ "light" }, { "dark" }
 		};
 
 		theme_settings_cbo()
@@ -615,9 +613,7 @@ bool dashboard::on_layout(std::string& error) {
 	return true;
 }
 
-bool dashboard::on_select_coupon(
-	const std::vector<table_row>& rows)
-{
+bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 	try
 	{
 		std::string error;
@@ -651,8 +647,7 @@ bool dashboard::on_select_coupon(
 		}
 		return true;
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception& ex) {
 		message("Error: " + std::string(ex.what()));
 		return false;
 	}
@@ -660,8 +655,7 @@ bool dashboard::on_select_coupon(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///								This function needs a lot of cleaning.
-bool dashboard::on_dispatch_coupon(std::string& error)
-{
+bool dashboard::on_dispatch_coupon(std::string& error) {
 	auto table_view =
 		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
 
@@ -731,8 +725,7 @@ bool dashboard::on_add_coupons(std::string& error) {
 		return false;
 	}
 
-	try
-	{
+	try {
 		// updating dashboard.
 		{
 			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/petrol_details")
@@ -764,8 +757,7 @@ bool dashboard::on_add_coupons(std::string& error) {
 
 		update();
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception& ex) {
 		error = std::string(ex.what());
 		return false;
 	}
@@ -773,11 +765,11 @@ bool dashboard::on_add_coupons(std::string& error) {
 	return true;
 }
 
-color dashboard::rgba(const unsigned short& r,
+color dashboard::rgba(
+	const unsigned short& r,
 	const unsigned short& g,
 	const unsigned short& b,
-	const unsigned short& a)
-{
+	const unsigned short& a) {
 	return color({ r, g, b, a });
 }
 
