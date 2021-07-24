@@ -464,26 +464,36 @@ bool dashboard::on_layout(std::string& error) {
 			.rect().size({ 80.f, 20.f })
 			.snap_to(volume_total_caption().rect(), snap_type::right, margin_);
 
+		const size icon_size{ 100.f, 50.f };
 
-		widgets::button_builder print_button(reports_tab.get());
+		widgets::icon_builder print_button(reports_tab.get());
 		print_button()
 			.text("Print")
-			.rect().size({ 80.f, 20.f })
-			.set(reports_items_table().rect().right() - 270.f, volume_total_text().rect().bottom() + (margin_ * 3.f), 80.f, 20.f);
+			.font_size(9.f)
+			.file("assets/print.png")
+			.max_image_size(24.f)
+			.rect().set(reports_items_table().rect().right() - (100.f * 3.f), volume_total_text().rect().bottom() + margin_,
+				icon_size.width, icon_size.height);
 		print_button().events().click = [&]() {};
 
-		widgets::button_builder share_button(reports_tab.get());
+		widgets::icon_builder share_button(reports_tab.get());
 		share_button()
 			.text("Share")
-			.rect().size({ 80.f, 20.f })
-			.snap_to(print_button().rect(), snap_type::right, margin_);
+			.font_size(9.f)
+			.file("assets/share.png")
+			.max_image_size(24.f)
+			.rect(print_button().rect())
+			.rect().snap_to(print_button().rect(), snap_type::right, 0.f);
 		share_button().events().click = [&]() {};
 
-		widgets::button_builder preview_button(reports_tab.get());
+		widgets::icon_builder preview_button(reports_tab.get());
 		preview_button()
 			.text("Preview")
-			.rect().size({ 80.f, 20.f })
-			.snap_to(share_button().rect(), snap_type::right, margin_);
+			.font_size(9.f)
+			.file("assets/preview.png")
+			.max_image_size(24.f)
+			.rect(print_button().rect())
+			.rect().snap_to(share_button().rect(), snap_type::right, 0.f);
 		preview_button().events().click = [&]() {};
 	}
 
