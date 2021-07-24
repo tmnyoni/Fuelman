@@ -27,7 +27,7 @@ bool dashboard::on_initialize(std::string& error) {
 		.allow_minimize(true)
 		.allow_resize(false);
 	appearance_.theme(themes::dark);
-	dims_.set_size({ 800.f, 700.f });
+	dims_.set_size({ 800, 700 });
 	return true;
 }
 
@@ -36,8 +36,8 @@ bool dashboard::on_layout(std::string& error) {
 
 	containers::tab_pane_builder tabs(page, "main_tab");
 	tabs()
-		.border(1.f)
-		.tabs_border(0.f)
+		.border(1)
+		.tabs_border(0)
 		.color_tabs({ 255, 255, 255, 0 })
 		.tab_side(containers::tab_pane_specs::side::left)
 		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
@@ -47,18 +47,21 @@ bool dashboard::on_layout(std::string& error) {
 	/// Dashboard.
 	containers::tab_builder dashboard_tab(tabs, "Dashboard");
 
+
+
 	///////////////////// Left Pane
 	containers::pane_builder top_left_pane(dashboard_tab.get(), "left_pane");
 	top_left_pane()
 		.border(0.f)
-		.corner_radius_x(0.f)
-		.corner_radius_y(0.f)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
 		.color_fill(rgba(255, 0, 0, 0))
+		.on_resize({ 0.f, 0.f, 0.f, 100.f })
 		.rect().set(
-			margin_ / 2.f,
+			margin_ / 2,
 			margin_,
-			(dashboard_tab.get().size().width / 2.f) - margin_,
-			(dashboard_tab.get().size().height / 2.f) - margin_
+			(dashboard_tab.get().size().width / 2) - margin_,
+			(dashboard_tab.get().size().height / 2) - margin_
 		);
 
 	try {
@@ -69,13 +72,13 @@ bool dashboard::on_layout(std::string& error) {
 			.font_size(12)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width, 25.f })
+			.rect().size({ top_left_pane.get().size().width, 25 })
 			.place(
 				{
 					margin_,
-					200.f,
+					200,
 					margin_,
-					20.f
+					20
 				}, 0.f, 0.f
 			);
 
@@ -86,7 +89,7 @@ bool dashboard::on_layout(std::string& error) {
 			.center_h(true)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100.f, 20.f })
+			.rect().size({ 100, 20 })
 			.set(margin_, fuel_consumption_caption().rect().bottom() + margin_ * 2, (top_left_pane.get().size().width / 2) - 5, 20);
 
 		widgets::progress_indicator_builder petrol_progress(top_left_pane.get(), "petrol-progress");
@@ -100,8 +103,8 @@ bool dashboard::on_layout(std::string& error) {
 		total_petrol_details()
 			.center_h(true)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width / 2.f, 20.f })
-			.set(margin_, petrol_progress().rect().bottom() + margin_, top_left_pane.get().size().width / 2.f, 20.f);
+			.rect().size({ top_left_pane.get().size().width / 2, 20 })
+			.set(margin_, petrol_progress().rect().bottom() + margin_, top_left_pane.get().size().width / 2, 20);
 
 
 		// diesel summary.
@@ -111,7 +114,7 @@ bool dashboard::on_layout(std::string& error) {
 			.center_h(true)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ (top_left_pane.get().size().width / 2.f) - margin_, 20.f })
+			.rect().size({ (top_left_pane.get().size().width / 2) - margin_, 20 })
 			.snap_to(total_petrol_caption().rect(), snap_type::right, margin_);
 
 		widgets::progress_indicator_builder diesel_progress(top_left_pane.get(), "diesel-progress");
@@ -126,7 +129,7 @@ bool dashboard::on_layout(std::string& error) {
 		total_diesel_details()
 			.center_h(true)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width / 2.f, 20.f })
+			.rect().size({ top_left_pane.get().size().width / 2, 20 })
 			.snap_to(diesel_progress().rect(), snap_type::bottom, margin_);
 	}
 	catch (const std::exception& ex) {
@@ -138,10 +141,11 @@ bool dashboard::on_layout(std::string& error) {
 		containers::pane_builder right_pane(dashboard_tab.get(), "right_pane");
 		right_pane()
 			.border(0.f)
-			.corner_radius_x(0.f)
-			.corner_radius_y(0.f)
+			.corner_radius_x(0)
+			.corner_radius_y(0)
 			.color_fill(rgba(255, 0, 0, 0))
-			.rect().size((dashboard_tab.get().size().width / 2.f) - margin_, (dashboard_tab.get().size().height / 2.f) - margin_)
+			.on_resize({ 0.f, 0.f, 0.f, 100.f })
+			.rect().size((dashboard_tab.get().size().width / 2) - margin_, (dashboard_tab.get().size().height / 2) - margin_)
 			.snap_to(top_left_pane().rect(), snap_type::right, margin_);
 
 		widgets::label_builder fuel_consumption_caption(right_pane.get());
@@ -151,12 +155,12 @@ bool dashboard::on_layout(std::string& error) {
 			.font_size(12)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width, 25.f })
+			.rect().size({ top_left_pane.get().size().width, 25 })
 			.set(
 				margin_,
 				margin_,
 				right_pane.get().size().width - margin_,
-				20.f
+				20
 			);
 
 		std::vector<database::row> fuel_stats;
@@ -169,10 +173,10 @@ bool dashboard::on_layout(std::string& error) {
 			};
 
 			fuel_stats_table()
-				.border(0.f)
+				.border(0)
 				.fixed_number_column(true)
-				.corner_radius_x(0.f)
-				.corner_radius_y(0.f)
+				.corner_radius_x(0)
+				.corner_radius_y(0)
 				.user_sort(true)
 				.color_fill(rgba(255, 255, 255, 0))
 				.columns(fuel_stats_columns)
@@ -181,7 +185,7 @@ bool dashboard::on_layout(std::string& error) {
 						margin_,
 						right_pane.get().size().width - margin_,
 						fuel_consumption_caption().rect().bottom() + margin_,
-						280.f
+						280
 					});
 			fuel_stats_table().events().selection = [&]
 			(const std::vector<table_row>& rows) {
@@ -201,13 +205,13 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::button_builder add_coupons(coupons_tab.get());
 	add_coupons()
 		.text("New Coupons")
-		.rect().size({ 89.f, 20.f })
+		.rect().size({ 89, 20 })
 		.place(
 			{
 				margin_,
-				margin_ * 10.f,
-				margin_ / 4.f,
-				margin_ * 2.f
+				margin_ * 10,
+				margin_ / 4,
+				margin_ * 2
 			}, 0.f, 0.f
 		);
 	add_coupons().events().click = [&]() { on_add_coupons(error);  };
@@ -229,10 +233,11 @@ bool dashboard::on_layout(std::string& error) {
 		coupons_table()
 			.border(1)
 			.fixed_number_column(true)
-			.corner_radius_x(0.f)
-			.corner_radius_y(0.f)
+			.corner_radius_x(0)
+			.corner_radius_y(0)
 			.user_sort(true)
 			.color_fill(rgba(255, 255, 255, 0))
+			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(coupons_table_cols)
 			.data(coupons_data)
 			.rect(
@@ -252,10 +257,11 @@ bool dashboard::on_layout(std::string& error) {
 
 	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
 	coupon_details_pane()
-		.border(1.f)
-		.corner_radius_x(0.f)
-		.corner_radius_y(0.f)
+		.border(1)
+		.corner_radius_x(0)
+		.corner_radius_y(0)
 		.color_fill(rgba(255, 255, 255, 0))
+		.on_resize({ 50.f, 0.f, 50.f, 0.f })
 		.rect(
 			{
 				coupons_table().rect().right() + margin_,
@@ -273,13 +279,13 @@ bool dashboard::on_layout(std::string& error) {
 	date_label()
 		.text("Date")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.place(
 			{
 				margin_,
-				200.f,
+				200,
 				margin_,
-				20.f
+				20
 			}, 0.f, 0.f);
 
 
@@ -288,75 +294,75 @@ bool dashboard::on_layout(std::string& error) {
 		date_details().text(get::text(coupon.at("Date")));
 	date_details()
 		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(date_label().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder coupon_serialno_caption(coupon_details_pane.get());
 	coupon_serialno_caption()
 		.text("Serial Number")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(date_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
 	coupon.empty() ? coupon_serialno_details().text("") :
 		coupon_serialno_details().text(get::text(coupon.at("Serial Number")));
 	coupon_serialno_details()
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder volume_issued_caption(coupon_details_pane.get());
 	volume_issued_caption()
 		.text("Volume")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(coupon_serialno_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder volume_details(coupon_details_pane.get(), "volume_details");
 	coupon.empty() ? volume_details().text("") :
 		volume_details().text(get::text(coupon.at("Volume")) + " Litres");
 	volume_details()
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(volume_issued_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder fuel_caption(coupon_details_pane.get());
 	fuel_caption()
 		.text("Fuel")
 		.color_text(caption_color_);
-	fuel_caption().rect().size({ 200.f, 20.f })
+	fuel_caption().rect().size({ 200, 20 })
 		.snap_to(volume_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder fuel_details(coupon_details_pane.get(), "fuel_details");
 	coupon.empty() ? fuel_details().text("") :
 		fuel_details().text(get::text(coupon.at("Fuel")));
 	fuel_details()
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(fuel_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::label_builder issuedby_caption(coupon_details_pane.get());
 	issuedby_caption()
 		.text("Issued by")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(fuel_details().rect(), snap_type::bottom, margin_);
 
 	widgets::label_builder issuedby_details(coupon_details_pane.get(), "issuedby_details");
 	coupon.empty() ? issuedby_details().text("") :
 		issuedby_details().text(get::text(coupon.at("Issued By")));
 	issuedby_details()
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
 
 	widgets::button_builder btn_dispatch_coupon(coupon_details_pane.get());
 	btn_dispatch_coupon()
 		.text("Dispatch")
-		.rect().size({ 80.f, 20.f })
+		.rect().size({ 80, 20 })
 		.place(
 			{
 				margin_,
-				100.f + margin_,
+				100 + margin_,
 				issuedby_details().rect().get_bottom() + margin_,
-				issuedby_details().rect().get_bottom() + margin_ * 2.f
+				issuedby_details().rect().get_bottom() + margin_ * 2
 			}, 0.f, 0.f
 		);
 	btn_dispatch_coupon().events().click = [&]() {
@@ -370,7 +376,7 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::button_builder btn_return_coupoon(coupon_details_pane.get());
 	btn_return_coupoon()
 		.text("Return")
-		.rect().size({ 80.f, 20.f })
+		.rect().size({ 80, 20 })
 		.snap_to(btn_dispatch_coupon().rect(), snap_type::right, margin_);
 	btn_return_coupoon().events().click = [&]() {
 		if (prompt("Are you sure you, return?")) {
@@ -381,7 +387,7 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::button_builder btn_delete_coupons_button(coupon_details_pane.get());
 	btn_delete_coupons_button()
 		.text("Delete")
-		.rect().size({ 80.f, 20.f })
+		.rect().size({ 80, 20 })
 		.snap_to(btn_return_coupoon().rect(), snap_type::right, margin_);
 	btn_delete_coupons_button().events().click = [&]() {
 		if (prompt("Are you sure you, delete?")) {
@@ -391,25 +397,25 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	containers::tab_builder reports_tab(tabs, "Reports");
+	containers::tab_builder reports_tab(tabs, "reports");
 
 	widgets::label_builder report_date_caption(reports_tab.get());
 	report_date_caption()
 		.text("Date")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
-		.set(margin_ * 2.f, margin_, 200.f, 20.f);
+		.rect().size({ 200, 20 })
+		.set(margin_ * 2, margin_, 200, 20);
 
 	widgets::combobox_builder reports_dates_cbo(reports_tab.get(), "fueltype_cbo");
 	{
-		std::vector<widgets::combobox_specs::combobox_item> dates = {
-			{ "today" }, { "yesterday" }
+		std::vector<widgets::combobox_specs::combobox_item> fueltypes = {
+			{  "today" }, {"yesterday"}
 		};
 
 		reports_dates_cbo()
-			.items(dates)
+			.items(fueltypes)
 			.color_fill({ 255,255,255,0 })
-			.rect().size(200.f, 25.f)
+			.rect().size(200, 25)
 			.snap_to(report_date_caption().rect(), snap_type::bottom, 0);
 		reports_dates_cbo().events().selection = [](const std::string& selected) {};
 	}
@@ -430,20 +436,21 @@ bool dashboard::on_layout(std::string& error) {
 			message("Error: " + error);
 
 		reports_items_table()
-			.border(0.f)
+			.border(0)
 			.fixed_number_column(true)
-			.corner_radius_x(0.f)
-			.corner_radius_y(0.f)
+			.corner_radius_x(0)
+			.corner_radius_y(0)
 			.user_sort(true)
 			.color_fill(rgba(255, 255, 255, 0))
+			.on_resize({ -50.f, 0.f, 50.f, 0.f })
 			.columns(reports_table_columns)
 			.data(reports_items_data)
 			.rect(
 				{
 					margin_,
-					550.f,
+					550,
 					reports_dates_cbo().rect().bottom() + margin_,
-					400.f
+					400
 				});
 		reports_items_table().events().selection = [&]
 		(const std::vector<table_row>& rows) {
@@ -454,69 +461,89 @@ bool dashboard::on_layout(std::string& error) {
 		volume_total_caption()
 			.text("TOTAL")
 			.color_text(caption_color_)
-			.rect().size({ 80.f, 20.f })
-			.set(reports_items_table().rect().right() - 180.f, reports_items_table().rect().bottom(), 100.f, 20.f);
+			.rect().size({ 80, 20 })
+			.set(reports_items_table().rect().right() - 180, reports_items_table().rect().bottom(), 100, 20);
 
 		widgets::label_builder volume_total_text(reports_tab.get());
 		volume_total_text()
 			.text("0000 Litres")
 			.color_text(caption_color_)
-			.rect().size({ 80.f, 20.f })
+			.rect().size({ 80, 20 })
 			.snap_to(volume_total_caption().rect(), snap_type::right, margin_);
 
 
 		widgets::button_builder print_button(reports_tab.get());
 		print_button()
 			.text("Print")
-			.rect().size({ 80.f, 20.f })
-			.set(reports_items_table().rect().right() - 270.f, volume_total_text().rect().bottom() + (margin_ * 3.f), 80.f, 20.f);
+			.rect().size({ 80, 20 })
+			.set(reports_items_table().rect().right() - 270, volume_total_text().rect().bottom() + (margin_ * 3), 80, 20);
 		print_button().events().click = [&]() {};
 
 		widgets::button_builder share_button(reports_tab.get());
 		share_button()
 			.text("Share")
-			.rect().size({ 80.f, 20.f })
+			.rect().size({ 80, 20 })
 			.snap_to(print_button().rect(), snap_type::right, margin_);
 		share_button().events().click = [&]() {};
 
 		widgets::button_builder preview_button(reports_tab.get());
 		preview_button()
 			.text("Preview")
-			.rect().size({ 80.f, 20.f })
+			.rect().size({ 80, 20 })
 			.snap_to(share_button().rect(), snap_type::right, margin_);
 		preview_button().events().click = [&]() {};
+
+		widgets::icon_builder share_rectangle(reports_tab.get());
+		share_rectangle()
+			.border(1)
+			.file("../assets/pump.png")
+			.text("Share")
+			.font_size(8)
+			.color_fill({ 255, 255, 255, 0 });
+		share_rectangle()
+			.rect().size({ 100, 100 })
+			.snap_to(preview_button().rect(), snap_type::right, margin_);
+		share_rectangle().events().click = [&]() {};
+
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
 	containers::tab_builder settings_tab(tabs, "Settings");
 
+	//containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
+	//settings_tabs()
+	//	.border(1)
+	//	.tabs_border(0)
+	//	.color_tabs({ 255, 255, 255, 0 })
+	//	.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
+
 	///////////////// Appearance settings.
 	widgets::label_builder appearance_settings_caption(settings_tab.get());
 	appearance_settings_caption()
 		.text("Appearance")
 		.color_text(caption_color_)
-		.font_size(12.f)
-		.rect().size({ 200.f, 25.f })
+		.font_size(12)
+		.rect().size({ 200, 25 })
 		.set(margin_, margin_, 100, 25);
 
 	widgets::label_builder theme_settings_caption(settings_tab.get());
 	theme_settings_caption()
 		.text("Theme")
-		.rect().size({ 200.f, 20.f })
-		.set(margin_, appearance_settings_caption().rect().bottom() + margin_, 200.f, 20.f);
+		.rect().size({ 200, 20 })
+		.set(margin_, appearance_settings_caption().rect().bottom() + margin_, 200, 20);
 
 	widgets::combobox_builder theme_settings_cbo(settings_tab.get(), "theme-settings-theme");
 	{
 		std::vector<widgets::combobox_specs::combobox_item> themes = {
-			{ "light" }, { "dark" }
+			{  "light" }, {"dark"}
 		};
 
 		theme_settings_cbo()
 			.items(themes)
 			.color_fill({ 255,255,255,0 })
-			.rect().size(200.f, 25.f)
-			.snap_to(theme_settings_caption().rect(), snap_type::bottom, 0.f);
+			.rect().size(200, 25)
+			.snap_to(theme_settings_caption().rect(), snap_type::bottom, 0);
 		theme_settings_cbo().events().selection = [](const std::string& selected) {};
 	}
 
@@ -525,15 +552,15 @@ bool dashboard::on_layout(std::string& error) {
 	updates_settings_caption()
 		.text("Updates")
 		.color_text(caption_color_)
-		.font_size(12.f)
-		.rect().size({ 200.f, 25.f })
-		.snap_to(theme_settings_cbo().rect(), snap_type::bottom, 50.f);
+		.font_size(12)
+		.rect().size({ 200, 25 })
+		.snap_to(theme_settings_cbo().rect(), snap_type::bottom, 50);
 
 	// add auto check updates toggle button
 	widgets::label_builder autocheck_updates_caption(settings_tab.get());
 	autocheck_updates_caption()
 		.text("Auto-check")
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(updates_settings_caption().rect(), snap_type::bottom, margin_);
 
 	widgets::toggle_builder autocheck_updates(settings_tab.get());
@@ -549,7 +576,7 @@ bool dashboard::on_layout(std::string& error) {
 	widgets::label_builder autodownload_updates_caption(settings_tab.get());
 	autodownload_updates_caption()
 		.text("Auto-Download")
-		.rect().size({ 200.f, 20.f })
+		.rect().size({ 200, 20 })
 		.snap_to(autocheck_updates().rect(), snap_type::bottom, margin_);
 
 	widgets::toggle_builder autodownload_updates(settings_tab.get());
@@ -567,15 +594,15 @@ bool dashboard::on_layout(std::string& error) {
 	backup_restore_caption()
 		.text("Backup and Restore")
 		.color_text(caption_color_)
-		.font_size(12.f)
-		.rect().size({ 200.f, 25.f })
-		.snap_to(autodownload_updates().rect(), snap_type::bottom, 50.f);
+		.font_size(12)
+		.rect().size({ 200, 25 })
+		.snap_to(autodownload_updates().rect(), snap_type::bottom, 50);
 
 	widgets::button_builder backup_now_btn(settings_tab.get());
 	backup_now_btn()
 		.text("Backup now")
-		.rect().size({ 100.f, 20.f })
-		.set(margin_, backup_restore_caption().rect().bottom() + margin_, 100.f, 20.f);
+		.rect().size({ 100, 20 })
+		.set(margin_, backup_restore_caption().rect().bottom() + margin_, 100, 20);
 
 	tabs.select("Dashboard");
 
@@ -583,7 +610,9 @@ bool dashboard::on_layout(std::string& error) {
 	return true;
 }
 
-bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
+bool dashboard::on_select_coupon(
+	const std::vector<table_row>& rows)
+{
 	try
 	{
 		std::string error;
@@ -617,7 +646,8 @@ bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 		}
 		return true;
 	}
-	catch (const std::exception& ex) {
+	catch (const std::exception& ex)
+	{
 		message("Error: " + std::string(ex.what()));
 		return false;
 	}
@@ -625,7 +655,8 @@ bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///								This function needs a lot of cleaning.
-bool dashboard::on_dispatch_coupon(std::string& error) {
+bool dashboard::on_dispatch_coupon(std::string& error)
+{
 	auto table_view =
 		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/coupons/coupons_table");
 
@@ -695,7 +726,8 @@ bool dashboard::on_add_coupons(std::string& error) {
 		return false;
 	}
 
-	try {
+	try
+	{
 		// updating dashboard.
 		{
 			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/dashboard/left_pane/petrol_details")
@@ -727,7 +759,8 @@ bool dashboard::on_add_coupons(std::string& error) {
 
 		update();
 	}
-	catch (const std::exception& ex) {
+	catch (const std::exception& ex)
+	{
 		error = std::string(ex.what());
 		return false;
 	}
@@ -735,11 +768,11 @@ bool dashboard::on_add_coupons(std::string& error) {
 	return true;
 }
 
-color dashboard::rgba(
-	const unsigned short& r,
+color dashboard::rgba(const unsigned short& r,
 	const unsigned short& g,
 	const unsigned short& b,
-	const unsigned short& a) {
+	const unsigned short& a)
+{
 	return color({ r, g, b, a });
 }
 
