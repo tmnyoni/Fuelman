@@ -521,12 +521,12 @@ bool dashboard::on_layout(std::string& error) {
 	/// Settings
 	containers::tab_builder settings_tab(tabs, "Settings");
 
-	containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
-	settings_tabs()
-		.border(1)
-		.tabs_border(0)
-		.color_tabs({ 255, 255, 255, 0 })
-		.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
+	//containers::tab_pane_builder settings_tabs(settings_tab.get(), "settings_tabs");
+	//settings_tabs()
+	//	.border(1)
+	//	.tabs_border(0)
+	//	.color_tabs({ 255, 255, 255, 0 })
+	//	.rect().set(margin_, 0, settings_tab.get().size().width - (margin_ * 2), settings_tab.get().size().height - margin_);
 
 	///////////////// Appearance settings.
 	widgets::label_builder appearance_settings_caption(settings_tab.get());
@@ -614,7 +614,6 @@ bool dashboard::on_layout(std::string& error) {
 		.rect().size({ 100, 20 })
 		.set(margin_, backup_restore_caption().rect().bottom() + margin_, 100, 20);
 
-	settings_tabs.select("Appearance");
 	tabs.select("Dashboard");
 
 	page_man_.show(main_page_name_);
