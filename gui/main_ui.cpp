@@ -25,7 +25,7 @@ using snap_type = rect::snap_type;
 bool dashboard::on_initialize(std::string& error) {
 	controls_
 		.allow_minimize(true)
-		.allow_resize(true);
+		.allow_resize(false);
 	appearance_.theme(themes::dark);
 	dims_.set_size({ 800.f, 700.f });
 	return true;
