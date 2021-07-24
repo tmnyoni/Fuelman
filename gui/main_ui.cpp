@@ -416,12 +416,12 @@ bool dashboard::on_layout(std::string& error) {
 
 	widgets::combobox_builder reports_dates_cbo(reports_tab.get(), "fueltype_cbo");
 	{
-		std::vector<widgets::combobox_specs::combobox_item> fueltypes = {
-			{  "today" }, {"yesterday"}
+		std::vector<widgets::combobox_specs::combobox_item> dates = {
+			{ "today" }, { "yesterday" }
 		};
 
 		reports_dates_cbo()
-			.items(fueltypes)
+			.items(dates)
 			.color_fill({ 255,255,255,0 })
 			.rect().size(200.f, 25.f)
 			.snap_to(report_date_caption().rect(), snap_type::bottom, 0);
