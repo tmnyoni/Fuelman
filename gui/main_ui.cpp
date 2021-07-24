@@ -409,7 +409,7 @@ bool dashboard::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	containers::tab_builder reports_tab(tabs, "reports");
+	containers::tab_builder reports_tab(tabs, "Reports");
 
 	widgets::label_builder report_date_caption(reports_tab.get());
 	report_date_caption()
