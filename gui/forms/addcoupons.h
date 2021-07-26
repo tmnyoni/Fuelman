@@ -37,7 +37,7 @@ class addcopoupons_form : public form {
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
 		controls_.allow_resize(false);
-		dims_.set_size({ 500, 600 });
+		dims_.set_size({ 500.f, 600.f });
 		return true;
 	}
 
@@ -47,14 +47,12 @@ class addcopoupons_form : public form {
 		widgets::label_builder fuel_type_caption(page);
 		fuel_type_caption()
 			.text("Fuel")
-			.rect().place(
-				{
-					margin_,
-					page.size().width - margin_,
-					margin_,
-					margin_ + (dims_.get_size().height / 2.f)
-				}, 50.f, 0.f
-			);
+			.rect().place(rect()
+				.left(margin_)
+				.right(page.size().width - margin_)
+				.top(margin_)
+				.bottom(margin_ + (dims_.get_size().height / 2.f)),
+				50.f, 0.f);
 
 		widgets::combobox_builder fuel_type_cbo(page, "fueltype_cbo");
 		{
