@@ -267,7 +267,7 @@ bool dashboard::on_layout(std::string& error) {
 		};
 	}
 
-	widgets::label_builder total_coupons_caption(coupons_tab.get());
+	widgets::label_builder total_coupons_caption(coupons_tab.get(), "number-of-coupons");
 	total_coupons_caption()
 		.text(std::to_string(coupons_data.size()) + " coupons available")
 		.color_text(_caption_color)
@@ -580,6 +580,10 @@ bool dashboard::on_dispatch_coupon(const std::vector<table_row>& rows,std::strin
 
 		old_coupons = new_coupons;
 		update();
+
+
+		get_label_specs(_page_name + "/main_tab/Coupons/number-of-coupons")
+			.text(std::to_string(new_coupons.size()) + " coupons available");
 	}
 
 	return true;
@@ -604,17 +608,13 @@ bool dashboard::on_add_coupons(std::string& error) {
 				.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
 		}
 
-		auto coupons_table =
-			get_table_view_specs(_page_name + "/main_tab/Coupons/coupons_table");
-
-		auto table_size = coupons_table.data().size();
+		
 
 		if (!saved_coupons.empty()) {
-			for (int i = 1; const auto & row : saved_coupons) {
+			for (const auto & row : saved_coupons) {
 				get_table_view_specs(_page_name + "/main_tab/Coupons/coupons_table")
 					.data().push_back(
 						{
-							{ "#", std::to_string(table_size + i++)},
 							{ "Date", row.at("Date")},
 							{ "Volume", row.at("Volume")},
 							{ "Serial Number", row.at("Serial Number")},
@@ -625,6 +625,11 @@ bool dashboard::on_add_coupons(std::string& error) {
 		}
 
 		update();
+
+		get_label_specs(_page_name + "/main_tab/Coupons/number-of-coupons")
+			.text(
+				std::to_string(get_table_view_specs(_page_name + "/main_tab/Coupons/coupons_table")
+					.data().size()) + " coupons available");
 	}
 	catch (const std::exception& ex) {
 		error = std::string(ex.what());
