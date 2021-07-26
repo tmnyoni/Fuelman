@@ -21,16 +21,16 @@ int main(){
 
 	//// Todo: fix the is_login issue.
 	std::string error;
-	state state_;
+	state _state;
 
 	// Connect to the database.
-	if (!state_.get_db().connect(error))
+	if (!_state.get_db().connect(error))
 		return 1;
 	
 	//if (login_window.show(error))
 	//	if (!is_logged_in) {
 	//		login_window.message("signin successful");
-			dashboard dashboard_page("FuelMan", state_);
+			dashboard dashboard_page("FuelMan", _state);
 			if (!dashboard_page.show(error))
 				dashboard_page.message("Error: " + error);
 

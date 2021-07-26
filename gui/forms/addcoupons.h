@@ -22,36 +22,37 @@ using namespace liblec::lecui;
 using snap_type = rect::snap_type;
 
 class addcopoupons_form : public form {
-	const float margin_ = 10.f;
-	const std::string page_name_ = "add_coupons_page";
+	const float _margin = 10.f;
+	const std::string _page_name = "add-coupons-page";
 
-	state& state_;
+	state& _state;
 	std::vector<table_row>& saved_coupons_;
 
-	appearance appearance_{ *this };
-	controls controls_{ *this };
-	dimensions dims_{ *this };
-	page_manager page_man{ *this };
-	widget_manager widget_man{ *this };
+	appearance _appearance{ *this };
+	controls _controls{ *this };
+	dimensions _dimensions{ *this };
+	page_manager _page_manager{ *this };
+	widget_manager _widget_manager{ *this };
 
 	bool on_initialize(std::string& error) override {
-		controls_.allow_minimize(false);
-		controls_.allow_resize(false);
-		dims_.set_size({ 500.f, 600.f });
+		_controls.
+			allow_minimize(false)
+			.allow_resize(false);
+		_dimensions.set_size({ 500.f, 600.f });
 		return true;
 	}
 
 	bool on_layout(std::string& error) override {
-		auto& page = page_man.add(page_name_);
+		auto& page = _page_manager.add(_page_name);
 
 		widgets::label_builder fuel_type_caption(page);
 		fuel_type_caption()
 			.text("Fuel")
 			.rect().place(rect()
-				.left(margin_)
-				.right(page.size().width - margin_)
-				.top(margin_)
-				.bottom(margin_ + (dims_.get_size().height / 2.f)),
+				.left(_margin)
+				.right(page.size().width - _margin)
+				.top(_margin)
+				.bottom(_margin + (_dimensions.get_size().height / 2.f)),
 				50.f, 0.f);
 
 		widgets::combobox_builder fuel_type_cbo(page, "fueltype_cbo");
@@ -71,7 +72,7 @@ class addcopoupons_form : public form {
 		widgets::label_builder serial_number_caption(page);
 		serial_number_caption()
 			.text("Serial Number")
-			.rect().snap_to(fuel_type_cbo().rect(), snap_type::bottom, margin_);
+			.rect().snap_to(fuel_type_cbo().rect(), snap_type::bottom, _margin);
 
 		widgets::text_field_builder serial_number_text(page, "couponno_text");
 		serial_number_text()
@@ -80,7 +81,7 @@ class addcopoupons_form : public form {
 		widgets::label_builder volume_caption(page);
 		volume_caption()
 			.text("Volume")
-			.rect().snap_to(serial_number_text().rect(), snap_type::bottom, margin_);
+			.rect().snap_to(serial_number_text().rect(), snap_type::bottom, _margin);
 
 		widgets::text_field_builder volume_text(page, "volume_text");
 		volume_text()
@@ -89,7 +90,7 @@ class addcopoupons_form : public form {
 		widgets::label_builder issuedby_caption(page);
 		issuedby_caption()
 			.text("Issued by")
-			.rect().snap_to(volume_text().rect(), snap_type::bottom, margin_);
+			.rect().snap_to(volume_text().rect(), snap_type::bottom, _margin);
 
 		widgets::text_field_builder issuedby_text(page, "issuedto_text");
 		issuedby_text()
@@ -99,7 +100,7 @@ class addcopoupons_form : public form {
 		add_to_table()
 			.text("Add")
 			.rect().size({ 80, 20 })
-			.set(page.size().width - 90.f, issuedby_text().rect().bottom() + margin_ * 2, 80.f, 20.f);
+			.set(page.size().width - 90.f, issuedby_text().rect().bottom() + _margin * 2, 80.f, 20.f);
 		add_to_table().events().action = [&]() {
 			if (!on_add_coupon(error)) {
 				message("Error: " + error);
@@ -125,8 +126,8 @@ class addcopoupons_form : public form {
 				.color_fill({ 255, 255, 255, 0 })
 				.on_resize({ -50.f, 0.f, 50.f, 0.f })
 				.columns(coupons_table_cols)
-				.rect().size({ page.size().width - margin_, 200 })
-				.set(margin_, add_to_table().rect().get_bottom() + 2.f, page.size().width - (margin_ * 2), 200);
+				.rect().size({ page.size().width - _margin, 200 })
+				.set(_margin, add_to_table().rect().get_bottom() + 2.f, page.size().width - (_margin * 2), 200);
 			coupons_table().events().selection = [&]
 			(const std::vector<table_row>& rows) {};
 		}
@@ -134,7 +135,7 @@ class addcopoupons_form : public form {
 		widgets::button_builder coupon_button(page, "coupon_button");
 		coupon_button()
 			.text("Save")
-			.rect().snap_to(coupons_table().rect(), snap_type::bottom, 3.f * margin_);
+			.rect().snap_to(coupons_table().rect(), snap_type::bottom, 3.f * _margin);
 		coupon_button().events().action = [&]() {
 			if (!on_save(error)) {
 				message("Error: " + error);
@@ -144,16 +145,16 @@ class addcopoupons_form : public form {
 			close();
 		};
 
-		page_man.show(page_name_);
+		_page_manager.show(_page_name);
 		return true;
 	}
 
 	bool on_add_coupon(std::string& error) {
 		try {
-			auto serial_number = get_text_field_specs(page_name_ + "/couponno_text").text();
-			auto fuel_type = get_combobox_specs(page_name_ + "/fueltype_cbo").text();
-			auto volume = get_text_field_specs(page_name_ + "/volume_text").text();
-			auto issued_by = get_text_field_specs(page_name_ + "/issuedto_text").text();
+			auto serial_number = get_text_field_specs(_page_name + "/couponno_text").text();
+			auto fuel_type = get_combobox_specs(_page_name + "/fueltype_cbo").text();
+			auto volume = get_text_field_specs(_page_name + "/volume_text").text();
+			auto issued_by = get_text_field_specs(_page_name + "/issuedto_text").text();
 
 			if (serial_number.empty() ||
 				fuel_type.empty() ||
@@ -170,7 +171,7 @@ class addcopoupons_form : public form {
 				return false;
 			}
 			
-			auto table = get_table_view_specs(page_name_ + "/coupons_table");
+			auto table = get_table_view_specs(_page_name + "/coupons_table");
 			auto table_size = table.data().size();
 
 			if (table_size != 0){
@@ -182,7 +183,7 @@ class addcopoupons_form : public form {
 				}
 			}
 
-			get_table_view_specs(page_name_ + "/coupons_table")
+			get_table_view_specs(_page_name + "/coupons_table")
 				.data().push_back(
 					{
 						{"Serial Number", serial_number },
@@ -206,7 +207,7 @@ class addcopoupons_form : public form {
 		try
 		{
 			auto coupons = 
-				get_table_view_specs(page_name_ + "/coupons_table").data();
+				get_table_view_specs(_page_name + "/coupons_table").data();
 
 			if (coupons.empty()) {
 				error = "There is nothing to save!";
@@ -219,11 +220,11 @@ class addcopoupons_form : public form {
 				row.insert(std::make_pair("Date", date_received));
 			}
 
-			if (!state_.get_db().on_save_coupons(coupons, error))
+			if (!_state.get_db().on_save_coupons(coupons, error))
 				return false;
 
 			saved_coupons_ = coupons;
-			get_table_view_specs(page_name_ + "/coupons_table")
+			get_table_view_specs(_page_name + "/coupons_table")
 				.data().clear();
 		}
 		catch (const std::exception& ex)
@@ -235,8 +236,8 @@ class addcopoupons_form : public form {
 		return true;
 	}
 public:
-	addcopoupons_form(const std::string& caption, liblec::lecui::form& parent_form, state& app_state_, std::vector<table_row>& saved_coupons) :
-		form(caption, parent_form), state_(app_state_), saved_coupons_(saved_coupons) {}
+	addcopoupons_form(const std::string& caption, liblec::lecui::form& parent_form, state& app__state, std::vector<table_row>& saved_coupons) :
+		form(caption, parent_form), _state(app__state), saved_coupons_(saved_coupons) {}
 
 };
 
