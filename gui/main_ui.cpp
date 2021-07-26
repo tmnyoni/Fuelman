@@ -13,6 +13,7 @@
 #include <liblec/lecui/widgets/progress_bar.h>
 #include <liblec/lecui/widgets/progress_indicator.h>
 #include <liblec/lecui/containers/tab_pane.h>
+#include <liblec/lecui/menus/context_menu.h>
 
 #include "main_ui.h"
 #include "forms/dispatch.h"
@@ -184,7 +185,7 @@ bool dashboard::on_layout(std::string& error) {
 					.top(fuel_consumption_caption().rect().bottom() + _margin)
 					.bottom(280.f))
 				.events().selection = [&]
-			(const std::vector<table_row>& rows) {
+				(const std::vector<table_row>& rows) {
 				on_select_coupon(rows);
 			};
 		}
@@ -198,35 +199,36 @@ bool dashboard::on_layout(std::string& error) {
 
 	containers::tab_builder coupons_tab(tabs, "Coupons");
 
-	widgets::button_builder add_coupons(coupons_tab.get());
-	add_coupons()
-		.text("New Coupons")
-		.rect().size({ 89.f, 20.f })
-		.place(rect()
-			.left(_margin)
-			.right(_margin * 10.f)
+	widgets::icon_builder add_coupons_button(coupons_tab.get());
+	add_coupons_button()
+		.text("Add Coupons")
+		.font_size(9.f)
+		.file("assets/print.png")
+		.max_image_size(20.f)
+		.rect(rect()
+			.left(_margin * 1.5f)
 			.top(_margin / 4.f)
-			.bottom(_margin * 2.f)
-			, 0.f, 0.f
-		);
-	add_coupons().events().action = [&]() { on_add_coupons(error);  };
+			.width(_margin * 12.f)
+			.height(_margin * 3.f))
+		.events().action = [&]() { on_add_coupons(error); };
 
 	std::vector<database::row> coupons_data;
 	widgets::table_view_builder coupons_table(coupons_tab.get(), "coupons_table");
 	{
 		std::vector<table_column> coupons_table_cols =
 		{
-			{ "Serial Number", 100 },
+			{ "Serial Number", 250 },
 			{ "Fuel", 90 },
 			{ "Volume", 80 },
 			{ "Date", 90 },
+			{ "Issued By", 90 },
 		};
 
 		if (!_state.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
 
 		coupons_table()
-			.border(1)
+			.border(0)
 			.fixed_number_column(true)
 			.corner_radius_x(0.f)
 			.corner_radius_y(0.f)
@@ -236,148 +238,41 @@ bool dashboard::on_layout(std::string& error) {
 			.data(coupons_data)
 			.rect(rect()
 				.left(_margin)
-				.right(coupons_tab.get().size().width / 2.f - _margin)
-				.top(add_coupons().rect().bottom() + _margin)
-				.bottom(coupons_tab.get().size().height - _margin))
-			.events().selection = [&]
-		(const std::vector<table_row>& rows) {
-			on_select_coupon(rows);
+				.right(coupons_tab.get().size().width - _margin)
+				.top(add_coupons_button().rect().bottom() + _margin)
+				.bottom(coupons_tab.get().size().height - (_margin * _margin)))
+			.events().context_menu = [&]
+			(const std::vector<table_row>& rows) {
+
+				context_menu::specs context_menu_specs;
+				context_menu_specs.items = {
+					{"Dispatch", "assets/pump.png"}, 
+					{"Return",  "assets/pump.png"},
+					{"Delete",  "assets/pump.png"}};
+
+				auto selected_context_menu_item = context_menu()(*this, context_menu_specs);
+
+				if (selected_context_menu_item.compare("Dispatch") == 0) {
+					if (rows.empty()){
+						message("Error: no selected item");
+						return;
+					}
+
+					std::string error_;
+					if (!on_dispatch_coupon(rows, error_)) {
+						message("Error: " + error_);
+						return;
+					}
+				}
 		};
 	}
 
-	//////////////////////// Coupons details pane.
-
-	containers::pane_builder coupon_details_pane(coupons_tab.get(), "coupon_details_pane");
-	coupon_details_pane()
-		.border(1.f)
-		.corner_radius_x(0.f)
-		.corner_radius_y(0.f)
-		.color_fill(rgba(255, 255, 255, 0))
-		.rect(rect()
-			.left(coupons_table().rect().right() + _margin)
-			.right(coupons_tab.get().size().width - _margin)
-			.top(coupons_table().rect().top())
-			.bottom(coupons_table().rect().bottom()));
-
-	std::map<std::string, std::any> coupon;
-	if (!coupons_data.empty())
-		coupon = coupons_data[0]; //data to display.
-
-	using get = database::get;
-	widgets::label_builder date_label(coupon_details_pane.get());
-	date_label()
-		.text("Date")
+	widgets::label_builder total_coupons_caption(coupons_tab.get());
+	total_coupons_caption()
+		.text(std::to_string(coupons_data.size()) + " coupons available")
 		.color_text(_caption_color)
-		.rect().size({ 200.f, 20.f })
-		.place(rect()
-			.left(_margin)
-			.right(200.f)
-			.top(_margin)
-			.bottom(20.f), 0.f, 0.f);
+		.rect().set(_margin * 1.5f, coupons_table().rect().bottom(), 200.f, 20.f);
 
-	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
-	coupon.empty() ? date_details().text("") :
-		date_details().text(get::text(coupon.at("Date")));
-	date_details()
-		.color_fill(rgba(32, 34, 244, 0))
-		.rect().size({ 200.f, 20.f })
-		.snap_to(date_label().rect(), snap_type::bottom, 2.f);
-
-	widgets::label_builder coupon_serialno_caption(coupon_details_pane.get());
-	coupon_serialno_caption()
-		.text("Serial Number")
-		.color_text(_caption_color)
-		.rect().size({ 200.f, 20.f })
-		.snap_to(date_details().rect(), snap_type::bottom, _margin);
-
-	widgets::label_builder coupon_serialno_details(coupon_details_pane.get(), "coupon_serialno_details");
-	coupon.empty() ? coupon_serialno_details().text("") :
-		coupon_serialno_details().text(get::text(coupon.at("Serial Number")));
-	coupon_serialno_details()
-		.rect().size({ 200.f, 20.f })
-		.snap_to(coupon_serialno_caption().rect(), snap_type::bottom, 2.f);
-
-	widgets::label_builder volume_issued_caption(coupon_details_pane.get());
-	volume_issued_caption()
-		.text("Volume")
-		.color_text(_caption_color)
-		.rect().size({ 200.f, 20.f })
-		.snap_to(coupon_serialno_details().rect(), snap_type::bottom, _margin);
-
-	widgets::label_builder volume_details(coupon_details_pane.get(), "volume_details");
-	coupon.empty() ? volume_details().text("") :
-		volume_details().text(get::text(coupon.at("Volume")) + " Litres");
-	volume_details()
-		.rect().size({ 200.f, 20.f })
-		.snap_to(volume_issued_caption().rect(), snap_type::bottom, 2.f);
-
-	widgets::label_builder fuel_caption(coupon_details_pane.get());
-	fuel_caption()
-		.text("Fuel")
-		.color_text(_caption_color);
-	fuel_caption().rect().size({ 200.f, 20.f })
-		.snap_to(volume_details().rect(), snap_type::bottom, _margin);
-
-	widgets::label_builder fuel_details(coupon_details_pane.get(), "fuel_details");
-	coupon.empty() ? fuel_details().text("") :
-		fuel_details().text(get::text(coupon.at("Fuel")));
-	fuel_details()
-		.rect().size({ 200.f, 20.f })
-		.snap_to(fuel_caption().rect(), snap_type::bottom, 2.f);
-
-	widgets::label_builder issuedby_caption(coupon_details_pane.get());
-	issuedby_caption()
-		.text("Issued by")
-		.color_text(_caption_color)
-		.rect().size({ 200.f, 20.f })
-		.snap_to(fuel_details().rect(), snap_type::bottom, _margin);
-
-	widgets::label_builder issuedby_details(coupon_details_pane.get(), "issuedby_details");
-	coupon.empty() ? issuedby_details().text("") :
-		issuedby_details().text(get::text(coupon.at("Issued By")));
-	issuedby_details()
-		.rect().size({ 200.f, 20.f })
-		.snap_to(issuedby_caption().rect(), snap_type::bottom, 2.f);
-
-	widgets::button_builder btn_dispatch_coupon(coupon_details_pane.get());
-	btn_dispatch_coupon()
-		.text("Dispatch")
-		.rect().size({ 80.f, 20.f })
-		.place(rect()
-			.left(_margin)
-			.right(100.f + _margin)
-			.top(issuedby_details().rect().get_bottom() + _margin)
-			.bottom(issuedby_details().rect().get_bottom() + _margin * 2.f), 0.f, 0.f);
-
-	btn_dispatch_coupon().events().action = [&]() {
-		std::string error_;
-		if (!on_dispatch_coupon(error_)) {
-			message("Error: " + error_);
-			return;
-		}
-	};
-
-	widgets::button_builder btn_return_coupoon(coupon_details_pane.get());
-	btn_return_coupoon()
-		.text("Return")
-		.rect().size({ 80.f, 20.f })
-		.snap_to(btn_dispatch_coupon().rect(), snap_type::right, _margin);
-	btn_return_coupoon().events().action = [&]() {
-		if (prompt("Are you sure you, return?")) {
-			return;
-		}
-	};
-
-	widgets::button_builder btn_delete_coupons_button(coupon_details_pane.get());
-	btn_delete_coupons_button()
-		.text("Delete")
-		.rect().size({ 80.f, 20.f })
-		.snap_to(btn_return_coupoon().rect(), snap_type::right, _margin);
-	btn_delete_coupons_button().events().action = [&]() {
-		if (prompt("Are you sure you, delete?")) {
-			return;
-		}
-	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
@@ -629,7 +524,7 @@ bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///								This function needs a lot of cleaning.
-bool dashboard::on_dispatch_coupon(std::string& error) {
+bool dashboard::on_dispatch_coupon(const std::vector<table_row>& rows,std::string& error) {
 	auto table_view =
 		get_table_view_specs(_page_name + "/main_tab/Coupons/coupons_table");
 

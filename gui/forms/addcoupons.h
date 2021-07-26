@@ -26,7 +26,7 @@ class addcopoupons_form : public form {
 	const std::string _page_name = "add-coupons-page";
 
 	state& _state;
-	std::vector<table_row>& saved_coupons_;
+	std::vector<table_row>& _saved_coupons;
 
 	appearance _appearance{ *this };
 	controls _controls{ *this };
@@ -223,7 +223,7 @@ class addcopoupons_form : public form {
 			if (!_state.get_db().on_save_coupons(coupons, error))
 				return false;
 
-			saved_coupons_ = coupons;
+			_saved_coupons = coupons;
 			get_table_view_specs(_page_name + "/coupons_table")
 				.data().clear();
 		}
@@ -237,7 +237,7 @@ class addcopoupons_form : public form {
 	}
 public:
 	addcopoupons_form(const std::string& caption, liblec::lecui::form& parent_form, state& app__state, std::vector<table_row>& saved_coupons) :
-		form(caption, parent_form), _state(app__state), saved_coupons_(saved_coupons) {}
+		form(caption, parent_form), _state(app__state), _saved_coupons(saved_coupons) {}
 
 };
 
