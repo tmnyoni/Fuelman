@@ -608,19 +608,19 @@ bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 		auto coupons_details_pane_alias = main_page_name_ + "/main_tab/Coupons/coupon_details_pane/";
 
 		for (auto row : data_to_display) {
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "date_details")
+			get_label_specs(coupons_details_pane_alias + "date_details")
 				.text(database::get::text(row.at("Date")));
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "coupon_serialno_details")
+			get_label_specs(coupons_details_pane_alias + "coupon_serialno_details")
 				.text(database::get::text(row.at("Serial Number")));
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "volume_details")
+			get_label_specs(coupons_details_pane_alias + "volume_details")
 				.text(database::get::text(row.at("Volume")) + " Litres");
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "fuel_details")
+			get_label_specs(coupons_details_pane_alias + "fuel_details")
 				.text(database::get::text(row.at("Fuel")));
 
-			widgets::label_builder::specs(*this, coupons_details_pane_alias + "issuedby_details")
+			get_label_specs(coupons_details_pane_alias + "issuedby_details")
 				.text(database::get::text(row.at("Issued By")));
 
 			return true;
@@ -637,7 +637,7 @@ bool dashboard::on_select_coupon(const std::vector<table_row>& rows) {
 ///								This function needs a lot of cleaning.
 bool dashboard::on_dispatch_coupon(std::string& error) {
 	auto table_view =
-		widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/Coupons/coupons_table");
+		get_table_view_specs(main_page_name_ + "/main_tab/Coupons/coupons_table");
 
 	auto selected_ = table_view.selected();
 
@@ -668,17 +668,17 @@ bool dashboard::on_dispatch_coupon(std::string& error) {
 
 	// Updating dashboard.
 	{
-		widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/Dashboard/left_pane/petrol_details")
+		get_label_specs(main_page_name_ + "/main_tab/Dashboard/left_pane/petrol_details")
 			.text(std::to_string(state_.get_db().on_get_petrol_volume()) + " Litres");
 
-		widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/Dashboard/left_pane/diesel_details")
+		get_label_specs(main_page_name_ + "/main_tab/Dashboard/left_pane/diesel_details")
 			.text(std::to_string(state_.get_db().on_get_diesel_volume()) + " Litres");
 	}
 
 	// Updating the coupons table.
 	if (is_changed) {
 		auto& old_coupons =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/Coupons/coupons_table").data();
+			get_table_view_specs(main_page_name_ + "/main_tab/Coupons/coupons_table").data();
 
 		std::vector<table_row> new_coupons;
 		new_coupons.reserve(old_coupons.size() - 1);
@@ -708,21 +708,21 @@ bool dashboard::on_add_coupons(std::string& error) {
 	try {
 		// updating dashboard.
 		{
-			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/Dashboard/left_pane/petrol_details")
+			get_label_specs(main_page_name_ + "/main_tab/Dashboard/left_pane/petrol_details")
 				.text(std::to_string(state_.get_db().on_get_petrol_volume()) + " Litres");
 
-			widgets::label_builder::specs(*this, main_page_name_ + "/main_tab/Dashboard/left_pane/diesel_details")
+			get_label_specs(main_page_name_ + "/main_tab/Dashboard/left_pane/diesel_details")
 				.text(std::to_string(state_.get_db().on_get_diesel_volume()) + " Litres");
 		}
 
 		auto coupons_table =
-			widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/Coupons/coupons_table");
+			get_table_view_specs(main_page_name_ + "/main_tab/Coupons/coupons_table");
 
 		auto table_size = coupons_table.data().size();
 
 		if (!saved_coupons.empty()) {
 			for (int i = 1; const auto & row : saved_coupons) {
-				widgets::table_view_builder::specs(*this, main_page_name_ + "/main_tab/Coupons/coupons_table")
+				get_table_view_specs(main_page_name_ + "/main_tab/Coupons/coupons_table")
 					.data().push_back(
 						{
 							{ "#", std::to_string(table_size + i++)},

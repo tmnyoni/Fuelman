@@ -152,10 +152,10 @@ class addcopoupons_form : public form {
 
 	bool on_add_coupon(std::string& error) {
 		try {
-			auto serial_number = widgets::text_field_builder::specs(*this, page_name_ + "/couponno_text").text();
-			auto fuel_type = widgets::combobox_builder::specs(*this, page_name_ + "/fueltype_cbo").text();
-			auto volume = widgets::text_field_builder::specs(*this, page_name_ + "/volume_text").text();
-			auto issued_by = widgets::text_field_builder::specs(*this, page_name_ + "/issuedto_text").text();
+			auto serial_number = get_text_field_specs(page_name_ + "/couponno_text").text();
+			auto fuel_type = get_combobox_specs(page_name_ + "/fueltype_cbo").text();
+			auto volume = get_text_field_specs(page_name_ + "/volume_text").text();
+			auto issued_by = get_text_field_specs(page_name_ + "/issuedto_text").text();
 
 			if (serial_number.empty() ||
 				fuel_type.empty() ||
@@ -172,7 +172,7 @@ class addcopoupons_form : public form {
 				return false;
 			}
 			
-			auto table = widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table");
+			auto table = get_table_view_specs(page_name_ + "/coupons_table");
 			auto table_size = table.data().size();
 
 			if (table_size != 0){
@@ -184,7 +184,7 @@ class addcopoupons_form : public form {
 				}
 			}
 
-			widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table")
+			get_table_view_specs(page_name_ + "/coupons_table")
 				.data().push_back(
 					{
 						{"Serial Number", serial_number },
@@ -208,7 +208,7 @@ class addcopoupons_form : public form {
 		try
 		{
 			auto coupons = 
-				widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table").data();
+				get_table_view_specs(page_name_ + "/coupons_table").data();
 
 			if (coupons.empty()) {
 				error = "There is nothing to save!";
@@ -225,7 +225,7 @@ class addcopoupons_form : public form {
 				return false;
 
 			saved_coupons_ = coupons;
-			widgets::table_view_builder::specs(*this, page_name_ + "/coupons_table")
+			get_table_view_specs(page_name_ + "/coupons_table")
 				.data().clear();
 		}
 		catch (const std::exception& ex)

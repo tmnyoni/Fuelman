@@ -140,13 +140,13 @@ class dispatch_form : public form {
 	bool on_edit_coupon(std::string& error) {
 		try {
 
-			auto serial_number = widgets::text_field_builder::specs(*this, page_name_ + "/serialno_text").text();
-			auto fuel_type = widgets::combobox_builder::specs(*this, page_name_ + "/fueltype_cbo").text();
-			auto volume = widgets::text_field_builder::specs(*this, page_name_ + "/quantity_text").text();
+			auto serial_number = get_text_field_specs(page_name_ + "/serialno_text").text();
+			auto fuel_type = get_combobox_specs(page_name_ + "/fueltype_cbo").text();
+			auto volume = get_text_field_specs(page_name_ + "/quantity_text").text();
 
-			auto issued_to = widgets::text_field_builder::specs(*this, page_name_ + "/issuedto_text").text();
-			auto received_by = widgets::text_field_builder::specs(*this, page_name_ + "/recvby_text").text();
-			auto comments = widgets::text_field_builder::specs(*this, page_name_ + "/comments_text").text();
+			auto issued_to = get_text_field_specs(page_name_ + "/issuedto_text").text();
+			auto received_by = get_text_field_specs(page_name_ + "/recvby_text").text();
+			auto comments = get_text_field_specs(page_name_ + "/comments_text").text();
 
 			if (serial_number.empty() ||
 				volume.empty() ||

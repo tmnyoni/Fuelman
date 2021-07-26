@@ -68,8 +68,8 @@ class login : public form {
 	void on_login() {
 		try
 		{
-			auto& username = widgets::text_field_builder::specs(*this, "login_page/username").text();
-			auto& password = widgets::password_field_builder::specs(*this, "login_page/password").text();
+			auto& username = get_text_field_specs("login_page/username").text();
+			auto& password = get_password_field_specs("login_page/password").text();
 
 			if (username.empty() || password.empty())
 				return;
