@@ -54,12 +54,11 @@ bool dashboard::on_layout(std::string& error) {
 		.corner_radius_x(0.f)
 		.corner_radius_y(0.f)
 		.color_fill(rgba(255, 0, 0, 0))
-		.rect().set(
-			margin_ / 2.f,
-			margin_,
-			(dashboard_tab.get().size().width / 2.f) - margin_,
-			(dashboard_tab.get().size().height / 2.f) - margin_
-		);
+		.rect(rect()
+			.left(margin_ / 2.f)
+			.top(margin_)
+			.width((dashboard_tab.get().size().width / 2.f) - margin_)
+			.height((dashboard_tab.get().size().height / 2.f) - margin_));
 
 	try {
 		widgets::label_builder fuel_consumption_caption(top_left_pane.get());
@@ -86,8 +85,11 @@ bool dashboard::on_layout(std::string& error) {
 			.center_h(true)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ 100.f, 20.f })
-			.set(margin_, fuel_consumption_caption().rect().bottom() + margin_ * 2, (top_left_pane.get().size().width / 2) - 5, 20);
+			.rect(rect()
+				.left(margin_)
+				.top(fuel_consumption_caption().rect().bottom() + margin_ * 2)
+				.width((top_left_pane.get().size().width / 2) - 5)
+				.height(20.f));
 
 		widgets::progress_indicator_builder petrol_progress(top_left_pane.get(), "petrol-progress");
 		petrol_progress()
@@ -100,9 +102,11 @@ bool dashboard::on_layout(std::string& error) {
 		total_petrol_details()
 			.center_h(true)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width / 2.f, 20.f })
-			.set(margin_, petrol_progress().rect().bottom() + margin_, top_left_pane.get().size().width / 2.f, 20.f);
-
+			.rect(rect()
+				.left(margin_)
+				.top(petrol_progress().rect().bottom() + margin_)
+				.width(top_left_pane.get().size().width / 2.f)
+				.height(20.f));
 
 		// diesel summary.
 		widgets::label_builder total_diesel_caption(top_left_pane.get());
@@ -151,13 +155,11 @@ bool dashboard::on_layout(std::string& error) {
 			.font_size(12)
 			.color_text(caption_color_)
 			.color_fill(rgba(32, 34, 244, 0))
-			.rect().size({ top_left_pane.get().size().width, 25.f })
-			.set(
-				margin_,
-				margin_,
-				right_pane.get().size().width - margin_,
-				20.f
-			);
+			.rect(rect()
+				.left(margin_)
+				.top(margin_)
+				.width(right_pane.get().size().width - margin_)
+				.height(20.f));
 
 		std::vector<database::row> fuel_stats;
 		widgets::table_view_builder fuel_stats_table(right_pane.get(), "fuel-stats-departments");
@@ -176,14 +178,12 @@ bool dashboard::on_layout(std::string& error) {
 				.user_sort(true)
 				.color_fill(rgba(255, 255, 255, 0))
 				.columns(fuel_stats_columns)
-				.rect(
-					{
-						margin_,
-						right_pane.get().size().width - margin_,
-						fuel_consumption_caption().rect().bottom() + margin_,
-						280.f
-					});
-			fuel_stats_table().events().selection = [&]
+				.rect(rect()
+					.left(margin_)
+					.right(right_pane.get().size().width - margin_)
+					.top(fuel_consumption_caption().rect().bottom() + margin_)
+					.bottom(280.f))
+				.events().selection = [&]
 			(const std::vector<table_row>& rows) {
 				on_select_coupon(rows);
 			};
@@ -202,13 +202,12 @@ bool dashboard::on_layout(std::string& error) {
 	add_coupons()
 		.text("New Coupons")
 		.rect().size({ 89.f, 20.f })
-		.place(
-			{
-				margin_,
-				margin_ * 10.f,
-				margin_ / 4.f,
-				margin_ * 2.f
-			}, 0.f, 0.f
+		.place(rect()
+			.left(margin_)
+			.right(margin_ * 10.f)
+			.top(margin_ / 4.f)
+			.bottom(margin_ * 2.f)
+			, 0.f, 0.f
 		);
 	add_coupons().events().action = [&]() { on_add_coupons(error);  };
 
@@ -235,14 +234,12 @@ bool dashboard::on_layout(std::string& error) {
 			.color_fill(rgba(255, 255, 255, 0))
 			.columns(coupons_table_cols)
 			.data(coupons_data)
-			.rect(
-				{
-					margin_,
-					coupons_tab.get().size().width / 2.f - margin_,
-					add_coupons().rect().bottom() + margin_,
-					coupons_tab.get().size().height - margin_
-				});
-		coupons_table().events().selection = [&]
+			.rect(rect()
+				.left(margin_)
+				.right(coupons_tab.get().size().width / 2.f - margin_)
+				.top(add_coupons().rect().bottom() + margin_)
+				.bottom(coupons_tab.get().size().height - margin_))
+			.events().selection = [&]
 		(const std::vector<table_row>& rows) {
 			on_select_coupon(rows);
 		};
@@ -256,13 +253,11 @@ bool dashboard::on_layout(std::string& error) {
 		.corner_radius_x(0.f)
 		.corner_radius_y(0.f)
 		.color_fill(rgba(255, 255, 255, 0))
-		.rect(
-			{
-				coupons_table().rect().right() + margin_,
-				coupons_tab.get().size().width - margin_,
-				coupons_table().rect().top(),
-				coupons_table().rect().bottom()
-			});
+		.rect(rect()
+			.left(coupons_table().rect().right() + margin_)
+			.right(coupons_tab.get().size().width - margin_)
+			.top(coupons_table().rect().top())
+			.bottom(coupons_table().rect().bottom()));
 
 	std::map<std::string, std::any> coupon;
 	if (!coupons_data.empty())
@@ -274,14 +269,11 @@ bool dashboard::on_layout(std::string& error) {
 		.text("Date")
 		.color_text(caption_color_)
 		.rect().size({ 200.f, 20.f })
-		.place(
-			{
-				margin_,
-				200.f,
-				margin_,
-				20.f
-			}, 0.f, 0.f);
-
+		.place(rect()
+			.left(margin_)
+			.right(200.f)
+			.top(margin_)
+			.bottom(20.f), 0.f, 0.f);
 
 	widgets::label_builder date_details(coupon_details_pane.get(), "date_details");
 	coupon.empty() ? date_details().text("") :
@@ -351,14 +343,12 @@ bool dashboard::on_layout(std::string& error) {
 	btn_dispatch_coupon()
 		.text("Dispatch")
 		.rect().size({ 80.f, 20.f })
-		.place(
-			{
-				margin_,
-				100.f + margin_,
-				issuedby_details().rect().get_bottom() + margin_,
-				issuedby_details().rect().get_bottom() + margin_ * 2.f
-			}, 0.f, 0.f
-		);
+		.place(rect()
+			.left(margin_)
+			.right(100.f + margin_)
+			.top(issuedby_details().rect().get_bottom() + margin_)
+			.bottom(issuedby_details().rect().get_bottom() + margin_ * 2.f), 0.f, 0.f);
+
 	btn_dispatch_coupon().events().action = [&]() {
 		std::string error_;
 		if (!on_dispatch_coupon(error_)) {
@@ -397,8 +387,11 @@ bool dashboard::on_layout(std::string& error) {
 	report_date_caption()
 		.text("Date")
 		.color_text(caption_color_)
-		.rect().size({ 200.f, 20.f })
-		.set(margin_ * 2.f, margin_, 200.f, 20.f);
+		.rect(rect()
+			.left(margin_ * 2.f)
+			.top(margin_)
+			.width(200.f)
+			.height(20.f));
 
 	widgets::combobox_builder reports_dates_cbo(reports_tab.get(), "fueltype_cbo");
 	{
@@ -438,13 +431,11 @@ bool dashboard::on_layout(std::string& error) {
 			.color_fill(rgba(255, 255, 255, 0))
 			.columns(reports_table_columns)
 			.data(reports_items_data)
-			.rect(
-				{
-					margin_,
-					550.f,
-					reports_dates_cbo().rect().bottom() + margin_,
-					400.f
-				});
+			.rect(rect()
+				.left(margin_)
+				.right(550.f)
+				.top(reports_dates_cbo().rect().bottom() + margin_)
+				.bottom(400.f));
 		reports_items_table().events().selection = [&]
 		(const std::vector<table_row>& rows) {
 			on_select_coupon(rows);
@@ -472,9 +463,12 @@ bool dashboard::on_layout(std::string& error) {
 			.font_size(9.f)
 			.file("assets/print.png")
 			.max_image_size(20.f)
-			.rect().set(reports_items_table().rect().right() - (80.f * 3.f) - 2.f * (margin_ / 3.f), volume_total_text().rect().bottom() + 2.f * margin_,
-				icon_size.width, icon_size.height);
-		print_button().events().action = [&]() {};
+			.rect(rect()
+				.left(reports_items_table().rect().right() - (80.f * 3.f) - 2.f * (margin_ / 3.f))
+				.top(volume_total_text().rect().bottom() + 2.f * margin_)
+				.width(icon_size.width)
+				.height(icon_size.height))
+			.events().action = [&]() {};
 
 		widgets::icon_builder share_button(reports_tab.get());
 		share_button()
