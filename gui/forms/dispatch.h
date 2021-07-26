@@ -38,7 +38,7 @@ class dispatch_form : public form {
 	bool on_initialize(std::string& error) override {
 		controls_.allow_minimize(false);
 		controls_.allow_resize(false);
-		dims_.set_size({ 350, 450 });
+		dims_.set_size({ 350.f, 450.f });
 		return true;
 	}
 
@@ -49,13 +49,12 @@ class dispatch_form : public form {
 		widgets::label_builder fueltype_caption(page);
 		fueltype_caption()
 			.text("Fuel type")
-			.rect().place(
-				{
-					margin_,
-					page.size().width - margin_,
-					margin_, margin_ + (dims_.get_size().height / 2.f)
-				}, 50.f, 0.f
-			);
+			.rect().place(rect()
+				.left(margin_)
+				.right(page.size().width - margin_)
+				.top(margin_)
+				.bottom(margin_ + (dims_.get_size().height / 2.f)),
+				50.f, 0.f);
 
 		widgets::combobox_builder fueltype_cbo(page, "fueltype_cbo");
 		{
@@ -67,8 +66,8 @@ class dispatch_form : public form {
 			fueltype_cbo()
 				.items(fueltypes)
 				.selected("Petrol")
-				.color_fill({ 255,255,255,0 })
-				.rect().size(200, 25)
+				.color_fill({ 255, 255, 255, 0 })
+				.rect().size(200.f, 25.f)
 				.snap_to(fueltype_caption().rect(), snap_type::bottom, 0);
 			fueltype_cbo().events().selection = [](const std::string& selected) {};
 		}
