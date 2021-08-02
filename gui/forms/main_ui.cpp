@@ -232,8 +232,8 @@ bool main_window::on_layout(std::string& error) {
 			context_menu::specs context_menu_specs;
 			context_menu_specs.items = {
 				{"Dispatch", "assets/pump.png"},
-				{"Return",  "assets/pump.png"},
-				{"Delete",  "assets/pump.png"} };
+				{"Return",  "assets/return.png"},
+				{"Delete",  "assets/delete.png"} };
 
 			auto selected_context_menu_item = context_menu()(*this, context_menu_specs);
 
@@ -274,17 +274,12 @@ bool main_window::on_layout(std::string& error) {
 			.height(20.f));
 
 	auto& report_date_select = widgets::combobox::add(reports_tab, "report-date-select");
-	{
-		std::vector<widgets::combobox::combobox_item> dates =
-		{ { "today" }, { "yesterday" } };
-
 		report_date_select
-			.items(dates)
+			.items({ { "today" }, { "yesterday" } })
 			.color_fill({ 255,255,255,0 })
 			.rect().size(200.f, 25.f)
 			.snap_to(report_date_caption.rect(), snap_type::bottom, 0);
 		report_date_select.events().selection = [](const std::string& selected) {};
-	}
 
 	auto& report_items_table = widgets::table_view::add(reports_tab, "reports-items-table");
 	{
@@ -307,7 +302,6 @@ bool main_window::on_layout(std::string& error) {
 			.corner_radius_x(0.f)
 			.corner_radius_y(0.f)
 			.user_sort(true)
-			.color_fill(color().red(255).green(255).blue(255))
 			.columns(reports_table_columns)
 			.data(reports_items_data)
 			.rect(rect()
@@ -333,7 +327,6 @@ bool main_window::on_layout(std::string& error) {
 
 
 		const size icon_size{ 80.f, 30.f };
-
 		auto& print_button = widgets::icon::add(reports_tab);
 		print_button
 			.text("Print")
