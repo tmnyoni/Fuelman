@@ -1,5 +1,5 @@
 #pragma once
-#include "../db/fuelman_db.h"
+#include "../db/database.h"
 
 class state {
 	fuelman_db db_;

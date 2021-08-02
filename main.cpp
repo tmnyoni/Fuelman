@@ -30,7 +30,7 @@ int main(){
 	//if (login_window.show(error))
 	//	if (!is_logged_in) {
 	//		login_window.message("signin successful");
-			dashboard dashboard_page("FuelMan", _state);
+			main_window dashboard_page("FuelMan", _state);
 			if (!dashboard_page.show(error))
 				dashboard_page.message("Error: " + error);
 

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <map>
 #include <any>
 #include <algorithm>
+#include <map>
+#include <vector>
+
 
 #include <liblec/leccore/database.h>
 
 using namespace liblec::leccore;
-using row = std::map<std::string, std::string>;
 using db_get = database::get;
 
 class fuelman_db {
@@ -122,6 +122,46 @@ public:
 		table_ = results_table.data;
 		return true;
 	}
+
+
+	//// This function is unfinished.
+	std::vector<database::row> on_update_departmental_stats() {
+		std::string error;
+		const std::string sql_query =
+			"SELECT Department, Volume FROM Coupons INNER JOIN DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\""
+			"INNER JOIN DispatchedTo ON DispatchedTo.\"Serial Number\" = DispatchedStatus.\"Serial Number\";";
+
+		database::table results_table;
+		if (!con.execute_query(sql_query, results_table, error))
+			throw error;
+
+		bool is_found = false;
+		std::vector<database::row> departmental_stats;
+		for (const auto& row : results_table.data) {
+			if (!departmental_stats.empty()) {
+
+				for (const auto& _row : departmental_stats) {
+					if (db_get::text(_row.at("Department")) == db_get::text(row.at("Department"))) {
+						is_found = true;
+
+						int volume = db_get::integer(_row.at("Volume"));
+						volume += db_get::integer(row.at("Volume"));
+
+						//_row.at("Volume") = volume;
+						break;
+
+					}
+				}
+			}
+
+			departmental_stats.push_back({
+				{ "Department", db_get::text(row.at("Department"))},
+				{ "Volume", db_get::text(row.at("Volume"))}
+				});
+		}
+		return departmental_stats;
+	}
+
 
 	int on_get_petrol_volume() {
 
