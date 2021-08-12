@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\assets">
-      <UniqueIdentifier>{a3cbe65c-1538-4a57-a609-56a33d81a359}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{408b0b2d-6c65-4a84-9005-3c1cb7e4b5a1}</UniqueIdentifier>
     </Filter>
@@ -28,13 +25,19 @@
     <Filter Include="Source Files\gui\forms">
       <UniqueIdentifier>{fafb32f3-64f7-4c8a-96a1-b70f6121ea88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\version_info">
+      <UniqueIdentifier>{21ca5333-71eb-44ef-8d8c-81b203ad9959}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\resources">
+      <UniqueIdentifier>{a3cbe65c-1538-4a57-a609-56a33d81a359}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\resources\png">
+      <UniqueIdentifier>{386bf4f9-f1eb-497f-9e9e-abf7874e04aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="db\database.cpp">
-      <Filter>Source Files\db</Filter>
     </ClCompile>
     <ClCompile Include="gui\forms\addcoupons.cpp">
       <Filter>Source Files\gui\forms</Filter>
@@ -42,11 +45,14 @@
     <ClCompile Include="gui\forms\main_ui.cpp">
       <Filter>Source Files\gui\forms</Filter>
     </ClCompile>
+    <ClCompile Include="version_info\version_info.h">
+      <Filter>Source Files\version_info</Filter>
+    </ClCompile>
+    <ClCompile Include="db\database.cpp">
+      <Filter>Source Files\db</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="db\database.h">
-      <Filter>Source Files\db</Filter>
-    </ClInclude>
     <ClInclude Include="gui\auth\signin.h">
       <Filter>Source Files\gui</Filter>
     </ClInclude>
@@ -65,13 +71,46 @@
     <ClInclude Include="appstate\app_state.h">
       <Filter>Source Files\appstate</Filter>
     </ClInclude>
+    <ClInclude Include="db\database.h">
+      <Filter>Source Files\db</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\dashboard.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="resources\png\add.png">
+      <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="assets\pump.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="resources\png\dashboard (1).png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\dashboard.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\delete.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\fuel.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\preview.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\print.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\pump.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\reports.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\return.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\settings.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\share.png">
+      <Filter>Source Files\resources\png</Filter>
     </Image>
   </ItemGroup>
 </Project>

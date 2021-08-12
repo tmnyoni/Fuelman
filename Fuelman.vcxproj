@@ -155,6 +155,7 @@
     <ClCompile Include="gui\forms\addcoupons.cpp" />
     <ClCompile Include="gui\forms\main_ui.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="version_info\version_info.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appstate\app_state.h" />
@@ -166,8 +167,18 @@
     <ClInclude Include="gui\main_ui.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\dashboard.png" />
-    <Image Include="assets\pump.png" />
+    <Image Include="resources\png\add.png" />
+    <Image Include="resources\png\dashboard (1).png" />
+    <Image Include="resources\png\dashboard.png" />
+    <Image Include="resources\png\delete.png" />
+    <Image Include="resources\png\fuel.png" />
+    <Image Include="resources\png\preview.png" />
+    <Image Include="resources\png\print.png" />
+    <Image Include="resources\png\pump.png" />
+    <Image Include="resources\png\reports.png" />
+    <Image Include="resources\png\return.png" />
+    <Image Include="resources\png\settings.png" />
+    <Image Include="resources\png\share.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
