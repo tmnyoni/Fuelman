@@ -2,6 +2,8 @@
 // include liblec headers.
 #include <liblec/lecui/containers/page.h>
 #include <liblec/lecui/containers/pane.h>
+#include <liblec/lecui/containers/tab_pane.h>
+
 #include <liblec/lecui/widgets/button.h>
 #include <liblec/lecui/widgets/label.h>
 #include <liblec/lecui/widgets/text_field.h>
@@ -10,7 +12,7 @@
 #include <liblec/lecui/widgets/image_view.h>
 #include <liblec/lecui/widgets/toggle.h>
 #include <liblec/lecui/widgets/progress_indicator.h>
-#include <liblec/lecui/containers/tab_pane.h>
+
 #include <liblec/lecui/menus/context_menu.h>
 
 // include local headers.
@@ -169,7 +171,6 @@ bool main_window::on_layout(std::string& error) {
 			.color_fill(color().alpha(0))
 			.user_sort(true)
 			.columns(departmental_consumpt_stats_columns)
-			.data(_state.get_db().on_update_departmental_stats())
 			.rect(rect()
 				.left(_margin)
 				.right(top_right_pane.size().get_width() - _margin)
@@ -460,7 +461,7 @@ bool main_window::on_layout(std::string& error) {
 ///								This function needs a lot of cleaning.
 bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::string& error) {
 	auto table_view =
-		get_table_view(_page_name + "/" + _main_tab_name + "/Coupons/coupons-table");
+		get_table_view(main_tab_pane_path() + "/Coupons/coupons-table");
 
 	auto selected_ = table_view.selected();
 
@@ -492,14 +493,14 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 	// Updating dashboard.
 	try
 	{
-		get_label(_page_name + "/main-tab-pane/Dashboard/top-left-pane/petrol-summary-caption")
+		get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
 			.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
 
-		get_label(_page_name + "/main_tab/Dashboard/left_pane/diesel-summary-caption")
+		get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
 			.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
 
-		get_table_view(_page_name + "/main_tab/Dashboard/right_pane/fuel-stats-departments")
-			.data(_state.get_db().on_update_departmental_stats());
+		//get_table_view(main_tab_pane_path() + "/Dashboard/top-right-pane/departmental-consumpt-stats-table")
+		//	.data(_state.get_db().on_update_departmental_stats());
 	}
 	catch (const std::exception& ex) {
 		error = ex.what();
@@ -509,7 +510,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 	// Updating the coupons table.
 	if (is_changed) {
 		auto& old_coupons =
-			get_table_view(_page_name + "/main_tab/Coupons/coupons_table").data();
+			get_table_view(main_tab_pane_path() + "/Coupons/coupons-table").data();
 
 		std::vector<table_row> new_coupons;
 		new_coupons.reserve(old_coupons.size() - 1);
@@ -524,7 +525,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 		update();
 
 
-		get_label(_page_name + "/main_tab/Coupons/number-of-coupons")
+		get_label(main_tab_pane_path() +  "/Coupons/number-of-coupons")
 			.text(std::to_string(new_coupons.size()) + " coupons available");
 	}
 
@@ -579,7 +580,28 @@ bool main_window::on_add_coupons(std::string& error) {
 	return true;
 }
 
-bool main_window::on_delete_coupon()
-{
-	return false;
+bool main_window::on_delete_coupon(std::string& error) {
+	// function not finished.
+
+	auto& coupons_table =
+		get_table_view(_page_name + "/main_tab/Coupons/coupons_table");
+
+	auto& old_coupons = coupons_table.data();
+	auto& selected_coupon = coupons_table.selected();
+
+	std::vector<table_row> new_coupons;
+	new_coupons.reserve(old_coupons.size() - 1);
+
+	old_coupons = new_coupons;
+	update();
+
+
+	get_label(_page_name + "/main_tab/Coupons/number-of-coupons")
+		.text(std::to_string(new_coupons.size()) + " coupons available");
+
+	auto table_view =
+		get_table_view(_page_name + "/" + _main_tab_name + "/Coupons/coupons-table");
+
+
+	return true;
 }

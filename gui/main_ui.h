@@ -36,7 +36,7 @@ class main_window : public form {
 	// class methods.
 	bool on_dispatch_coupon(const std::vector<table_row>& rows, std::string& error);
 	bool on_add_coupons(std::string& error);
-	bool on_delete_coupon();
+	bool on_delete_coupon(std::string& error);
 
 	// application state.
 	state& _state;

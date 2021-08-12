@@ -7,6 +7,7 @@
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/containers/page.h>
+
 #include <liblec/lecui/widgets/button.h>
 #include <liblec/lecui/widgets/label.h>
 #include <liblec/lecui/widgets/text_field.h>

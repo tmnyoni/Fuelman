@@ -6,6 +6,7 @@
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/containers/page.h>
+
 #include <liblec/lecui/widgets/button.h>
 #include <liblec/lecui/widgets/label.h>
 #include <liblec/lecui/widgets/text_field.h>
@@ -57,7 +58,7 @@ class dispatch_form : public form {
 				.bottom(_margin + (_dimensions.get_size().get_height() / 2.f)),
 				50.f, 0.f);
 
-		auto& fuel_select = widgets::combobox::add(page, "fuel_select");
+		auto& fuel_select = widgets::combobox::add(page, "fuel-select");
 		{
 			std::vector<widgets::combobox::combobox_item> fuels =
 			{
@@ -78,7 +79,7 @@ class dispatch_form : public form {
 			.text("Serial Number")
 			.rect().snap_to(fuel_select.rect(), snap_type::bottom, _margin);
 
-		auto& serial_number_text = widgets::text_field::add(page, "serial_number_text");
+		auto& serial_number_text = widgets::text_field::add(page, "serial-number-text");
 		serial_number_text
 			.text(get_::text(_saved_coupon.at("Serial Number")))
 			.rect().snap_to(serial_number_caption.rect(), snap_type::bottom, 0);
@@ -88,44 +89,42 @@ class dispatch_form : public form {
 			.text("Volume")
 			.rect().snap_to(serial_number_text.rect(), snap_type::bottom, _margin);
 
-		auto& volume_text = widgets::text_field::add(page, "volume_text");
+		auto& volume_text = widgets::text_field::add(page, "volume-text");
 		volume_text
+			.allowed_characters({ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' })
 			.text(get_::text(_saved_coupon.at("Volume")))
 			.rect().snap_to(volume_caption.rect(), snap_type::bottom, 0);
 
 		auto& receiver_department_caption = widgets::label::add(page);
 		receiver_department_caption
 			.text("Issued to")
-			.rect().snap_to(volume_caption.rect(), snap_type::bottom, _margin);
+			.rect().snap_to(volume_text.rect(), snap_type::bottom, _margin);
 
-		auto& receiver_department_text = widgets::text_field::add(page, "receiver_department_text");
-		receiver_department_text
-			.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
+		auto& receiver_department_text = widgets::text_field::add(page, "receiver-department-text");
+		receiver_department_text.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
 
 		auto& receiver_caption = widgets::label::add(page);
 		receiver_caption
 			.text("Received By")
 			.rect().snap_to(receiver_department_text.rect(), snap_type::bottom, _margin);
 
-		auto& receiver_text = widgets::text_field::add(page, "receiver_text");
-		receiver_text
-			.rect().snap_to(receiver_caption.rect(), snap_type::bottom, 0);
+		auto& receiver_text = widgets::text_field::add(page, "receiver-text");
+		receiver_text.rect().snap_to(receiver_caption.rect(), snap_type::bottom, 0);
 
 		auto& comments_caption = widgets::label::add(page);
 		comments_caption
 			.text("Comments")
 			.rect().snap_to(receiver_text.rect(), snap_type::bottom, _margin);
 
-		auto& comments_text = widgets::text_field::add(page, "comments_text");
-		comments_text
-			.rect().snap_to(comments_caption.rect(), snap_type::bottom, 0);
+		auto& comments_text = widgets::text_field::add(page, "comments-text");
+		comments_text.rect().snap_to(comments_caption.rect(), snap_type::bottom, 0);
 
 		auto& dispatch_button = widgets::button::add(page);
 		dispatch_button
 			.text("Dispatch")
 			.rect().snap_to(comments_text.rect(), snap_type::bottom, 3.f * _margin);
 		dispatch_button.events().action = [&]() {
-			if (!on_edit_coupon(error)) {
+			if (!on_dispatch(error)) {
 				message("Error: " + error);
 				return;
 			}
@@ -137,15 +136,15 @@ class dispatch_form : public form {
 		return true;
 	}
 
-	bool on_edit_coupon(std::string& error) {
+	bool on_dispatch(std::string& error) {
 		try {
 
-			auto fuel = get_combobox(_page_name + "/fuel_select").text();
-			auto serial_number = get_text_field(_page_name + "/serial_number_text").text();
-			auto volume = get_text_field(_page_name + "/volume_text").text();
-			auto receiver_department = get_text_field(_page_name + "/received_department_text").text();
-			auto receiver = get_text_field(_page_name + "/receiver_text").text();
-			auto comments = get_text_field(_page_name + "/comments_text").text();
+			auto fuel = get_combobox(_page_name + "/fuel-select").text();
+			auto serial_number = get_text_field(_page_name + "/serial-number-text").text();
+			auto volume = get_text_field(_page_name + "/volume-text").text();
+			auto receiver_department = get_text_field(_page_name + "/receiver-department-text").text();
+			auto receiver = get_text_field(_page_name + "/receiver-text").text();
+			auto comments = get_text_field(_page_name + "/comments-text").text();
 
 			if (serial_number.empty() ||
 				volume.empty() ||
@@ -172,7 +171,6 @@ class dispatch_form : public form {
 				return false;
 
 			_is_changed = true;
-
 		}
 		catch (const std::exception& ex) {
 			error = std::string(ex.what());
@@ -191,7 +189,6 @@ public:
 		form(caption, parent_form),
 		_state(_state),
 		_saved_coupon(edited_coupon),
-		_is_changed(is_changed)
-	{}
+		_is_changed(is_changed) {}
 
 };
