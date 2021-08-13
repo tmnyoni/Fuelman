@@ -68,11 +68,11 @@
     <ClInclude Include="gui\main_ui.h">
       <Filter>Source Files\gui</Filter>
     </ClInclude>
-    <ClInclude Include="appstate\app_state.h">
-      <Filter>Source Files\appstate</Filter>
-    </ClInclude>
     <ClInclude Include="db\database.h">
       <Filter>Source Files\db</Filter>
+    </ClInclude>
+    <ClInclude Include="appstate\app_state.h">
+      <Filter>Source Files\appstate</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,8 @@
 #include <vector>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
+#include <liblec/lecui/containers/page.h>
+#include <liblec/lecui/widgets/button.h>
 
 // include local headers.
 #include "../appstate/app_state.h"

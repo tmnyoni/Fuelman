@@ -163,6 +163,11 @@ bool main_window::on_layout(std::string& error) {
 		std::vector<table_column> departmental_consumpt_stats_columns =
 		{ { "Department", 150 }, { "Volume", 85 }, };
 
+		std::vector<database::row> departments_stats;
+		if (!_state.get_db().on_departments_stats(departments_stats, error)) {
+			message(error);
+		}
+
 		departmental_consumpt_stats_table
 			.border(0.f)
 			.fixed_number_column(true)
@@ -171,6 +176,7 @@ bool main_window::on_layout(std::string& error) {
 			.color_fill(color().alpha(0))
 			.user_sort(true)
 			.columns(departmental_consumpt_stats_columns)
+			.data(departments_stats)
 			.rect(rect()
 				.left(_margin)
 				.right(top_right_pane.size().get_width() - _margin)
@@ -293,10 +299,6 @@ bool main_window::on_layout(std::string& error) {
 			{ "Volume", 80 },
 		};
 
-		std::vector<database::row> reports_items_data;
-		if (!_state.get_db().on_get_coupons(reports_items_data, error))
-			message("Error: " + error);
-
 		report_items_table
 			.border(0.f)
 			.fixed_number_column(true)
@@ -304,7 +306,6 @@ bool main_window::on_layout(std::string& error) {
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.columns(reports_table_columns)
-			.data(reports_items_data)
 			.rect(rect()
 				.left(_margin)
 				.right(550.f)
