@@ -22,7 +22,7 @@ public:
 	bool on_get_coupon(const std::any& serial_number, std::vector<database::row>& table_, std::string& error);
 
 	//// This function is unfinished.
-	std::vector<database::row> on_update_departmental_stats();
+	bool on_departments_stats(std::vector<database::row>& departmnets_stats, std::string& error);
 	int on_get_petrol_volume();
 	int on_get_diesel_volume();
 };
