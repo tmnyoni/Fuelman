@@ -74,42 +74,35 @@
     <ClInclude Include="appstate\app_state.h">
       <Filter>Source Files\appstate</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\png\add.png">
+    <ResourceCompile Include="Fuelman.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\png\add_coupon.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\dashboard (1).png">
+    <Image Include="resources\png\delete_coupon.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\dashboard.png">
+    <Image Include="resources\png\dispatch_coupon.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\delete.png">
+    <Image Include="resources\png\preview_report.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\fuel.png">
+    <Image Include="resources\png\print_report.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\preview.png">
+    <Image Include="resources\png\return_coupon.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
-    <Image Include="resources\png\print.png">
-      <Filter>Source Files\resources\png</Filter>
-    </Image>
-    <Image Include="resources\png\pump.png">
-      <Filter>Source Files\resources\png</Filter>
-    </Image>
-    <Image Include="resources\png\reports.png">
-      <Filter>Source Files\resources\png</Filter>
-    </Image>
-    <Image Include="resources\png\return.png">
-      <Filter>Source Files\resources\png</Filter>
-    </Image>
-    <Image Include="resources\png\settings.png">
-      <Filter>Source Files\resources\png</Filter>
-    </Image>
-    <Image Include="resources\png\share.png">
+    <Image Include="resources\png\share_report.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
   </ItemGroup>
