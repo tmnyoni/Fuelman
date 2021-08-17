@@ -20,6 +20,8 @@
 #include "../dispatch.h"
 #include "../addcoupons.h"
 
+#include "../../resource.h"
+
 using namespace liblec::lecui;
 using snap_type = rect::snap_type;
 
@@ -197,7 +199,7 @@ bool main_window::on_layout(std::string& error) {
 	add_coupons_button
 		.text("Add Coupons")
 		.font_size(9.f)
-		.file("assets/add.png")
+		.png_resource(add_coupon)
 		.max_image_size(20.f)
 		.rect(rect()
 			.left(_margin * 1.5f)
@@ -239,9 +241,9 @@ bool main_window::on_layout(std::string& error) {
 
 			context_menu::specs context_menu_specs;
 			context_menu_specs.items = {
-				{"Dispatch", "assets/pump.png"},
-				{"Return",  "assets/return.png"},
-				{"Delete",  "assets/delete.png"} };
+				{"Dispatch", "resources/png/dispatch_coupon.png"},
+				{"Return",  "resources/png/return_coupon.png"},
+				{"Delete",  "resources/png/delete_coupon.png"} };
 
 			auto selected_context_menu_item = context_menu()(*this, context_menu_specs);
 
@@ -334,7 +336,7 @@ bool main_window::on_layout(std::string& error) {
 		print_button
 			.text("Print")
 			.font_size(9.f)
-			.file("assets/print.png")
+			.png_resource(print_report)
 			.max_image_size(20.f)
 			.rect(rect()
 				.left(report_items_table.rect().right() - (80.f * 3.f) - 2.f * (_margin / 3.f))
@@ -347,7 +349,7 @@ bool main_window::on_layout(std::string& error) {
 		share_button
 			.text("Share")
 			.font_size(9.f)
-			.file("assets/share.png")
+			.png_resource(share_report)
 			.max_image_size(20.f)
 			.rect(print_button.rect())
 			.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
@@ -357,7 +359,7 @@ bool main_window::on_layout(std::string& error) {
 		preview_button
 			.text("Preview")
 			.font_size(9.f)
-			.file("assets/preview.png")
+			.png_resource(preview_report)
 			.max_image_size(20.f)
 			.rect(print_button.rect())
 			.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);
