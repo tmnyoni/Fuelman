@@ -17,7 +17,7 @@ int main() {
 		return 1;
 
 	
-	if (!main_wind.show(error))
+	if (!main_wind.create(error))
 		main_wind.message("Error: " + error);
 
 

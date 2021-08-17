@@ -47,7 +47,7 @@ bool main_window::on_layout(std::string& error) {
 		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
 		.rect().set(_margin, 0, page.size().get_width() - (_margin * 2), page.size().get_height() - _margin);
 
-
+	/*
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Dashboard.
 	auto& dashboard_tab = containers::tab::add(main_tab_pane, "Dashboard");
@@ -186,6 +186,7 @@ bool main_window::on_layout(std::string& error) {
 	catch (const std::exception& ex) {
 		message("Error: " + std::string(ex.what()));
 	}
+	*/
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Coupons tab.
@@ -452,7 +453,7 @@ bool main_window::on_layout(std::string& error) {
 		.rect().size({ 100.f, 20.f })
 		.set(_margin, backup_restore_settings_title.rect().bottom() + _margin, 100.f, 20.f);
 
-	main_tab_pane.selected("Dashboard");
+	main_tab_pane.selected("Coupons");
 
 	_page_man.show(_page_name);
 	return true;
@@ -487,7 +488,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 
 	bool is_changed = false;
 	dispatch_form dispatch_form_("Dispatch Coupon", *this, _state, edited_coupon, is_changed);
-	if (!dispatch_form_.show(error)) {
+	if (!dispatch_form_.create(error)) {
 		return false;
 	}
 
@@ -537,7 +538,7 @@ bool main_window::on_add_coupons(std::string& error) {
 	std::vector<table_row> saved_coupons;
 
 	addcoupons_form addcoupons("Add Coupons", *this, _state, saved_coupons);
-	if (!addcoupons.show(error)) {
+	if (!addcoupons.create(error)) {
 		message("Error: " + error);
 		return false;
 	}
