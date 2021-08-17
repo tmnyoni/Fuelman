@@ -494,22 +494,22 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 		return false;
 	}
 
-	// Updating dashboard.
-	try
-	{
-		get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
-			.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
+	//// Updating dashboard.
+	//try
+	//{
+	//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
+	//		.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
 
-		get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
-			.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
+	//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
+	//		.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
 
-		//get_table_view(main_tab_pane_path() + "/Dashboard/top-right-pane/departmental-consumpt-stats-table")
-		//	.data(_state.get_db().on_update_departmental_stats());
-	}
-	catch (const std::exception& ex) {
-		error = ex.what();
-		return false;
-	}
+	//	//get_table_view(main_tab_pane_path() + "/Dashboard/top-right-pane/departmental-consumpt-stats-table")
+	//	//	.data(_state.get_db().on_update_departmental_stats());
+	//}
+	//catch (const std::exception& ex) {
+	//	error = ex.what();
+	//	return false;
+	//}
 
 	// Updating the coupons table.
 	if (is_changed) {
@@ -546,14 +546,14 @@ bool main_window::on_add_coupons(std::string& error) {
 	}
 
 	try {
-		// updating dashboard.
-		{
-			get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
-				.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
+		//// updating dashboard.
+		//{
+		//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
+		//		.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
 
-			get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
-				.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
-		}
+		//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
+		//		.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
+		//}
 
 		if (!saved_coupons.empty()) {
 			for (const auto& row : saved_coupons)
