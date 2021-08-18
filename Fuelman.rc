@@ -34,15 +34,16 @@
  print_report		PNG		"resources/png/print_report.png"
  share_report		PNG		"resources/png/share_report.png"
 
-//
-//ico_resource		ICON	"resources/ico/icon.ico"
-//
-//splash_image_128	PNG		"resources/png/splash_128.png"
-//splash_image_256	PNG		"resources/png/splash_256.png"
-//icon_png_512		PNG		"resources/png/icon_512.png"
-//icon_png_256		PNG		"resources/png/icon_256.png"
-//icon_png_128		PNG		"resources/png/icon_128.png"
-//icon_png_64			PNG		"resources/png/icon_64.png"
-//icon_png_32			PNG		"resources/png/icon_32.png"
+
+ico_resource		ICON	"resources/ico/icon.ico"
+
+splash_image_128	PNG		"resources/png/splash_image_128.png"
+splash_image_256	PNG		"resources/png/splash_image_256.png"
+
+icon_png_512		PNG		"resources/png/icon_512.png"
+icon_png_256		PNG		"resources/png/icon_256.png"
+icon_png_128		PNG		"resources/png/icon_128.png"
+icon_png_64			PNG		"resources/png/icon_64.png"
+icon_png_32			PNG		"resources/png/icon_32.png"
 
 

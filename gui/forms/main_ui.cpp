@@ -1,3 +1,26 @@
+/*
+** MIT License
+**
+** Copyright(c) 2021 Tawanda M. Nyoni
+**
+** Permission is hereby granted, free of charge, to any person obtaining a copy
+** of this software and associated documentation files(the "Software"), to deal
+** in the Software without restriction, including without limitation the rights
+** to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+** copies of the Software, and to permit persons to whom the Software is
+** furnished to do so, subject to the following conditions :
+**
+** The above copyright noticeand this permission notice shall be included in all
+** copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+** SOFTWARE.
+*/
 
 // include liblec headers.
 #include <liblec/lecui/containers/page.h>
@@ -22,40 +45,53 @@
 
 #include "../../resource.h"
 
-using namespace liblec::lecui;
-using snap_type = rect::snap_type;
+using namespace liblec;
+using snap_type = lecui::rect::snap_type;
 
 // initialise form attributes.
 bool main_window::on_initialize(std::string& error) {
+	if (get_dpi_scale() < 2.f)
+		_splash_screen.display(splash_image_128, false, error);
+	else 
+		_splash_screen.display(splash_image_256, false, error);
+
 	_controls
 		.allow_minimize(true)
 		.allow_resize(false);
-	_appearance.theme(themes::dark);
-	_dims.set_size({ 800.f, 700.f });
+
+	_appearance
+		.theme(lecui::themes::dark)
+		.main_icon(ico_resource)
+		.mini_icon(ico_resource);
+	
+	_dims.set_size(_window_size);
+
+	_splash_screen.remove();
+
 	return true;
 }
 
 bool main_window::on_layout(std::string& error) {
 	auto& page = _page_man.add(_page_name);
 
-	auto& main_tab_pane = containers::tab_pane::add(page, _main_tab_name);
+	auto& main_tab_pane = lecui::containers::tab_pane::add(page, _main_tab_name);
 	main_tab_pane
 		.border(1.f)
 		.tabs_border(0.f)
-		.color_tabs(color().alpha(0))
-		.color_fill(color().alpha(0))
+		.color_tabs(lecui::color().alpha(0))
+		.color_fill(lecui::color().alpha(0))
 		.corner_radius_x(0).corner_radius_y(0)
-		.tab_side(containers::tab_pane::side::left)
+		.tab_side(lecui::containers::tab_pane::side::left)
 		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
 		.rect().set(_margin, 0, page.size().get_width() - (_margin * 2), page.size().get_height() - _margin);
 
 	/*
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Dashboard.
-	auto& dashboard_tab = containers::tab::add(main_tab_pane, "Dashboard");
+	auto& dashboard_tab = lecui::containers::tab::add(main_tab_pane, "Dashboard");
 
 	////////// Top Left Pane
-	auto& top_left_pane = containers::pane::add(dashboard_tab, "top-left-pane");
+	auto& top_left_pane = lecui::containers::pane::add(dashboard_tab, "top-left-pane");
 	top_left_pane
 		.border(0.f)
 		.corner_radius_x(0.f)
@@ -67,7 +103,7 @@ bool main_window::on_layout(std::string& error) {
 			.height((dashboard_tab.size().get_width() / 2.f) - _margin));
 
 	try {
-		auto& consumption_sumary_title = widgets::label::add(top_left_pane);
+		auto& consumption_sumary_title = lecui::widgets::label::add(top_left_pane);
 		consumption_sumary_title
 			.text("Fuel Consumption (%)")
 			.center_h(true)
@@ -84,7 +120,7 @@ bool main_window::on_layout(std::string& error) {
 			);
 
 		// Petrol summary.
-		auto& petrol_summary_title = widgets::label::add(top_left_pane);
+		auto& petrol_summary_title = lecui::widgets::label::add(top_left_pane);
 		petrol_summary_title
 			.text("Petrol")
 			.center_h(true)
@@ -95,13 +131,13 @@ bool main_window::on_layout(std::string& error) {
 				.width((top_left_pane.size().get_width() / 2.f) - _margin / 2.f)
 				.height(20.f));
 
-		auto& petrol_summary_progress = widgets::progress_indicator::add(top_left_pane, "petrol-summary-progress");
+		auto& petrol_summary_progress = lecui::widgets::progress_indicator::add(top_left_pane, "petrol-summary-progress");
 		petrol_summary_progress
 			.percentage(50.f)
 			.rect().size(80.f, 80.f)
 			.snap_to(petrol_summary_title.rect(), snap_type::bottom, _margin);
 
-		auto& petrol_summary_caption = widgets::label::add(top_left_pane, "petrol-summary-caption");
+		auto& petrol_summary_caption = lecui::widgets::label::add(top_left_pane, "petrol-summary-caption");
 		petrol_summary_caption
 			.text(std::to_string(_state.get_db().on_get_petrol_volume()) + +"<span style= 'color: green;'>" + " Litres  </span> ")
 			.center_h(true)
@@ -112,7 +148,7 @@ bool main_window::on_layout(std::string& error) {
 				.height(20.f));
 
 		// diesel summary.
-		auto& diesel_summary_title = widgets::label::add(top_left_pane);
+		auto& diesel_summary_title = lecui::widgets::label::add(top_left_pane);
 		diesel_summary_title
 			.text("Diesel")
 			.center_h(true)
@@ -120,13 +156,13 @@ bool main_window::on_layout(std::string& error) {
 			.rect(petrol_summary_title.rect())
 			.rect().snap_to(petrol_summary_title.rect(), snap_type::right, _margin);
 
-		auto& diesel_summary_progress = widgets::progress_indicator::add(top_left_pane, "diesel-summary-progress");
+		auto& diesel_summary_progress = lecui::widgets::progress_indicator::add(top_left_pane, "diesel-summary-progress");
 		diesel_summary_progress
 			.percentage(50.f)
 			.rect(petrol_summary_progress.rect())
 			.rect().snap_to(diesel_summary_title.rect(), snap_type::bottom, _margin);
 
-		auto& diesel_summary_caption = widgets::label::add(top_left_pane, "diesel-summary-caption");
+		auto& diesel_summary_caption = lecui::widgets::label::add(top_left_pane, "diesel-summary-caption");
 		diesel_summary_caption.
 			text(std::to_string(_state.get_db().on_get_diesel_volume()) + "<span style= 'color: green;'>" + " Litres  </span> ")
 			.center_h(true)
@@ -138,7 +174,7 @@ bool main_window::on_layout(std::string& error) {
 	}
 
 	////////// Top Right pane.
-	auto& top_right_pane = containers::pane::add(dashboard_tab, "top-right-pane");
+	auto& top_right_pane = lecui::containers::pane::add(dashboard_tab, "top-right-pane");
 	top_right_pane
 		.border(0.f)
 		.corner_radius_x(0.f)
@@ -146,7 +182,7 @@ bool main_window::on_layout(std::string& error) {
 		.rect(top_left_pane.rect())
 		.rect().snap_to(top_left_pane.rect(), snap_type::right, _margin);
 
-	auto& department_consumption_summary_title = widgets::label::add(top_right_pane);
+	auto& department_consumption_summary_title = lecui::widgets::label::add(top_right_pane);
 	department_consumption_summary_title
 		.text("Fuel Consumption (Departments)")
 		.center_h(true)
@@ -160,7 +196,7 @@ bool main_window::on_layout(std::string& error) {
 
 	try {
 		auto& departmental_consumpt_stats_table =
-			widgets::table_view::add(top_right_pane, "departmental-consumpt-stats-table");
+			lecui::widgets::table_view::add(top_right_pane, "departmental-consumpt-stats-table");
 
 		std::vector<table_column> departmental_consumpt_stats_columns =
 		{ { "Department", 150 }, { "Volume", 85 }, };
@@ -193,24 +229,24 @@ bool main_window::on_layout(std::string& error) {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Coupons tab.
 
-	auto& coupons_tab = containers::tab::add(main_tab_pane, "Coupons");
+	auto& coupons_tab = lecui::containers::tab::add(main_tab_pane, "Coupons");
 
-	auto& add_coupons_button = widgets::icon::add(coupons_tab);
+	auto& add_coupons_button = lecui::widgets::icon::add(coupons_tab);
 	add_coupons_button
 		.text("Add Coupons")
 		.font_size(9.f)
 		.png_resource(add_coupon)
 		.max_image_size(20.f)
-		.rect(rect()
+		.rect(lecui::rect()
 			.left(_margin * 1.5f)
 			.top(_margin / 4.f)
 			.width(_margin * 12.f)
 			.height(_margin * 3.f))
 		.events().action = [&]() { on_add_coupons(error); };
 
-	auto& coupons_table = widgets::table_view::add(coupons_tab, "coupons-table");
+	auto& coupons_table = lecui::widgets::table_view::add(coupons_tab, "coupons-table");
 	{
-		std::vector<table_column> coupons_table_cols =
+		std::vector<lecui::table_column> coupons_table_cols =
 		{
 			{ "Serial Number", 250 },
 			{ "Fuel", 90 },
@@ -231,7 +267,7 @@ bool main_window::on_layout(std::string& error) {
 			.user_sort(true)
 			.columns(coupons_table_cols)
 			.data(coupons_data)
-			.rect(rect()
+			.rect(lecui::rect()
 				.left(_margin)
 				.right(coupons_tab.size().get_width() - _margin)
 				.top(add_coupons_button.rect().bottom() + _margin)
@@ -245,7 +281,7 @@ bool main_window::on_layout(std::string& error) {
 				{"Return",  "resources/png/return_coupon.png"},
 				{"Delete",  "resources/png/delete_coupon.png"} };
 
-			auto selected_context_menu_item = context_menu()(*this, context_menu_specs);
+			auto selected_context_menu_item = lecui::context_menu()(*this, context_menu_specs);
 
 			if (selected_context_menu_item.compare("Dispatch") == 0) {
 				if (rows.empty()) {
@@ -262,7 +298,7 @@ bool main_window::on_layout(std::string& error) {
 		};
 	}
 
-	auto& total_coupons_caption = widgets::label::add(coupons_tab, "number-of-coupons");
+	auto& total_coupons_caption = lecui::widgets::label::add(coupons_tab, "number-of-coupons");
 	total_coupons_caption
 		.text(std::to_string(coupons_table.data().size()) + " coupons available")
 		.color_text(_caption_color)
@@ -271,19 +307,19 @@ bool main_window::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
-	auto& reports_tab = containers::tab::add(main_tab_pane, "Reports");
+	auto& reports_tab = lecui::containers::tab::add(main_tab_pane, "Reports");
 
-	auto& report_date_caption = widgets::label::add(reports_tab);
+	auto& report_date_caption = lecui::widgets::label::add(reports_tab);
 	report_date_caption
 		.text("Date")
 		.color_text(_caption_color)
-		.rect(rect()
+		.rect(lecui::rect()
 			.left(_margin * 2.f)
 			.top(_margin)
 			.width(200.f)
 			.height(20.f));
 
-	auto& report_date_select = widgets::combobox::add(reports_tab, "report-date-select");
+	auto& report_date_select = lecui::widgets::combobox::add(reports_tab, "report-date-select");
 		report_date_select
 			.items({ { "today" }, { "yesterday" } })
 			.color_fill({ 255,255,255,0 })
@@ -291,7 +327,7 @@ bool main_window::on_layout(std::string& error) {
 			.snap_to(report_date_caption.rect(), snap_type::bottom, 0);
 		report_date_select.events().selection = [](const std::string& selected) {};
 
-	auto& report_items_table = widgets::table_view::add(reports_tab, "reports-items-table");
+	auto& report_items_table = lecui::widgets::table_view::add(reports_tab, "reports-items-table");
 	{
 		std::vector<table_column> reports_table_columns =
 		{
@@ -309,21 +345,21 @@ bool main_window::on_layout(std::string& error) {
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.columns(reports_table_columns)
-			.rect(rect()
+			.rect(lecui::rect()
 				.left(_margin)
 				.right(550.f)
 				.top(report_date_select.rect().bottom() + _margin)
 				.bottom(400.f));
 
 
-		auto& total_volume_caption = widgets::label::add(reports_tab);
+		auto& total_volume_caption = lecui::widgets::label::add(reports_tab);
 		total_volume_caption
 			.text("TOTAL")
 			.color_text(_caption_color)
 			.rect().size({ 80.f, 20.f })
 			.set(report_items_table.rect().right() - 180.f, report_items_table.rect().bottom(), 100.f, 20.f);
 
-		auto& total_volume_text = widgets::label::add(reports_tab, "total-volume-text");
+		auto& total_volume_text = lecui::widgets::label::add(reports_tab, "total-volume-text");
 		total_volume_text
 			.text("0000 Litres")
 			.color_text(_caption_color)
@@ -332,7 +368,7 @@ bool main_window::on_layout(std::string& error) {
 
 
 		const size icon_size{ 80.f, 30.f };
-		auto& print_button = widgets::icon::add(reports_tab);
+		auto& print_button = lecui::widgets::icon::add(reports_tab);
 		print_button
 			.text("Print")
 			.font_size(9.f)
@@ -345,7 +381,7 @@ bool main_window::on_layout(std::string& error) {
 				.height(icon_size.get_height()))
 			.events().action = [&]() {};
 
-		auto& share_button = widgets::icon::add(reports_tab);
+		auto& share_button = lecui::widgets::icon::add(reports_tab);
 		share_button
 			.text("Share")
 			.font_size(9.f)
@@ -355,7 +391,7 @@ bool main_window::on_layout(std::string& error) {
 			.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
 		share_button.events().action = [&]() {};
 
-		auto& preview_button = widgets::icon::add(reports_tab);
+		auto& preview_button = lecui::widgets::icon::add(reports_tab);
 		preview_button
 			.text("Preview")
 			.font_size(9.f)
@@ -368,10 +404,10 @@ bool main_window::on_layout(std::string& error) {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
-	auto& settings_tab = containers::tab::add(main_tab_pane, "Settings");
+	auto& settings_tab = lecui::containers::tab::add(main_tab_pane, "Settings");
 
 	//// Appearance settings.
-	auto& appearance_settings_title = widgets::label::add(settings_tab);
+	auto& appearance_settings_title = lecui::widgets::label::add(settings_tab);
 	appearance_settings_title
 		.text("Appearance")
 		.color_text(_caption_color)
@@ -379,15 +415,15 @@ bool main_window::on_layout(std::string& error) {
 		.rect().size({ 200.f, 25.f })
 		.set(_margin, _margin, 100, 25);
 
-	auto& theme_settings_caption = widgets::label::add(settings_tab);
+	auto& theme_settings_caption = lecui::widgets::label::add(settings_tab);
 	theme_settings_caption
 		.text("Theme")
 		.rect().size({ 200.f, 20.f })
 		.set(_margin, appearance_settings_title.rect().bottom() + _margin, 200.f, 20.f);
 
-	auto& theme_setting_select = widgets::combobox::add(settings_tab, "theme-settings-theme");
+	auto& theme_setting_select = lecui::widgets::combobox::add(settings_tab, "theme-settings-theme");
 	{
-		std::vector<widgets::combobox::combobox_item> themes =
+		std::vector<lecui::widgets::combobox::combobox_item> themes =
 		{ { "light" }, { "dark" } };
 
 		theme_setting_select
@@ -399,7 +435,7 @@ bool main_window::on_layout(std::string& error) {
 	}
 
 	//// Updates settings.
-	auto& updates_settings_title = widgets::label::add(settings_tab);
+	auto& updates_settings_title = lecui::widgets::label::add(settings_tab);
 	updates_settings_title
 		.text("Updates")
 		.color_text(_caption_color)
@@ -408,13 +444,13 @@ bool main_window::on_layout(std::string& error) {
 		.snap_to(theme_setting_select.rect(), snap_type::bottom, 50.f);
 
 	// update auto check.
-	auto& updates_autocheck_caption = widgets::label::add(settings_tab);
+	auto& updates_autocheck_caption = lecui::widgets::label::add(settings_tab);
 	updates_autocheck_caption
 		.text("Auto-check")
 		.rect().size({ 200.f, 20.f })
 		.snap_to(updates_settings_title.rect(), snap_type::bottom, _margin);
 
-	auto& updates_autocheck_toggle = widgets::toggle::add(settings_tab);
+	auto& updates_autocheck_toggle = lecui::widgets::toggle::add(settings_tab);
 	updates_autocheck_toggle
 		.text("Yes")
 		.text_off("No")
@@ -424,13 +460,13 @@ bool main_window::on_layout(std::string& error) {
 		.rect().snap_to(updates_autocheck_caption.rect(), snap_type::bottom, 0.f);
 	updates_autocheck_toggle.events().toggle = [&](bool on) { /*on_autocheck_updates(on); */};
 
-	auto& updates_autodownload_caption = widgets::label::add(settings_tab);
+	auto& updates_autodownload_caption = lecui::widgets::label::add(settings_tab);
 	updates_autodownload_caption
 		.text("Auto-Download")
 		.rect().size({ 200.f, 20.f })
 		.snap_to(updates_autocheck_toggle.rect(), snap_type::bottom, _margin);
 
-	auto& updates_autodownload_toggle = widgets::toggle::add(settings_tab);
+	auto& updates_autodownload_toggle = lecui::widgets::toggle::add(settings_tab);
 	updates_autodownload_toggle
 		.text("Yes")
 		.text_off("No")
@@ -441,7 +477,7 @@ bool main_window::on_layout(std::string& error) {
 	updates_autodownload_toggle.events().toggle = [&](bool on) { /*on_autocheck_updates(on); */};
 
 	//////////////////// Backup and Restore settings.
-	auto& backup_restore_settings_title = widgets::label::add(settings_tab);
+	auto& backup_restore_settings_title = lecui::widgets::label::add(settings_tab);
 	backup_restore_settings_title
 		.text("Backup and Restore")
 		.color_text(_caption_color)
@@ -449,7 +485,7 @@ bool main_window::on_layout(std::string& error) {
 		.rect().size({ 200.f, 25.f })
 		.snap_to(updates_autodownload_toggle.rect(), snap_type::bottom, 50.f);
 
-	auto& backup_now_button = widgets::button::add(settings_tab);
+	auto& backup_now_button = lecui::widgets::button::add(settings_tab);
 	backup_now_button
 		.text("Backup now")
 		.rect().size({ 100.f, 20.f })
@@ -465,7 +501,7 @@ bool main_window::on_layout(std::string& error) {
 ///								This function needs a lot of cleaning.
 bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::string& error) {
 	auto table_view =
-		get_table_view(main_tab_pane_path() + "/Coupons/coupons-table");
+		get_table_view(_main_tab_pane_path + "/Coupons/coupons-table");
 
 	auto selected_ = table_view.selected();
 
@@ -497,13 +533,13 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 	//// Updating dashboard.
 	//try
 	//{
-	//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
+	//	get_label(_main_tab_pane_path + "/Dashboard/top-left-pane/petrol-summary-caption")
 	//		.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
 
-	//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
+	//	get_label(_main_tab_pane_path + "/Dashboard/top-left-pane/diesel-summary-caption")
 	//		.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
 
-	//	//get_table_view(main_tab_pane_path() + "/Dashboard/top-right-pane/departmental-consumpt-stats-table")
+	//	//get_table_view(_main_tab_pane_path + "/Dashboard/top-right-pane/departmental-consumpt-stats-table")
 	//	//	.data(_state.get_db().on_update_departmental_stats());
 	//}
 	//catch (const std::exception& ex) {
@@ -514,7 +550,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 	// Updating the coupons table.
 	if (is_changed) {
 		auto& old_coupons =
-			get_table_view(main_tab_pane_path() + "/Coupons/coupons-table").data();
+			get_table_view(_main_tab_pane_path + "/Coupons/coupons-table").data();
 
 		std::vector<table_row> new_coupons;
 		new_coupons.reserve(old_coupons.size() - 1);
@@ -529,7 +565,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 		update();
 
 
-		get_label(main_tab_pane_path() +  "/Coupons/number-of-coupons")
+		get_label(_main_tab_pane_path +  "/Coupons/number-of-coupons")
 			.text(std::to_string(new_coupons.size()) + " coupons available");
 	}
 
@@ -548,16 +584,16 @@ bool main_window::on_add_coupons(std::string& error) {
 	try {
 		//// updating dashboard.
 		//{
-		//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/petrol-summary-caption")
+		//	get_label(_main_tab_pane_path + "/Dashboard/top-left-pane/petrol-summary-caption")
 		//		.text(std::to_string(_state.get_db().on_get_petrol_volume()) + " Litres");
 
-		//	get_label(main_tab_pane_path() + "/Dashboard/top-left-pane/diesel-summary-caption")
+		//	get_label(_main_tab_pane_path + "/Dashboard/top-left-pane/diesel-summary-caption")
 		//		.text(std::to_string(_state.get_db().on_get_diesel_volume()) + " Litres");
 		//}
 
 		if (!saved_coupons.empty()) {
 			for (const auto& row : saved_coupons)
-				get_table_view(main_tab_pane_path() + "/Coupons/coupons-table")
+				get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
 					.data().push_back(
 						{
 							{ "Date", row.at("Date")},
@@ -571,9 +607,9 @@ bool main_window::on_add_coupons(std::string& error) {
 
 		update();
 
-		get_label(main_tab_pane_path () + "/Coupons/number-of-coupons")
+		get_label(_main_tab_pane_path + "/Coupons/number-of-coupons")
 			.text(
-				std::to_string(get_table_view(main_tab_pane_path() + "/Coupons/coupons-table")
+				std::to_string(get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
 					.data().size()) + " coupons available");
 	}
 	catch (const std::exception& ex) {
