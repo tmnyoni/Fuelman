@@ -40,10 +40,8 @@ int main() {
 	if (!app_state.get_db().connect(error))
 		return 1;
 
-	
 	if (!main_wind.create(error))
 		main_wind.message("Error: " + error);
-
 
 	return 0;
 }

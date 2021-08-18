@@ -50,7 +50,7 @@
 #include "../main_ui.h"
 #include "../dispatch.h"
 #include "../addcoupons.h"
-
+#include "../../version_info/version_info.h"
 #include "../../resource.h"
 
 #ifdef _WIN64
@@ -78,19 +78,21 @@ bool main_window::on_initialize(std::string& error) {
 
 			// cleanup company settings (will delete the company subkey if no
 			// other apps have placed subkeys under it
-			//leccore::registry reg(leccore::registry::scope::current_user);
-			// if (!reg.do_delete("Software\\com.github.tmnyoni\\", error)) {}
+			leccore::registry reg(leccore::registry::scope::current_user);
+			if (!reg.do_delete("Software\\com.github.tmnyoni\\", error)) {}
 		}
 
 		close();
 		return true;
 	}
 
+
 	std::string value;
 	if (!_settings.read_value("", "darktheme", value, error))
 		return false;
 	else
-		_setting_darktheme = value == "on"; //default to "off".
+	_setting_darktheme = value == "on"; 	
+
 
 	_controls
 		.allow_minimize(false)
@@ -690,6 +692,9 @@ main_window::main_window(const std::string& caption,
 	_state(app_state),
 	_settings(_registry_settings) {
 	
+	_registry_settings.set_registry_path("Software\\com.github.tmnyoni\\" + std::string(appname));
+
+
 	if (_cleanup_mode)
 		force_instance();
 }

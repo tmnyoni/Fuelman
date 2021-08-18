@@ -1,0 +1,37 @@
+#include "version_info/version_info.h"
+
+1 VERSIONINFO
+FILEVERSION appmajor, appminor, apprevision, 0
+PRODUCTVERSION appmajor, appminor, apprevision, 0
+FILEFLAGSMASK 0x3fL
+
+#ifdef _DEBUG
+	FILEFLAGS 0x1L
+#else
+	FILEFLAGS 0x0L
+#endif
+
+FILEOS 0x40004L
+FILETYPE 0x0L
+FILESUBTYPE 0x0L
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "000904b0"
+		BEGIN
+			VALUE "CompanyName", appcompany
+			VALUE "FileDescription", appdescription
+			VALUE "FileVersion", appversion
+			VALUE "InternalName", appname
+			VALUE "LegalCopyright", appcopyright
+			VALUE "OriginalFilename", appfilename
+			VALUE "ProductName", appname
+			VALUE "ProductVersion", appversion
+			VALUE "Comments", appcomments
+		END
+		END
+		BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x9, 1200
+	END
+END

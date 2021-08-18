@@ -169,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Fuelman.rc" />
+    <ResourceCompile Include="version_info.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\png\add_coupon.png" />
