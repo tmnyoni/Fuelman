@@ -73,14 +73,18 @@ class main_window : public lecui::form {
 
 	// application state.
 	state& _state;
+
+	// settings
+	bool _setting_darktheme = true;
+	const bool _cleanup_mode;
+
 	leccore::settings& _settings; // app settings.
 	leccore::registry_settings _registry_settings{ leccore::registry::scope::current_user };
+
+
 
 public:
 	main_window(const std::string& caption,
 		state& app_state
-	) :
-		lecui::form(caption), 
-		_state(app_state),
-		_settings(_registry_settings){}
+	);
 };

@@ -38,6 +38,14 @@
 
 #include <liblec/lecui/menus/context_menu.h>
 
+// include leccore headers
+#include <liblec/leccore/app_version_info.h>
+#include <liblec/leccore/hash.h>
+#include <liblec/leccore/file.h>
+#include <liblec/leccore/system.h>
+#include <liblec/leccore/zip.h>
+#include <filesystem>
+
 // include local headers.
 #include "../main_ui.h"
 #include "../dispatch.h"
@@ -45,18 +53,47 @@
 
 #include "../../resource.h"
 
+#ifdef _WIN64
+#define architecture	"64bit"
+#else
+#define architecture	"32bit"
+#endif
+
 using namespace liblec;
 using snap_type = lecui::rect::snap_type;
 
 // initialise form attributes.
 bool main_window::on_initialize(std::string& error) {
-	if (get_dpi_scale() < 2.f)
-		_splash_screen.display(splash_image_128, false, error);
-	else 
-		_splash_screen.display(splash_image_256, false, error);
+
+	if (!_cleanup_mode)
+		get_dpi_scale () < 2.f 
+			? _splash_screen.display(splash_image_128, false, error) 
+			: _splash_screen.display(splash_image_256, false, error);
+
+	if (_cleanup_mode) {
+		if (prompt("Would you like to delete the app settings?")) {
+			// cleanup application settings
+			if (!_settings.delete_recursive("", error))
+				return false;
+
+			// cleanup company settings (will delete the company subkey if no
+			// other apps have placed subkeys under it
+			//leccore::registry reg(leccore::registry::scope::current_user);
+			// if (!reg.do_delete("Software\\com.github.tmnyoni\\", error)) {}
+		}
+
+		close();
+		return true;
+	}
+
+	std::string value;
+	if (!_settings.read_value("", "darktheme", value, error))
+		return false;
+	else
+		_setting_darktheme = value == "on"; //default to "off".
 
 	_controls
-		.allow_minimize(true)
+		.allow_minimize(false)
 		.allow_resize(false);
 
 	_appearance
@@ -644,4 +681,15 @@ bool main_window::on_delete_coupon(std::string& error) {
 
 
 	return true;
+}
+
+main_window::main_window(const std::string& caption,
+	state& app_state) :
+	_cleanup_mode(leccore::commandline_arguments::contains("/cleanup")),
+	lecui::form(caption),
+	_state(app_state),
+	_settings(_registry_settings) {
+	
+	if (_cleanup_mode)
+		force_instance();
 }
