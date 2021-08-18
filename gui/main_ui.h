@@ -48,9 +48,9 @@ class main_window : public lecui::form {
 	// app attributes.
 	lecui::appearance _appearance{ *this };
 	lecui::controls _controls{ *this };
-	lecui::dimensions _dims{ *this };
-	lecui::page_manager _page_man{ *this };
-	lecui::widget_manager _widget_man{ *this };
+	lecui::dimensions _dimensions{ *this };
+	lecui::page_manager _page_manager{ *this };
+	lecui::widget_manager _widget_manager{ *this };
 	lecui::splash  _splash_screen{ *this };
 
 	// window attributes.

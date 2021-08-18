@@ -64,7 +64,7 @@ bool main_window::on_initialize(std::string& error) {
 		.main_icon(ico_resource)
 		.mini_icon(ico_resource);
 	
-	_dims.set_size(_window_size);
+	_dimensions.set_size(_window_size);
 
 	_splash_screen.remove();
 
@@ -72,7 +72,7 @@ bool main_window::on_initialize(std::string& error) {
 }
 
 bool main_window::on_layout(std::string& error) {
-	auto& page = _page_man.add(_page_name);
+	auto& page = _page_manager.add(_page_name);
 
 	auto& main_tab_pane = lecui::containers::tab_pane::add(page, _main_tab_name);
 	main_tab_pane
@@ -493,7 +493,7 @@ bool main_window::on_layout(std::string& error) {
 
 	main_tab_pane.selected("Coupons");
 
-	_page_man.show(_page_name);
+	_page_manager.show(_page_name);
 	return true;
 }
 
