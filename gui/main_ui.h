@@ -36,7 +36,7 @@
 
 // include leccore
 #include <liblec/leccore/settings.h>
-
+#include <liblec/leccore/web_update.h>
 // include local headers.
 #include "../appstate/app_state.h"
 
@@ -75,11 +75,31 @@ class main_window : public lecui::form {
 	state& _state;
 
 	// settings
+	const std::string _instance_guid = "{F7660410-F00A-4BD0-B4B5-2A76F29D03E0}";
+	const std::string _install_guid_32 = "{4366AB0F-A68F-4388-B4FA-2BE684F86FC4}";
+	const std::string _install_guid_64 = "{5F794184-4C64-402C-AE99-E88BBF681851}";
+	const std::string _update_xml_url = "https://raw.githubusercontent.com/tmnyoni/fuelman/master/latest_update.xml";
+
 	bool _setting_darktheme = true;
 	const bool _cleanup_mode;
+	const bool _update_mode;
+	const bool _recent_update_mode;
+
+	std::string _update_directory;
 
 	leccore::settings& _settings; // app settings.
 	leccore::registry_settings _registry_settings{ leccore::registry::scope::current_user };
+
+	leccore::check_update _check_update{ _update_xml_url };
+	leccore::check_update::update_info _update_info;
+	leccore::download_update download_update_;
+
+	std::string _install_location_32, _install_location_64;
+	std::string _updates_directory;
+
+	bool _autocheck_updates_setting = true;
+	bool _autodownload_updates_setting = false;
+	bool _update_check_manaully_initiated = false;
 
 
 

@@ -180,6 +180,9 @@
     <Image Include="resources\png\return_coupon.png" />
     <Image Include="resources\png\share_report.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="latest_update.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
