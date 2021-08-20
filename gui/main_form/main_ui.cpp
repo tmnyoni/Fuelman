@@ -416,10 +416,17 @@ bool main_window::on_layout(std::string& error) {
 
 		theme_setting_select
 			.items(themes)
+			.selected(_setting_darktheme ? "dark" : "light")
 			.color_fill({ 255,255,255,0 })
 			.rect().size(200.f, 25.f)
 			.snap_to(theme_settings_caption.rect(), snap_type::bottom, 0.f);
-		theme_setting_select.events().selection = [](const std::string& selected) {};
+		theme_setting_select.events().selection =
+			[&](const std::string& selected_theme) {
+			
+			std::string error;
+			on_select_theme(selected_theme, error);
+
+		};
 	}
 
 	//// Updates settings.
@@ -462,7 +469,7 @@ bool main_window::on_layout(std::string& error) {
 		.on(true)
 		.rect(updates_autodownload_caption.rect())
 		.rect().snap_to(updates_autodownload_caption.rect(), snap_type::bottom, 0.f);
-	updates_autodownload_toggle.events().toggle = [&](bool on) { /*on_autocheck_updates(on); */};
+	updates_autodownload_toggle.events().toggle = [&](bool on) { /*on_autocheck_updates(on); */ };
 
 	//////////////////// Backup and Restore settings.
 	auto& backup_restore_settings_title = lecui::widgets::label::add(settings_tab);
@@ -632,6 +639,27 @@ bool main_window::on_delete_coupon(std::string& error) {
 
 
 	return true;
+}
+
+bool main_window::on_select_theme(const std::string& selected_theme, std::string& error)
+{
+	
+	if (!_settings.write_value("", "darktheme", selected_theme.compare("dark") == 0 ? "on" : "off", error)) {
+		message("Error saving dark theme setting: " + error);
+	}
+	else{
+		if (prompt("Would you like to restart the app now for the changes to take effect?")) {
+			_restart_now = true;
+			close();
+		}
+	}
+
+	return true;
+}
+
+bool main_window::on_restart_now()
+{
+	return _restart_now;
 }
 
 main_window::main_window(const std::string& caption,

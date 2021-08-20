@@ -1,7 +1,7 @@
 ;
 ; MIT License
 ;
-; Copyright(c) 2021 Alec Musasa
+; Copyright(c) 2021 Tawanda M. Nyoni
 ;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files(the "Software"), to deal
@@ -22,23 +22,23 @@
 ; SOFTWARE.
 ;
 
-#define MainExe "..\..\bin\pc_info32.exe"
+#define MainExe "..\..\bin\fuelman32.exe"
 #define RedistPath "..\..\files\redist\vs2019\vc\x86\"
 #define Architecture "32"
 #define ModulesPath "..\..\bin\"
 #define OutputPath ModulesPath
 
-#define MyAppName "PC Info"
-#define MyAppNameCode "pc_info"
-#define MyAppExeName "pc_info32.exe"
-#define MyAppVersion GetVersionNumbersString('..\..\bin\pc_info32.exe')
-#define MyProductVersion GetStringFileInfo("..\..\bin\pc_info32.exe", "ProductVersion")
-#define MyAppPublisher "Alec Musasa"
-#define MyAppPublisherPath "com.github.alecmus"
-#define MyAppPublisherURL "https://alecmus.github.io"
-#define MyAppURL "https://github.com/alecmus/pc_info"
-#define MyAppUpdates "https://github.com/alecmus/pc_info/releases"
-#define MyAppCopyright "© 2021 Alec Musasa"
+#define MyAppName "Fuel Man"
+#define MyAppNameCode "fuelman"
+#define MyAppExeName "fuelman32.exe"
+#define MyAppVersion GetVersionNumbersString('..\..\bin\fuelman32.exe')
+#define MyProductVersion GetStringFileInfo("..\..\bin\fuelman32.exe", "ProductVersion")
+#define MyAppPublisher "Tawanda"
+#define MyAppPublisherPath "com.github.tmnyoni"
+#define MyAppPublisherURL "https://tmnyoni.github.io"
+#define MyAppURL "https://github.com/tmnyoni/fuelman"
+#define MyAppUpdates "https://github.com/tmnyoni/fuelman/releases"
+#define MyAppCopyright "© 2021 Tawanda M. Nyoni"
 
 [Messages]
 // define wizard title and tray status msg
@@ -86,7 +86,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-; pc_info
+; fuelman
 Source: "{#ModulesPath}pc_info32.exe"; DestDir: "{app}"; Flags: ignoreversion;
 
 ; liblec

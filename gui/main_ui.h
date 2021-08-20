@@ -70,6 +70,7 @@ class main_window : public lecui::form {
 	bool on_dispatch_coupon(const std::vector<lecui::table_row>& rows, std::string& error);
 	bool on_add_coupons(std::string& error);
 	bool on_delete_coupon(std::string& error);
+	bool on_select_theme(const std::string& selected_theme, std::string& error);
 
 	// application state.
 	state& _state;
@@ -80,7 +81,7 @@ class main_window : public lecui::form {
 	const std::string _install_guid_64 = "{5F794184-4C64-402C-AE99-E88BBF681851}";
 	const std::string _update_xml_url = "https://raw.githubusercontent.com/tmnyoni/fuelman/master/latest_update.xml";
 
-	bool _setting_darktheme = true;
+	bool _setting_darktheme = false;
 	const bool _cleanup_mode;
 	const bool _update_mode;
 	const bool _recent_update_mode;
@@ -101,9 +102,10 @@ class main_window : public lecui::form {
 	bool _autodownload_updates_setting = false;
 	bool _update_check_manaully_initiated = false;
 
-	bool _reset_now = false;
-
+	bool _restart_now = false;
 public:
+	bool on_restart_now();
+
 	main_window(const std::string& caption,
 		state& app_state
 	);
