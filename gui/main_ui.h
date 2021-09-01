@@ -27,6 +27,7 @@
 // include std headers.
 #include <map>
 #include <vector>
+#include <liblec/lecui/instance.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/containers/page.h>
@@ -44,6 +45,12 @@
 using namespace liblec;
 
 class main_window : public lecui::form {
+
+	// app instance GUID
+	const std::string _instance_guid = "{226ABAD6-B078-4373-82D9-32A4106071D9}";
+
+	// app instance object (prevents multiple instances and causes new instance to open existing instance)
+	lecui::instance_manager _instance_man{ *this, _instance_guid };
 
 	// app attributes.
 	lecui::appearance _appearance{ *this };
