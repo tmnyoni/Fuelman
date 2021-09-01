@@ -25,6 +25,8 @@
 #include "gui/main_ui.h"
 #include "appstate/app_state.h"
 #include "version_info/version_info.h"
+#include <liblec/leccore/system.h>
+#include <liblec/leccore/file.h>
 
 #pragma comment(linker, "/ENTRY:mainCRTStartup")
 
@@ -32,7 +34,19 @@ using namespace liblec::lecui;
 
 int main() {
 	std::string error;
-	state app_state;
+
+	// define database directory
+	const std::string database_directory = liblec::leccore::user_folder::documents() + "\\Fuelman\\";
+
+	// create the path
+	if (!liblec::leccore::file::create_directory(database_directory, error))
+		return 1;
+
+	// create a database connection
+	database::connection connection{ "sqlcipher", database_directory + "fuelman.db", "pass@123" };
+
+	// create application state object
+	state app_state(connection);
 
 	// Creating main window.
 	main_window main_wind(appname, app_state);

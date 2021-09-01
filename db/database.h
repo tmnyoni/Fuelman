@@ -12,9 +12,11 @@ using namespace liblec::leccore;
 using db_get = database::get;
 
 class fuelman_db {
-	database::connection _connection{ "sqlcipher", "fuelman.db", "pass@123" };
+	fuelman_db() = delete;
+	database::connection& _connection;
 
 public:
+	fuelman_db(database::connection& connection);
 	bool connect(std::string& error);
 	bool on_dispatch_coupons(database::row& table, std::string& error);
 	bool on_save_coupons(const std::vector<database::row>& table, std::string& error);

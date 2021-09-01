@@ -1,5 +1,9 @@
 #include "database.h"
 
+fuelman_db::fuelman_db(database::connection& connection) :
+	_connection(connection)
+{}
+
 bool fuelman_db::connect(std::string& error) {
 	if (!_connection.connect(error))
 		return false;
