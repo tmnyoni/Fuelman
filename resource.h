@@ -25,6 +25,9 @@
 #pragma once
 
 #define add_coupon			106
+#define dispatch_coupon		107
+#define delete_coupon		108
+#define return_coupon		109
 #define preview_report		110
 #define print_report		111
 #define share_report		112
