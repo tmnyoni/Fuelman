@@ -316,9 +316,9 @@ bool main_window::on_layout(std::string& error) {
 
 			context_menu::specs context_menu_specs;
 			context_menu_specs.items = {
-				{"Dispatch", "resources/png/dispatch_coupon.png"},
-				{"Return",  "resources/png/return_coupon.png"},
-				{"Delete",  "resources/png/delete_coupon.png"} };
+				{"Dispatch", dispatch_coupon },
+				{"Return",  return_coupon },
+				{"Delete",  delete_coupon } };
 
 			auto selected_context_menu_item = lecui::context_menu()(*this, context_menu_specs);
 
