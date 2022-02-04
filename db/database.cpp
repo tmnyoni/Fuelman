@@ -94,7 +94,7 @@ bool fuelman_db::on_get_coupons(std::vector<database::row>& table, std::string& 
 		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
 
 	database::table results_table;
-	if (!_connection.execute_query(sql_query, results_table, error))
+	if (!_connection.execute_query(sql_query, {}, results_table, error))
 		return false;
 
 	table = results_table.data;
@@ -105,7 +105,7 @@ bool fuelman_db::on_get_coupon(const std::any& serial_number, std::vector<databa
 	const std::string sql_query = "SELECT * FR";
 
 	database::table results_table;
-	if (!_connection.execute_query("SELECT * FROM Coupons WHERE \"Serial Number\" = '" + database::get::text(serial_number) + "';", results_table, error))
+	if (!_connection.execute_query("SELECT * FROM Coupons WHERE \"Serial Number\" = '" + database::get::text(serial_number) + "';", {}, results_table, error))
 		return false;
 
 	table_ = results_table.data;
@@ -119,7 +119,7 @@ bool fuelman_db::on_departments_stats(std::vector<database::row>& departmental_s
 		"INNER JOIN DispatchedTo ON DispatchedTo.\"Serial Number\" = DispatchedStatus.\"Serial Number\";";
 
 	database::table results_table;
-	if (!_connection.execute_query(sql_query, results_table, error))
+	if (!_connection.execute_query(sql_query, {}, results_table, error))
 		return false;
 
 	bool is_found = false;
