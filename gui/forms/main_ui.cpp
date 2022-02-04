@@ -406,7 +406,7 @@ bool main_window::on_layout(std::string& error) {
 			.snap_to(total_volume_caption.rect(), snap_type::right, _margin);
 
 
-		const size icon_size{ 80.f, 30.f };
+		const lecui::size icon_size{ 80.f, 30.f };
 		auto& print_button = lecui::widgets::icon::add(reports_tab);
 		print_button
 			.text("Print")

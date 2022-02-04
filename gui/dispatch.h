@@ -39,7 +39,7 @@ class dispatch_form : public form {
 	bool on_initialize(std::string& error) override {
 		_controls.allow_minimize(false);
 		_controls.allow_resize(false);
-		_dimensions.set_size(size().width(350.f).height(450.f));
+		_dimensions.set_size(lecui::size().width(350.f).height(450.f));
 		return true;
 	}
 
