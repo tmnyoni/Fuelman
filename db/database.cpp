@@ -15,7 +15,7 @@ bool fuelman_db::connect(std::string& error) {
 		return false;
 
 	if (!_connection.execute("CREATE TABLE IF NOT EXISTS DispatchedStatus "
-		"(Date REAL, 'Serial Number' TEXT);",
+		"(Date REAL, 'Serial Number' TEXT, PRIMARY KEY(Date));",
 		{}, error)
 		)
 		return false;
@@ -110,17 +110,101 @@ bool fuelman_db::on_get_coupon(const std::any& serial_number, std::vector<databa
 	return true;
 }
 
-bool fuelman_db::on_get_dispatched_coupons(std::vector<database::row>& table, std::string& error) {
-	const std::string sql_query =
-		"SELECT * FROM Coupons WHERE \"Serial Number\" IN "
-		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
-		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+bool fuelman_db::on_get_dispatched_coupons(std::vector<dispatched_coupon_struct>& coupons, std::string& error) {
+	coupons.clear();
 
-	database::table results_table;
-	if (!_connection.execute_query(sql_query, {}, results_table, error))
-		return false;
+	// get dispatched coupons in descending time
+	std::vector<std::string> serial_numbers_order;
+	std::map<std::string, double> serial_numbers;
 
-	table = results_table.data;
+	{
+		database::table results;
+		if (!_connection.execute_query("SELECT * FROM DispatchedStatus ORDER BY Date DESC;", {}, results, error))
+			return false;
+
+		for (auto& row : results.data) {
+			std::string serial_number;
+			double date = 0;
+
+			try {
+				if (row.at("Serial Number").has_value()) {
+					serial_number = liblec::leccore::database::get::text(row.at("Serial Number"));
+				}
+				if (row.at("Date").has_value()) {
+					date = liblec::leccore::database::get::real(row.at("Date"));
+				}
+
+				serial_numbers_order.push_back(serial_number);
+				serial_numbers.insert(std::make_pair(serial_number, date));
+			}
+			catch (const std::exception& e) {
+				error = e.what();
+				return false;
+			}
+		}
+	}
+
+	for (const auto& serial_number : serial_numbers_order) {
+		double volume = 0;
+		std::string fuel;
+		{
+			// get the details
+			std::vector<database::row> table;
+			if (!on_get_coupon(serial_number, table, error))
+				return false;
+
+			// we already have the serial number and the dispatch date, now we need the volume of the coupon
+			for (auto& row : table) {
+				try {
+					if (row.at("Volume").has_value()) {
+						volume = liblec::leccore::database::get::real(row.at("Volume"));
+					}
+					if (row.at("Fuel").has_value()) {
+						fuel = liblec::leccore::database::get::text(row.at("Fuel"));
+					}
+
+					break;	// expecting one value anyway
+				}
+				catch (const std::exception& e) {
+					error = e.what();
+					return false;
+				}
+			}
+		}
+
+		std::string receiving_department;
+		{
+			// get the details
+			database::table results;
+			if (!_connection.execute_query("SELECT * FROM DispatchedTo WHERE \"Serial Number\" = ? ; ", { serial_number }, results, error))
+				return false;
+
+			for (auto& row : results.data) {
+
+				try {
+					if (row.at("Department").has_value()) {
+						receiving_department = liblec::leccore::database::get::text(row.at("Department"));
+					}
+
+					break;	// expecting one value anyway
+				}
+				catch (const std::exception& e) {
+					error = e.what();
+					return false;
+				}
+			}
+		}
+
+		dispatched_coupon_struct coupon;
+		coupon.date = serial_numbers.at(serial_number);
+		coupon.serial_number = serial_number;
+		coupon.receiving_department = receiving_department;
+		coupon.volume = volume;
+		coupon.fuel = fuel;
+
+		coupons.push_back(coupon);
+	}
+
 	return true;
 }
 

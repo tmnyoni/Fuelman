@@ -15,13 +15,21 @@ class fuelman_db {
 	database::connection& _connection;
 
 public:
+	struct dispatched_coupon_struct {
+		std::string serial_number;
+		double volume;
+		double date;
+		std::string receiving_department;
+		std::string fuel;
+	};
+
 	fuelman_db(database::connection& connection);
 	bool connect(std::string& error);
 	bool on_dispatch_coupons(database::row& table, std::string& error);
 	bool on_save_coupons(const std::vector<database::row>& table, std::string& error);
 	bool on_get_coupons(std::vector<database::row>& table, std::string& error);
 	bool on_get_coupon(const std::any& serial_number, std::vector<database::row>& table_, std::string& error);
-	bool on_get_dispatched_coupons(std::vector<database::row>& table, std::string& error);
+	bool on_get_dispatched_coupons(std::vector<dispatched_coupon_struct>& coupons, std::string& error);
 	bool add_department(const std::string& name, std::string& error);
 	bool get_departments(std::vector<std::string>& departments, std::string& error);
 

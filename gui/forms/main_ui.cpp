@@ -797,7 +797,7 @@ void main_window::dispatched_coupon_timer() {
 	_timer_man.stop("dispatched_coupon_timer");
 
 	std::string error;
-	std::vector<database::row> coupons_data;
+	std::vector<fuelman_db::dispatched_coupon_struct> coupons_data;
 	if (_state.get_db().on_get_dispatched_coupons(coupons_data, error)) {
 		try {
 			auto& dispatched_coupons_pane = get_pane(_main_tab_pane_path + "/Coupons/dispatched-coupons");
@@ -807,9 +807,9 @@ void main_window::dispatched_coupon_timer() {
 
 			float bottom_margin = 0.f;
 
-			for (const auto& row : coupons_data) {
+			for (const auto& coupon : coupons_data) {
 				// get the time_t value
-				long long time = static_cast<long long>(db_get::real(row.at("Date")));
+				long long time = static_cast<long long>(coupon.date);
 
 				// convert to a std::tm, local time
 				std::tm tm = { };
@@ -820,10 +820,10 @@ void main_window::dispatched_coupon_timer() {
 				ss << std::put_time(&tm, "%d %b %Y, %H:%M");
 				std::string date_string = ss.str();
 
-				const std::string serial_number = get::text(row.at("Serial Number"));
-				const std::string fuel = get::text(row.at("Fuel"));
-				const std::string volume = leccore::round_off::to_string(get::real(row.at("Volume")), 0);
-				const std::string issued_by = get::text(row.at("Issued By"));
+				const std::string serial_number = coupon.serial_number;
+				const std::string fuel = coupon.fuel;
+				const std::string volume = leccore::round_off::to_string(coupon.volume, 0);
+				const std::string issued_to = coupon.receiving_department;
 
 				auto& coupon_pane = lecui::containers::pane::add(dispatched_coupons_pane, serial_number);
 				coupon_pane
@@ -836,21 +836,21 @@ void main_window::dispatched_coupon_timer() {
 
 				auto& volume_label = lecui::widgets::label::add(coupon_pane, serial_number + "_volume");
 				volume_label
-					.text("<strong>" + volume + "</strong> litres of <span style = 'font-size: 8.0pt;'><strong>" + fuel + "</strong></span>")
+					.text("<strong>" + volume + "</strong> litres of <span style = 'font-size: 8.0pt;'><strong>" + fuel + "</strong> issued to</span>")
 					.rect(volume_label.rect()
 						.right(coupon_pane.size().get_width()));
 
-				auto& serial_number_label = lecui::widgets::label::add(coupon_pane, serial_number + "_serial_number");
-				serial_number_label
-					.text("SN: " + serial_number)
+				auto& issued_to_label = lecui::widgets::label::add(coupon_pane, serial_number + "_issued_to");
+				issued_to_label
+					.text("<span style = 'font-size: 8.0pt;'><strong><em>" + issued_to + "</em></strong></span>")
 					.rect(lecui::rect(volume_label.rect())
-					.snap_to(volume_label.rect(), snap_type::bottom, 0.f));
+						.snap_to(volume_label.rect(), snap_type::bottom, 0.f));
 
 				auto& date_label = lecui::widgets::label::add(coupon_pane, serial_number + "_date");
 				date_label
 					.text(date_string)
 					.rect(lecui::rect(volume_label.rect())
-						.snap_to(serial_number_label.rect(), snap_type::bottom, 0.f));
+						.snap_to(issued_to_label.rect(), snap_type::bottom, 0.f));
 
 				// update bottom margin
 				bottom_margin = coupon_pane.rect().bottom() + _margin;
