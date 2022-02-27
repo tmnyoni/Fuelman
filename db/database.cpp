@@ -342,3 +342,99 @@ int fuelman_db::on_get_diesel_volume() {
 
 	return diesel_volume_;
 }
+
+double fuelman_db::available_petrol() {
+	double total = 0.0;
+
+	// get available coupons
+	const std::string sql_query =
+		"SELECT * FROM Coupons WHERE \"Serial Number\" NOT IN "
+		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+
+	std::string error;
+	database::table results;
+	if (!_connection.execute_query(sql_query, {}, results, error))
+		return total;
+
+	for (const auto& row : results.data) {
+		if (db_get::text(row.at("Fuel")).compare("Petrol") == 0) {
+			const auto volume = db_get::real(row.at("Volume"));
+			total += volume;
+		}
+	}
+
+	return total;
+}
+
+double fuelman_db::available_diesel() {
+	double total = 0.0;
+
+	// get available coupons
+	const std::string sql_query =
+		"SELECT * FROM Coupons WHERE \"Serial Number\" NOT IN "
+		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+
+	std::string error;
+	database::table results;
+	if (!_connection.execute_query(sql_query, {}, results, error))
+		return total;
+
+	for (const auto& row : results.data) {
+		if (db_get::text(row.at("Fuel")).compare("Diesel") == 0) {
+			const auto volume = db_get::real(row.at("Volume"));
+			total += volume;
+		}
+	}
+
+	return total;
+}
+
+double fuelman_db::dispatched_petrol() {
+	double total = 0.0;
+
+	// get available coupons
+	const std::string sql_query =
+		"SELECT * FROM Coupons WHERE \"Serial Number\" IN "
+		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+
+	std::string error;
+	database::table results;
+	if (!_connection.execute_query(sql_query, {}, results, error))
+		return total;
+
+	for (const auto& row : results.data) {
+		if (db_get::text(row.at("Fuel")).compare("Petrol") == 0) {
+			const auto volume = db_get::real(row.at("Volume"));
+			total += volume;
+		}
+	}
+
+	return total;
+}
+
+double fuelman_db::dispatched_diesel() {
+	double total = 0.0;
+
+	// get available coupons
+	const std::string sql_query =
+		"SELECT * FROM Coupons WHERE \"Serial Number\" IN "
+		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+
+	std::string error;
+	database::table results;
+	if (!_connection.execute_query(sql_query, {}, results, error))
+		return total;
+
+	for (const auto& row : results.data) {
+		if (db_get::text(row.at("Fuel")).compare("Diesel") == 0) {
+			const auto volume = db_get::real(row.at("Volume"));
+			total += volume;
+		}
+	}
+
+	return total;
+}

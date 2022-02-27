@@ -93,7 +93,11 @@ class main_window : public lecui::form {
 
 	bool _restart_now = false;
 
+	lecui::color _petrol_color = lecui::color().red(0).green(150).blue(0);
+	lecui::color _diesel_color = lecui::color().red(180).green(0).blue(255);
+
 	void dispatched_coupon_timer();
+	void run_report();
 
 public:
 	main_window(const std::string& caption,

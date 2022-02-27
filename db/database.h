@@ -37,4 +37,10 @@ public:
 	bool on_departments_stats(std::vector<database::row>& departmnets_stats, std::string& error);
 	int on_get_petrol_volume();
 	int on_get_diesel_volume();
+
+	double available_petrol();
+	double available_diesel();
+
+	double dispatched_petrol();
+	double dispatched_diesel();
 };

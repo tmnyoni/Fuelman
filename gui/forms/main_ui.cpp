@@ -35,6 +35,8 @@
 #include <liblec/lecui/widgets/image_view.h>
 #include <liblec/lecui/widgets/toggle.h>
 #include <liblec/lecui/widgets/progress_indicator.h>
+#include <liblec/lecui/widgets/rectangle.h>
+#include <liblec/lecui/widgets/strength_bar.h>
 
 #include <liblec/lecui/menus/context_menu.h>
 
@@ -49,12 +51,15 @@
 #include <filesystem>
 #include <sstream>
 
+#include <liblec/lecui/widgets/date.h>	// had to place this below STL headers because of a macro conflict
+
 // include local headers.
 #include "../main_ui.h"
 #include "../dispatch.h"
 #include "../addcoupons.h"
 #include "../../version_info/version_info.h"
 #include "../../resource.h"
+
 
 #ifdef _WIN64
 #define architecture	"64bit"
@@ -419,9 +424,9 @@ bool main_window::on_layout(std::string& error) {
 	/// Reports
 	auto& reports_tab = lecui::containers::tab::add(main_tab_pane, "Reports");
 
-	auto& report_date_caption = lecui::widgets::label::add(reports_tab);
-	report_date_caption
-		.text("Date")
+	auto& start_date_caption = lecui::widgets::label::add(reports_tab);
+	start_date_caption
+		.text("Start Date")
 		.color_text(_caption_color)
 		.rect(lecui::rect()
 			.left(_margin * 2.f)
@@ -429,88 +434,27 @@ bool main_window::on_layout(std::string& error) {
 			.width(200.f)
 			.height(20.f));
 
-	auto& report_date_select = lecui::widgets::combobox::add(reports_tab, "report-date-select");
-		report_date_select
-			.items({ { "today" }, { "yesterday" } })
-			.color_fill({ 255,255,255,0 })
-			.rect().size(200.f, 25.f)
-			.snap_to(report_date_caption.rect(), snap_type::bottom, 0);
-		report_date_select.events().selection = [](const std::string& selected) {};
-
-	auto& report_items_table = lecui::widgets::table_view::add(reports_tab, "reports-items-table");
-	{
-		std::vector<table_column> reports_table_columns =
-		{
-			{ "Serial Number", 100 },
-			{ "Fuel", 90 },
-			{ "Issued By", 80 },
-			{ "Receiver", 80 },
-			{ "Volume", 80 },
-		};
-
-		report_items_table
-			.border(0.f)
-			.fixed_number_column(true)
-			.corner_radius_x(0.f)
-			.corner_radius_y(0.f)
-			.user_sort(true)
-			.columns(reports_table_columns)
-			.rect(lecui::rect()
-				.left(_margin)
-				.right(550.f)
-				.top(report_date_select.rect().bottom() + _margin)
-				.bottom(400.f));
+	auto& start_date = lecui::widgets::date::add(reports_tab, "start_date");
+	start_date
+		.rect(lecui::rect(start_date.rect()).snap_to(start_date_caption.rect(), snap_type::bottom_left, _margin))
+		.events().change = [this](const lecui::date& dt) {
+		run_report();
+	};
 
 
-		auto& total_volume_caption = lecui::widgets::label::add(reports_tab);
-		total_volume_caption
-			.text("TOTAL")
-			.color_text(_caption_color)
-			.rect().size({ 80.f, 20.f })
-			.set(report_items_table.rect().right() - 180.f, report_items_table.rect().bottom(), 100.f, 20.f);
+	auto& end_date_caption = lecui::widgets::label::add(reports_tab);
+	end_date_caption
+		.text("End Date")
+		.color_text(_caption_color)
+		.rect(lecui::rect(start_date_caption.rect()).snap_to(start_date_caption.rect(), snap_type::right, _margin));
+	
+	auto& end_date = lecui::widgets::date::add(reports_tab, "end_date");
+	end_date
+		.rect(lecui::rect(start_date.rect()).snap_to(end_date_caption.rect(), snap_type::bottom_left, _margin))
+		.events().change = [this](const lecui::date& dt) {
+		run_report();
+	};
 
-		auto& total_volume_text = lecui::widgets::label::add(reports_tab, "total-volume-text");
-		total_volume_text
-			.text("0000 Litres")
-			.color_text(_caption_color)
-			.rect().size({ 80.f, 20.f })
-			.snap_to(total_volume_caption.rect(), snap_type::right, _margin);
-
-
-		const lecui::size icon_size{ 80.f, 30.f };
-		auto& print_button = lecui::widgets::icon::add(reports_tab);
-		print_button
-			.text("Print")
-			.font_size(9.f)
-			.png_resource(png_print_report)
-			.max_image_size(20.f)
-			.rect(rect()
-				.left(report_items_table.rect().right() - (80.f * 3.f) - 2.f * (_margin / 3.f))
-				.top(total_volume_text.rect().bottom() + 2.f * _margin)
-				.width(icon_size.get_width())
-				.height(icon_size.get_height()))
-			.events().action = [&]() {};
-
-		auto& share_button = lecui::widgets::icon::add(reports_tab);
-		share_button
-			.text("Share")
-			.font_size(9.f)
-			.png_resource(png_share_report)
-			.max_image_size(20.f)
-			.rect(print_button.rect())
-			.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
-		share_button.events().action = [&]() {};
-
-		auto& preview_button = lecui::widgets::icon::add(reports_tab);
-		preview_button
-			.text("Preview")
-			.font_size(9.f)
-			.png_resource(png_preview_report)
-			.max_image_size(20.f)
-			.rect(print_button.rect())
-			.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);
-		preview_button.events().action = [&]() {};
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
@@ -852,6 +796,15 @@ void main_window::dispatched_coupon_timer() {
 					.rect(lecui::rect(volume_label.rect())
 						.snap_to(issued_to_label.rect(), snap_type::bottom, 0.f));
 
+				// add color rect to distinguish between petrol and diesel
+				auto& color_rect = lecui::widgets::rectangle::add(dispatched_coupons_pane, serial_number + "_color_rect");
+				color_rect
+					.rect(lecui::rect(coupon_pane.rect()).width(2.f).top(coupon_pane.rect().top() + 10.f).bottom(coupon_pane.rect().bottom() - 10.f));
+				color_rect
+					.color_border().alpha(0);
+				color_rect
+					.color_fill(fuel == "Petrol" ? _petrol_color : _diesel_color);
+
 				// update bottom margin
 				bottom_margin = coupon_pane.rect().bottom() + _margin;
 			}
@@ -868,6 +821,211 @@ void main_window::dispatched_coupon_timer() {
 	_timer_man.add("dispatched_coupon_timer", 1200, [&]() {
 		dispatched_coupon_timer();
 		});
+}
+
+void main_window::run_report() {
+	try {
+		auto& reports_tab = get_tab(_main_tab_pane_path + "/Reports");
+		auto& start_date = get_date(_main_tab_pane_path + "/Reports/start_date");
+		auto& end_date = get_date(_main_tab_pane_path + "/Reports/end_date");
+
+		// to-do: filter by dates ... for now get for all time
+
+		// get values
+		auto available_petrol = _state.get_db().available_petrol();
+		auto available_diesel = _state.get_db().available_diesel();
+		auto total_available = available_petrol + available_diesel;
+
+		auto dispatched_petrol = _state.get_db().dispatched_petrol();
+		auto dispatched_diesel = _state.get_db().dispatched_diesel();
+		auto total_dispatched = dispatched_petrol + dispatched_diesel;
+
+		auto total_petrol = available_petrol + dispatched_petrol;
+		auto total_diesel = available_diesel + dispatched_diesel;
+		auto total_fuel = total_petrol + total_diesel;
+
+		if ((total_petrol + total_diesel) == 0) {
+			message("No data available");
+			return;
+		}
+
+		{
+			// available petrol
+			auto& available_petrol_pane = lecui::containers::pane::add(reports_tab);
+			available_petrol_pane
+				.rect(lecui::rect(lecui::size(200.f, 100.f)).snap_to(start_date.rect(), snap_type::bottom_left, 2.f * _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_available > 0)
+					percentage = static_cast<float>(100.0 * available_petrol / total_available);
+
+				auto& label = lecui::widgets::label::add(available_petrol_pane);
+				label
+					.text("AVAILABLE PETROL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(available_petrol_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(available_petrol_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_petrol_color)
+					.color_text(_petrol_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// available diesel
+			auto& available_diesel_pane = lecui::containers::pane::add(reports_tab);
+			available_diesel_pane
+				.rect(lecui::rect(available_petrol_pane.rect()).snap_to(available_petrol_pane.rect(), snap_type::right, _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_available > 0)
+					percentage = static_cast<float>(100.0 * available_diesel / total_available);
+
+				auto& label = lecui::widgets::label::add(available_diesel_pane);
+				label
+					.text("AVAILABLE DIESEL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(available_diesel_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(available_diesel_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_diesel_color)
+					.color_text(_diesel_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+
+			// dispatched petrol
+			auto& dispatched_petrol_pane = lecui::containers::pane::add(reports_tab);
+			dispatched_petrol_pane
+				.rect(lecui::rect(available_petrol_pane.rect()).snap_to(available_petrol_pane.rect(), snap_type::bottom_left, 2.f * _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_dispatched > 0)
+					percentage = static_cast<float>(100.0 * dispatched_petrol / total_dispatched);
+
+				auto& label = lecui::widgets::label::add(dispatched_petrol_pane);
+				label
+					.text("DISPATCHED PETROL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(dispatched_petrol_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(dispatched_petrol_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_petrol_color)
+					.color_text(_petrol_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// dispatched diesel
+			auto& dispatched_diesel_pane = lecui::containers::pane::add(reports_tab);
+			dispatched_diesel_pane
+				.rect(lecui::rect(dispatched_petrol_pane.rect()).snap_to(dispatched_petrol_pane.rect(), snap_type::right, _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_dispatched > 0)
+					percentage = static_cast<float>(100.0 * dispatched_diesel / total_dispatched);
+
+				auto& label = lecui::widgets::label::add(dispatched_diesel_pane);
+				label
+					.text("DISPATCHED DIESEL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(dispatched_diesel_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(dispatched_diesel_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_diesel_color)
+					.color_text(_diesel_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// overall ratio between petrol and diesel
+			auto& petrol = lecui::widgets::label::add(reports_tab);
+			petrol
+				.text("TOTAL PETROL")
+				.rect().snap_to(dispatched_petrol_pane.rect(), snap_type::bottom_left, 3.f * _margin);
+
+			auto& diesel = lecui::widgets::label::add(reports_tab);
+			diesel
+				.text("TOTAL DIESEL")
+				.alignment(lecui::text_alignment::right)
+				.rect().snap_to(dispatched_diesel_pane.rect(), snap_type::bottom_right, 3.f * _margin);
+
+			float petrol_ratio = 0.f;
+
+			if (total_fuel > 0)
+				petrol_ratio = static_cast<float>(100.0 * total_petrol / total_fuel);
+
+			liblec::lecui::widgets::strength_bar::strength_level petrol_level;
+			petrol_level.level = petrol_ratio;
+			petrol_level.color = _petrol_color;
+
+			liblec::lecui::widgets::strength_bar::strength_level diesel_level;
+			diesel_level.level = 100.f;
+			diesel_level.color = _diesel_color;
+
+			auto& ratio = lecui::widgets::strength_bar::add(reports_tab);
+			ratio
+				.levels({ petrol_level, diesel_level })
+				.percentage(100.f)
+				.rect(lecui::rect(ratio.rect()).left(petrol.rect().left()).right(diesel.rect().right()).snap_to(petrol.rect(), snap_type::bottom_left, _margin));
+		
+
+			// add icons
+			const lecui::size icon_size{ 80.f, 30.f };
+			auto& print_button = lecui::widgets::icon::add(reports_tab);
+			print_button
+				.text("Print")
+				.font_size(9.f)
+				.png_resource(png_print_report)
+				.max_image_size(20.f)
+				.rect(rect()
+					.left(ratio.rect().left())
+					.top(ratio.rect().bottom() + 2.f * _margin)
+					.width(icon_size.get_width())
+					.height(icon_size.get_height()))
+				.events().action = [&]() {};
+
+			auto& share_button = lecui::widgets::icon::add(reports_tab);
+			share_button
+				.text("Share")
+				.font_size(9.f)
+				.png_resource(png_share_report)
+				.max_image_size(20.f)
+				.rect(print_button.rect())
+				.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
+			share_button.events().action = [&]() {
+				// share to excel
+
+			};
+
+			auto& preview_button = lecui::widgets::icon::add(reports_tab);
+			preview_button
+				.text("Preview")
+				.font_size(9.f)
+				.png_resource(png_preview_report)
+				.max_image_size(20.f)
+				.rect(print_button.rect())
+				.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);
+			preview_button.events().action = [&]() {};
+		}
+
+	}
+	catch (const std::exception&) {
+
+	}
 }
 
 main_window::main_window(const std::string& caption,
