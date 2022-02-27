@@ -27,13 +27,15 @@
 // include std headers.
 #include <map>
 #include <vector>
+
+// lecui
 #include <liblec/lecui/instance.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/containers/page.h>
 #include <liblec/lecui/widgets/button.h>
-
 #include <liblec/lecui/utilities/splash.h>
+#include <liblec/lecui/utilities/timer.h>
 
 // include leccore
 #include <liblec/leccore/settings.h>
@@ -58,6 +60,7 @@ class main_window : public lecui::form {
 	lecui::dimensions _dimensions{ *this };
 	lecui::page_manager _page_manager{ *this };
 	lecui::widget_manager _widget_manager{ *this };
+	lecui::timer_manager _timer_man{ *this };
 	lecui::splash  _splash_screen{ *this };
 
 	// window attributes.
@@ -89,6 +92,8 @@ class main_window : public lecui::form {
 	leccore::registry_settings _registry_settings{ leccore::registry::scope::current_user };
 
 	bool _restart_now = false;
+
+	void dispatched_coupon_timer();
 
 public:
 	main_window(const std::string& caption,

@@ -106,6 +106,9 @@ bool main_window::on_initialize(std::string& error) {
 	
 	_dimensions.set_size(_window_size);
 
+	// schedule timer for dispatched coupons (1500ms kick start ... the method will do the timer looping)
+	_timer_man.add("dispatched_coupon_timer", 1500, [&]() { dispatched_coupon_timer(); });
+
 	_splash_screen.remove();
 
 	return true;
@@ -284,13 +287,26 @@ bool main_window::on_layout(std::string& error) {
 			.height(_margin * 3.f))
 		.events().action = [&]() { on_add_coupons(error); };
 
+	const float dispatched_coupons_width = 180.f;
+
+	// add coupons table caption
+	auto& coupons_table_caption = lecui::widgets::label::add(coupons_tab);
+	coupons_table_caption
+		.text("<strong>Available</strong>")
+		.font_size(10.f)
+		.rect(lecui::rect()
+			.left(_margin)
+			.right(coupons_tab.size().get_width() - _margin - dispatched_coupons_width - _margin)
+			.top(add_coupons_button.rect().bottom() + _margin)
+			.height(coupons_table_caption.rect().height()));
+
 	auto& coupons_table = lecui::widgets::table_view::add(coupons_tab, "coupons-table");
 	{
 		std::vector<lecui::table_column> coupons_table_cols =
 		{
-			{ "Serial Number", 250 },
-			{ "Fuel", 90 },
-			{ "Volume", 80 },
+			{ "Serial Number", 100 },
+			{ "Fuel", 50 },
+			{ "Volume", 60 },
 			{ "Date", 90 },
 			{ "Issued By", 90 },
 		};
@@ -300,7 +316,8 @@ bool main_window::on_layout(std::string& error) {
 			message("Error: " + error);
 
 		coupons_table
-			.border(0)
+			.border(1.f)
+			.color_border(lecui::defaults::color(_setting_darktheme ? lecui::themes::dark : lecui::themes::light, lecui::item::pane_border))
 			.fixed_number_column(true)
 			.corner_radius_x(0.f)
 			.corner_radius_y(0.f)
@@ -309,8 +326,8 @@ bool main_window::on_layout(std::string& error) {
 			.data(coupons_data)
 			.rect(lecui::rect()
 				.left(_margin)
-				.right(coupons_tab.size().get_width() - _margin)
-				.top(add_coupons_button.rect().bottom() + _margin)
+				.right(coupons_tab.size().get_width() - _margin - dispatched_coupons_width - _margin)
+				.top(coupons_table_caption.rect().bottom())
 				.bottom(coupons_tab.size().get_height() - (_margin * _margin)))
 			.events().context_menu = [&]
 			(const std::vector<table_row>& rows) {
@@ -342,7 +359,30 @@ bool main_window::on_layout(std::string& error) {
 	total_coupons_caption
 		.text(std::to_string(coupons_table.data().size()) + " coupon" + (coupons_table.data().size() == 1 ? std::string() : std::string("s")) + " available")
 		.color_text(_caption_color)
-		.rect().set(_margin * 1.5f, coupons_table.rect().bottom(), 200.f, 20.f);
+		.rect().set(_margin * 1.5f, coupons_table.rect().bottom() + _margin / 3.f, dispatched_coupons_width, 20.f);
+
+	// add dispatched coupons pane caption
+	auto& dispatched_coupons_pane_caption = lecui::widgets::label::add(coupons_tab);
+	dispatched_coupons_pane_caption
+		.text("<strong>Dispatched</strong>")
+		.font_size(10.f)
+		.rect(lecui::rect(coupons_table_caption.rect())
+			.left(coupons_table.rect().right() + _margin)
+			.right(coupons_tab.size().get_width() - _margin));
+
+	// add dispatched coupons pane
+	auto& dispatched_coupons_pane = lecui::containers::pane::add(coupons_tab, "dispatched-coupons");
+	dispatched_coupons_pane
+		.border(1.f)
+		.rect(lecui::rect(coupons_table.rect())
+			.left(coupons_table.rect().right() + _margin)
+			.right(coupons_tab.size().get_width() - _margin))
+		.color_fill(lecui::defaults::color(_setting_darktheme ? lecui::themes::dark : lecui::themes::light, lecui::item::table_view));
+
+	auto& total_dispatched_caption = lecui::widgets::label::add(coupons_tab, "number-of-dispatched-coupons");
+	total_dispatched_caption
+		.color_text(_caption_color)
+		.rect(lecui::rect(total_coupons_caption.rect()).left(dispatched_coupons_pane.rect().left()).right(dispatched_coupons_pane.rect().right()));
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +411,7 @@ bool main_window::on_layout(std::string& error) {
 	{
 		std::vector<table_column> reports_table_columns =
 		{
-			{ "Serial Number", 150 },
+			{ "Serial Number", 100 },
 			{ "Fuel", 90 },
 			{ "Issued By", 80 },
 			{ "Receiver", 80 },
@@ -707,6 +747,73 @@ bool main_window::on_delete_coupon(std::string& error) {
 
 
 	return true;
+}
+
+void main_window::dispatched_coupon_timer() {
+	// stop the timer
+	_timer_man.stop("dispatched_coupon_timer");
+
+	std::string error;
+	std::vector<database::row> coupons_data;
+	if (_state.get_db().on_get_dispatched_coupons(coupons_data, error)) {
+		try {
+			auto& dispatched_coupons_pane = get_pane(_main_tab_pane_path + "/Coupons/dispatched-coupons");
+			auto& total_dispatched_caption = get_label(_main_tab_pane_path + "/Coupons/number-of-dispatched-coupons");
+
+			const auto ref_rect = lecui::rect(dispatched_coupons_pane.size());
+
+			float bottom_margin = 0.f;
+
+			for (const auto& row : coupons_data) {
+				const std::string date = get::text(row.at("Date"));
+				const std::string serial_number = get::text(row.at("Serial Number"));
+				const std::string fuel = get::text(row.at("Fuel"));
+				const std::string volume = get::text(row.at("Volume"));
+				const std::string issued_by = get::text(row.at("Issued By"));
+
+				auto& coupon_pane = lecui::containers::pane::add(dispatched_coupons_pane, serial_number);
+				coupon_pane
+					.rect(lecui::rect(ref_rect)
+						.top(bottom_margin)
+						.height(80.f))
+					.color_fill(_setting_darktheme ?
+						lecui::color().red(35).green(45).blue(60) :
+						lecui::color().red(245).green(245).blue(245));
+
+				auto& volume_label = lecui::widgets::label::add(coupon_pane, serial_number + "_volume");
+				volume_label
+					.text("<strong>" + volume + "</strong> litres of <span style = 'font-size: 8.0pt;'><strong>" + fuel + "</strong></span>")
+					.rect(volume_label.rect()
+						.right(coupon_pane.size().get_width()));
+
+				auto& serial_number_label = lecui::widgets::label::add(coupon_pane, serial_number + "_serial_number");
+				serial_number_label
+					.text("SN: " + serial_number)
+					.rect(lecui::rect(volume_label.rect())
+					.snap_to(volume_label.rect(), snap_type::bottom, 0.f));
+
+				auto& date_label = lecui::widgets::label::add(coupon_pane, serial_number + "_date");
+				date_label
+					.text(date)
+					.rect(lecui::rect(volume_label.rect())
+						.snap_to(serial_number_label.rect(), snap_type::bottom, 0.f));
+
+				// update bottom margin
+				bottom_margin = coupon_pane.rect().bottom() + _margin;
+			}
+
+			total_dispatched_caption.text(std::to_string(coupons_data.size()) + " coupon" +
+				(coupons_data.size() == 1 ? std::string() : std::string("s")) + " dispatched");
+
+			update();
+		}
+		catch (const std::exception&) {}
+	}
+
+	// resume the timer (1200ms looping ...)
+	_timer_man.add("dispatched_coupon_timer", 1200, [&]() {
+		dispatched_coupon_timer();
+		});
 }
 
 main_window::main_window(const std::string& caption,

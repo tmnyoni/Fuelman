@@ -112,6 +112,20 @@ bool fuelman_db::on_get_coupon(const std::any& serial_number, std::vector<databa
 	return true;
 }
 
+bool fuelman_db::on_get_dispatched_coupons(std::vector<database::row>& table, std::string& error) {
+	const std::string sql_query =
+		"SELECT * FROM Coupons WHERE \"Serial Number\" IN "
+		"(SELECT DispatchedStatus.\"Serial Number\" FROM Coupons INNER JOIN "
+		"DispatchedStatus ON DispatchedStatus.\"Serial Number\" = Coupons.\"Serial Number\");";
+
+	database::table results_table;
+	if (!_connection.execute_query(sql_query, {}, results_table, error))
+		return false;
+
+	table = results_table.data;
+	return true;
+}
+
 //// This function is unfinished.
 bool fuelman_db::on_departments_stats(std::vector<database::row>& departmental_stats, std::string& error) {
 	const std::string sql_query =

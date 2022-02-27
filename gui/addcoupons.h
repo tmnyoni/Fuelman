@@ -107,7 +107,7 @@ class addcoupons_form : public form {
 		{
 			std::vector<table_column> added_coupons_columns =
 			{
-				{ "Serial Number", 150 },
+				{ "Serial Number", 100 },
 				{ "Fuel", 90 },
 				{ "Volume", 90 },
 				{ "Issued By", 100 }
