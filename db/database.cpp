@@ -27,7 +27,7 @@ bool fuelman_db::connect(std::string& error) {
 		return false;
 
 	if (!_connection.execute("CREATE TABLE IF NOT EXISTS Departments "
-		"(ID TEXT, Department TEXT);",
+		"(ID TEXT NOT NULL, Name TEXT NOT NULL, PRIMARY KEY(ID));",
 		{}, error)
 		)
 
@@ -121,6 +121,48 @@ bool fuelman_db::on_get_dispatched_coupons(std::vector<database::row>& table, st
 		return false;
 
 	table = results_table.data;
+	return true;
+}
+
+bool fuelman_db::add_department(const std::string& name, std::string& error)
+{
+	if (name.empty()) {
+		error = "Name not supplied";
+		return false;
+	}
+
+	if (!_connection.execute("INSERT INTO Departments VALUES(?, ?);",
+		{
+			name,	// use the name as the ID for simplicity
+			name
+		},
+		error))
+		return false;
+
+	return true;
+}
+
+bool fuelman_db::get_departments(std::vector<std::string>& departments, std::string& error)
+{
+	database::table results;
+	if (!_connection.execute_query("SELECT ID, Name FROM Departments;", {}, results, error))
+		return false;
+
+	for (auto& row : results.data) {
+		std::string department;
+
+		try {
+			if (row.at("Name").has_value()) {
+				department = liblec::leccore::database::get::text(row.at("Name"));
+				departments.push_back(department);
+			}
+		}
+		catch (const std::exception& e) {
+			error = e.what();
+			return false;
+		}
+	}
+
 	return true;
 }
 

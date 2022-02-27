@@ -22,6 +22,8 @@ public:
 	bool on_get_coupons(std::vector<database::row>& table, std::string& error);
 	bool on_get_coupon(const std::any& serial_number, std::vector<database::row>& table_, std::string& error);
 	bool on_get_dispatched_coupons(std::vector<database::row>& table, std::string& error);
+	bool add_department(const std::string& name, std::string& error);
+	bool get_departments(std::vector<std::string>& departments, std::string& error);
 
 	//// This function is unfinished.
 	bool on_departments_stats(std::vector<database::row>& departmnets_stats, std::string& error);

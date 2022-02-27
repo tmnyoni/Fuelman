@@ -65,7 +65,7 @@ class main_window : public lecui::form {
 
 	// window attributes.
 	const float _margin = 10.f;
-	const lecui::size _window_size = lecui::size::size().width(820.f).height(600.f);
+	const lecui::size _window_size = lecui::size::size().width(840.f).height(600.f);
 	const std::string _page_name = "fuelman";
 	const std::string _main_tab_name = "main tabs";
 	const std::string _main_tab_pane_path =_page_name + "/" + _main_tab_name; 

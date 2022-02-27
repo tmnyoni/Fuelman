@@ -46,8 +46,9 @@ class dispatch_form : public form {
 
 	void on_start() override {
 		try	{
-			// prevent changing of volume
+			// prevent changing of serial number and volume
 			std::string error;
+			if (!_widget_manager.disable(_page_name + "/serial-number-text", error)) {}
 			if (!_widget_manager.disable(_page_name + "/volume-text", error)) {}
 		}
 		catch (const std::exception&) {}
@@ -107,15 +108,33 @@ class dispatch_form : public form {
 
 		auto& receiver_department_caption = widgets::label::add(page);
 		receiver_department_caption
-			.text("Issued to")
+			.text("Receiving Department")
 			.rect().snap_to(volume_text.rect(), snap_type::bottom, _margin);
 
-		auto& receiver_department_text = widgets::text_field::add(page, "receiver-department-text");
-		receiver_department_text.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
+		auto& receiver_department_text = widgets::combobox::add(page, "receiver-department-text");
+		receiver_department_text
+			.editable(true)
+			.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
+		receiver_department_text
+			.events().action = []() {};
+
+		{
+			// get available departments
+			std::vector<std::string> departments;
+			std::string error;
+			if (!_state.get_db().get_departments(departments, error)) {}
+
+			for (const auto& department : departments) {
+				lecui::widgets::combobox::combobox_item item;
+				item.label = department;
+
+				receiver_department_text.items().push_back(item);
+			}
+		}
 
 		auto& receiver_caption = widgets::label::add(page);
 		receiver_caption
-			.text("Received By")
+			.text("Received By (representative)")
 			.rect().snap_to(receiver_department_text.rect(), snap_type::bottom, _margin);
 
 		auto& receiver_text = widgets::text_field::add(page, "receiver-text");
@@ -152,7 +171,7 @@ class dispatch_form : public form {
 			auto fuel = get_combobox(_page_name + "/fuel-select").text();
 			auto serial_number = get_text_field(_page_name + "/serial-number-text").text();
 			auto volume = get_text_field(_page_name + "/volume-text").text();
-			auto receiver_department = get_text_field(_page_name + "/receiver-department-text").text();
+			auto receiver_department = get_combobox(_page_name + "/receiver-department-text").text();
 			auto receiver = get_text_field(_page_name + "/receiver-text").text();
 			auto comments = get_text_field(_page_name + "/comments-text").text();
 
@@ -176,6 +195,11 @@ class dispatch_form : public form {
 				{ "Receiver", receiver },
 				{ "Comments", comments }
 			};
+
+			// save department to database, in case it hasn't already been saved
+			if (!_state.get_db().add_department(receiver_department, error)) {
+				// ignore error, probably a unique contraint error meaning department already exists in database
+			}
 
 			if (!_state.get_db().on_dispatch_coupons(dispatched_coupon, error))
 				return false;

@@ -84,11 +84,29 @@ class addcoupons_form : public form {
 
 		auto& issuedby_caption = widgets::label::add(page);
 		issuedby_caption
-			.text("Issued by")
+			.text("Issuing Department")
 			.rect().snap_to(volume_text.rect(), snap_type::bottom, _margin);
 
-		auto& issuedby_text = widgets::text_field::add(page, "issuedby-text");
-		issuedby_text.rect().snap_to(issuedby_caption.rect(), snap_type::bottom, 0);
+		auto& issuedby_text = widgets::combobox::add(page, "issuedby-text");
+		issuedby_text
+			.text("")
+			.editable(true)
+			.rect().snap_to(issuedby_caption.rect(), snap_type::bottom, 0);
+		issuedby_text.events().action = []() {};
+
+		{
+			// get available departments
+			std::vector<std::string> departments;
+			std::string error;
+			if (!_state.get_db().get_departments(departments, error)) {}
+
+			for (const auto& department : departments) {
+				liblec::lecui::widgets::combobox::combobox_item item;
+				item.label = department;
+
+				issuedby_text.items().push_back(item);
+			}
+		}
 
 		auto& add_to_table_button = widgets::button::add(page);
 		add_to_table_button
@@ -148,7 +166,7 @@ class addcoupons_form : public form {
 			auto serial_number = get_text_field(_page_name + "/serial-number-text").text();
 			auto fuel_type = get_combobox(_page_name + "/fuel-select").text();
 			auto volume = get_text_field(_page_name + "/volume-text").text();
-			auto issued_by = get_text_field(_page_name + "/issuedby-text").text();
+			auto issued_by = get_combobox(_page_name + "/issuedby-text").text();
 
 			if (serial_number.empty() ||
 				fuel_type.empty() ||
@@ -180,8 +198,13 @@ class addcoupons_form : public form {
 						{"Issued By", issued_by }
 					}
 			);
-			update();
 
+			// save department to database, in case it hasn't already been saved
+			if (!_state.get_db().add_department(issued_by, error)) {
+				// ignore error, probably a unique contraint error meaning department already exists in database
+			}
+
+			update();
 		}
 		catch (const std::exception& ex) {
 			error = std::string(ex.what());

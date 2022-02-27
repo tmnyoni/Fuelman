@@ -309,7 +309,7 @@ bool main_window::on_layout(std::string& error) {
 			{ "Fuel", 50 },
 			{ "Volume", 60, 0 /* number of decimal places */ },
 			{ "Date", 120 },
-			{ "Issued By", 90 },
+			{ "Issued By", 110 },
 		};
 
 		std::vector<database::row> coupons_data;
