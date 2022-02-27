@@ -24,21 +24,19 @@
 
 #pragma once
 
-#define add_coupon			106
-#define dispatch_coupon		107
-#define delete_coupon		108
-#define return_coupon		109
-#define preview_report		110
-#define print_report		111
-#define share_report		112
+#define ico_resource		100
+#define icon_png_32			101
+#define icon_png_64			102
+#define icon_png_128		103
+#define icon_png_256		104
+#define icon_png_512		105
+#define splash_image_128	106
+#define splash_image_256	107
 
-#define ico_resource		113
-
-#define splash_image_128	114
-#define splash_image_256	115
-
-#define icon_png_512		116
-#define icon_png_256		117
-#define icon_png_128		118
-#define icon_png_64			119
-#define icon_png_32			120
+#define png_add_coupon			110
+#define png_dispatch_coupon		111
+#define png_delete_coupon		112
+#define png_return_coupon		113
+#define png_preview_report		114
+#define png_print_report		115
+#define png_share_report		116

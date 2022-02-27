@@ -275,7 +275,7 @@ bool main_window::on_layout(std::string& error) {
 	add_coupons_button
 		.text("Add Coupons")
 		.font_size(9.f)
-		.png_resource(add_coupon)
+		.png_resource(png_add_coupon)
 		.max_image_size(20.f)
 		.rect(lecui::rect()
 			.left(_margin * 1.5f)
@@ -317,9 +317,9 @@ bool main_window::on_layout(std::string& error) {
 
 			context_menu::specs context_menu_specs;
 			context_menu_specs.items = {
-				{"Dispatch", dispatch_coupon },
-				{"Return",  return_coupon },
-				{"Delete",  delete_coupon } };
+				{"Dispatch", png_dispatch_coupon },
+				{"Return",  png_return_coupon },
+				{"Delete",  png_delete_coupon } };
 
 			auto selected_context_menu_item = lecui::context_menu()(*this, context_menu_specs);
 
@@ -412,7 +412,7 @@ bool main_window::on_layout(std::string& error) {
 		print_button
 			.text("Print")
 			.font_size(9.f)
-			.png_resource(print_report)
+			.png_resource(png_print_report)
 			.max_image_size(20.f)
 			.rect(rect()
 				.left(report_items_table.rect().right() - (80.f * 3.f) - 2.f * (_margin / 3.f))
@@ -425,7 +425,7 @@ bool main_window::on_layout(std::string& error) {
 		share_button
 			.text("Share")
 			.font_size(9.f)
-			.png_resource(share_report)
+			.png_resource(png_share_report)
 			.max_image_size(20.f)
 			.rect(print_button.rect())
 			.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
@@ -435,7 +435,7 @@ bool main_window::on_layout(std::string& error) {
 		preview_button
 			.text("Preview")
 			.font_size(9.f)
-			.png_resource(preview_report)
+			.png_resource(png_preview_report)
 			.max_image_size(20.f)
 			.rect(print_button.rect())
 			.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);

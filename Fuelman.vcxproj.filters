@@ -1,127 +1,131 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="Fuelman">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source Files\gui">
+    <Filter Include="Fuelman\gui">
       <UniqueIdentifier>{408b0b2d-6c65-4a84-9005-3c1cb7e4b5a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\db">
-      <UniqueIdentifier>{4ad82e80-7842-4a4e-b77a-d89d1c2b4385}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\appstate">
-      <UniqueIdentifier>{a17708ad-48c6-43e1-9758-c57d310bc33b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\gui\forms">
+    <Filter Include="Fuelman\gui\forms">
       <UniqueIdentifier>{fafb32f3-64f7-4c8a-96a1-b70f6121ea88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\version_info">
+    <Filter Include="Fuelman\db">
+      <UniqueIdentifier>{4ad82e80-7842-4a4e-b77a-d89d1c2b4385}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fuelman\appstate">
+      <UniqueIdentifier>{a17708ad-48c6-43e1-9758-c57d310bc33b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fuelman\version_info">
       <UniqueIdentifier>{21ca5333-71eb-44ef-8d8c-81b203ad9959}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\resources">
+    <Filter Include="Fuelman\resources">
       <UniqueIdentifier>{a3cbe65c-1538-4a57-a609-56a33d81a359}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\resources\png">
+    <Filter Include="Fuelman\resources\png">
       <UniqueIdentifier>{386bf4f9-f1eb-497f-9e9e-abf7874e04aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fuelman\resources\ico">
+      <UniqueIdentifier>{27fd40c2-e70a-49c5-bb9e-0234364abd95}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Fuelman</Filter>
     </ClCompile>
     <ClCompile Include="gui\forms\addcoupons.cpp">
-      <Filter>Source Files\gui\forms</Filter>
+      <Filter>Fuelman\gui\forms</Filter>
     </ClCompile>
     <ClCompile Include="gui\forms\main_ui.cpp">
-      <Filter>Source Files\gui\forms</Filter>
+      <Filter>Fuelman\gui\forms</Filter>
     </ClCompile>
     <ClCompile Include="version_info\version_info.h">
-      <Filter>Source Files\version_info</Filter>
+      <Filter>Fuelman\version_info</Filter>
     </ClCompile>
     <ClCompile Include="db\database.cpp">
-      <Filter>Source Files\db</Filter>
+      <Filter>Fuelman\db</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\auth\signin.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Fuelman\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\auth\signup.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Fuelman\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\addcoupons.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Fuelman\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\dispatch.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Fuelman\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\main_ui.h">
-      <Filter>Source Files\gui</Filter>
+      <Filter>Fuelman\gui</Filter>
     </ClInclude>
     <ClInclude Include="db\database.h">
-      <Filter>Source Files\db</Filter>
+      <Filter>Fuelman\db</Filter>
     </ClInclude>
     <ClInclude Include="appstate\app_state.h">
-      <Filter>Source Files\appstate</Filter>
+      <Filter>Fuelman\appstate</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
+      <Filter>Fuelman</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Fuelman.rc">
-      <Filter>Resource Files</Filter>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Fuelman</Filter>
     </ResourceCompile>
     <ResourceCompile Include="version_info.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>Fuelman</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\png\add_coupon.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\delete_coupon.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\dispatch_coupon.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\preview_report.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\print_report.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\return_coupon.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\share_report.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\icon_32.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\icon_64.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\icon_128.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\icon_256.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
     <Image Include="resources\png\icon_512.png">
-      <Filter>Source Files\resources\png</Filter>
+      <Filter>Fuelman\resources\png</Filter>
+    </Image>
+    <Image Include="resources\ico\icon.ico">
+      <Filter>Fuelman\resources\ico</Filter>
+    </Image>
+    <Image Include="resources\png\splash_image_128.png">
+      <Filter>Fuelman\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\splash_image_256.png">
+      <Filter>Fuelman\resources\png</Filter>
     </Image>
   </ItemGroup>
 </Project>

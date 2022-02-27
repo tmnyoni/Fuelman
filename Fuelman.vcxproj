@@ -192,10 +192,11 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Fuelman.rc" />
+    <ResourceCompile Include="resource.rc" />
     <ResourceCompile Include="version_info.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="resources\ico\icon.ico" />
     <Image Include="resources\png\add_coupon.png" />
     <Image Include="resources\png\delete_coupon.png" />
     <Image Include="resources\png\dispatch_coupon.png" />
@@ -208,6 +209,8 @@
     <Image Include="resources\png\print_report.png" />
     <Image Include="resources\png\return_coupon.png" />
     <Image Include="resources\png\share_report.png" />
+    <Image Include="resources\png\splash_image_128.png" />
+    <Image Include="resources\png\splash_image_256.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

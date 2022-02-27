@@ -24,26 +24,19 @@
 
 #include "resource.h"
 
-
- add_coupon			PNG		"resources/png/add_coupon.png"
- dispatch_coupon	PNG		"resources/png/dispatch_coupon.png"
- delete_coupon 		PNG		"resources/png/delete_coupon.png"
- return_coupon		PNG		"resources/png/return_coupon.png"
-
- preview_report		PNG		"resources/png/preview_report.png"
- print_report		PNG		"resources/png/print_report.png"
- share_report		PNG		"resources/png/share_report.png"
-
-
 ico_resource		ICON	"resources/ico/icon.ico"
-
+icon_png_32			PNG		"resources/png/icon_32.png"
+icon_png_64			PNG		"resources/png/icon_64.png"
+icon_png_128		PNG		"resources/png/icon_128.png"
+icon_png_256		PNG		"resources/png/icon_256.png"
+icon_png_512		PNG		"resources/png/icon_512.png"
 splash_image_128	PNG		"resources/png/splash_image_128.png"
 splash_image_256	PNG		"resources/png/splash_image_256.png"
 
-icon_png_512		PNG		"resources/png/icon_512.png"
-icon_png_256		PNG		"resources/png/icon_256.png"
-icon_png_128		PNG		"resources/png/icon_128.png"
-icon_png_64			PNG		"resources/png/icon_64.png"
-icon_png_32			PNG		"resources/png/icon_32.png"
-
-
+png_add_coupon		PNG		"resources/png/add_coupon.png"
+png_dispatch_coupon	PNG		"resources/png/dispatch_coupon.png"
+png_delete_coupon 	PNG		"resources/png/delete_coupon.png"
+png_return_coupon	PNG		"resources/png/return_coupon.png"
+png_preview_report	PNG		"resources/png/preview_report.png"
+png_print_report	PNG		"resources/png/print_report.png"
+png_share_report	PNG		"resources/png/share_report.png"
