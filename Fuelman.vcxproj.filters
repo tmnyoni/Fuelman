@@ -40,11 +40,11 @@
     <ClCompile Include="gui\forms\main_ui.cpp">
       <Filter>Fuelman\gui\forms</Filter>
     </ClCompile>
-    <ClCompile Include="version_info\version_info.h">
-      <Filter>Fuelman\version_info</Filter>
-    </ClCompile>
     <ClCompile Include="db\database.cpp">
       <Filter>Fuelman\db</Filter>
+    </ClCompile>
+    <ClCompile Include="version_info\version_info.h">
+      <Filter>Fuelman\version_info</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +78,7 @@
       <Filter>Fuelman</Filter>
     </ResourceCompile>
     <ResourceCompile Include="version_info.rc">
-      <Filter>Fuelman</Filter>
+      <Filter>Fuelman\version_info</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>

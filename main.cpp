@@ -33,29 +33,37 @@
 using namespace liblec::lecui;
 
 int main() {
+	bool restart = false;
+
+	do {
+		std::string error;
+		
+		// define database directory
+		const std::string database_directory = liblec::leccore::user_folder::documents() + "\\Fuelman\\";
+
+		// create the path
+		if (!liblec::leccore::file::create_directory(database_directory, error))
+			return 1;
+
+		// create a database connection
+		database::connection connection{ "sqlcipher", database_directory + "fuelman.db", "pass@123" };
+
+		// create application state object
+		state app_state(connection);
+
+		// Creating main window.
+		main_window main_wind(appname, app_state);
+
+		if (!app_state.get_db().connect(error))
+			return 1;
+
+		if (!main_wind.create(error))
+			main_wind.message("Error: " + error);
+
+		restart = main_wind.restart_now();
+	} while (restart);
+
 	std::string error;
-
-	// define database directory
-	const std::string database_directory = liblec::leccore::user_folder::documents() + "\\Fuelman\\";
-
-	// create the path
-	if (!liblec::leccore::file::create_directory(database_directory, error))
-		return 1;
-
-	// create a database connection
-	database::connection connection{ "sqlcipher", database_directory + "fuelman.db", "pass@123" };
-
-	// create application state object
-	state app_state(connection);
-
-	// Creating main window.
-	main_window main_wind(appname, app_state);
-
-	if (!app_state.get_db().connect(error))
-		return 1;
-
-	if (!main_wind.create(error))
-		main_wind.message("Error: " + error);
 
 	return 0;
 }

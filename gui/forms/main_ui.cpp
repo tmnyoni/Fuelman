@@ -91,7 +91,7 @@ bool main_window::on_initialize(std::string& error) {
 	if (!_settings.read_value("", "darktheme", value, error))
 		return false;
 	else
-	_setting_darktheme = value == "on"; 	
+		_setting_darktheme = value == "on";
 
 
 	_controls
@@ -99,7 +99,7 @@ bool main_window::on_initialize(std::string& error) {
 		.allow_resize(false);
 
 	_appearance
-		.theme(lecui::themes::dark)
+		.theme(_setting_darktheme ? lecui::themes::dark : lecui::themes::light)
 		.main_icon(ico_resource)
 		.mini_icon(ico_resource)
 		.caption_icon(get_dpi_scale() < 2.f ? icon_png_32 : icon_png_64);
@@ -469,9 +469,30 @@ bool main_window::on_layout(std::string& error) {
 		theme_setting_select
 			.items(themes)
 			.color_fill({ 255,255,255,0 })
+			.selected(_setting_darktheme ? std::string("dark") : std::string("light"))
 			.rect().size(200.f, 25.f)
 			.snap_to(theme_settings_caption.rect(), snap_type::bottom, 0.f);
-		theme_setting_select.events().selection = [](const std::string& selected) {};
+		theme_setting_select.events().selection = [this](const std::string& selected) {
+			std::string error;
+
+			bool new_darktheme_setting = false;
+
+			if (selected == "dark") {
+				if (_settings.write_value("", "darktheme", "on", error))
+					new_darktheme_setting = true;
+			}
+			else {
+				if (_settings.write_value("", "darktheme", "off", error))
+					new_darktheme_setting = false;
+			}
+
+			if (new_darktheme_setting != _setting_darktheme) {
+				if (prompt("Would you like to restart the app now for the changes to take effect?")) {
+					_restart_now = true;
+					close();
+				}
+			}
+		};
 	}
 
 	//// Updates settings.

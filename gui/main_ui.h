@@ -88,10 +88,13 @@ class main_window : public lecui::form {
 	leccore::settings& _settings; // app settings.
 	leccore::registry_settings _registry_settings{ leccore::registry::scope::current_user };
 
-
+	bool _restart_now = false;
 
 public:
 	main_window(const std::string& caption,
-		state& app_state
-	);
+		state& app_state);
+
+	bool restart_now() {
+		return _restart_now;
+	}
 };
