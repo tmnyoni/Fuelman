@@ -340,7 +340,7 @@ bool main_window::on_layout(std::string& error) {
 
 	auto& total_coupons_caption = lecui::widgets::label::add(coupons_tab, "number-of-coupons");
 	total_coupons_caption
-		.text(std::to_string(coupons_table.data().size()) + " coupons available")
+		.text(std::to_string(coupons_table.data().size()) + " coupon" + (coupons_table.data().size() == 1 ? std::string() : std::string("s")) + " available")
 		.color_text(_caption_color)
 		.rect().set(_margin * 1.5f, coupons_table.rect().bottom(), 200.f, 20.f);
 
@@ -627,7 +627,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 
 
 		get_label(_main_tab_pane_path +  "/Coupons/number-of-coupons")
-			.text(std::to_string(new_coupons.size()) + " coupons available");
+			.text(std::to_string(new_coupons.size()) + " coupon" + (new_coupons.size() == 1 ? std::string() : std::string("s")) + " available");
 	}
 
 	return true;
@@ -668,10 +668,12 @@ bool main_window::on_add_coupons(std::string& error) {
 
 		update();
 
+		auto& coupons_table = get_table_view(_main_tab_pane_path + "/Coupons/coupons-table");
+
 		get_label(_main_tab_pane_path + "/Coupons/number-of-coupons")
 			.text(
-				std::to_string(get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
-					.data().size()) + " coupons available");
+				std::to_string(coupons_table
+					.data().size()) + " coupon" + (coupons_table.data().size() == 1 ? std::string() : std::string("s")) + " available");
 	}
 	catch (const std::exception& ex) {
 		error = std::string(ex.what());
@@ -698,7 +700,7 @@ bool main_window::on_delete_coupon(std::string& error) {
 
 
 	get_label(_page_name + "/main_tab/Coupons/number-of-coupons")
-		.text(std::to_string(new_coupons.size()) + " coupons available");
+		.text(std::to_string(new_coupons.size()) + " coupon" + (new_coupons.size() == 1 ? std::string() : std::string("s")) + " available");
 
 	auto table_view =
 		get_table_view(_page_name + "/" + _main_tab_name + "/Coupons/coupons-table");
