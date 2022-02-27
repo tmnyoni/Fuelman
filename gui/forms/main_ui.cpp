@@ -124,7 +124,6 @@ bool main_window::on_layout(std::string& error) {
 		.border(1.f)
 		.tabs_border(0.f)
 		.color_tabs(lecui::color().alpha(0))
-		.color_fill(lecui::color().alpha(0))
 		.corner_radius_x(0).corner_radius_y(0)
 		.tab_side(lecui::containers::tab_pane::side::left)
 		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })

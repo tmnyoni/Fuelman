@@ -40,8 +40,17 @@ class dispatch_form : public form {
 	bool on_initialize(std::string& error) override {
 		_controls.allow_minimize(false);
 		_controls.allow_resize(false);
-		_dimensions.set_size(lecui::size().width(350.f).height(450.f));
+		_dimensions.set_size(lecui::size().width(350.f).height(410.f));
 		return true;
+	}
+
+	void on_start() override {
+		try	{
+			// prevent changing of volume
+			std::string error;
+			if (!_widget_manager.disable(_page_name + "/volume-text", error)) {}
+		}
+		catch (const std::exception&) {}
 	}
 
 	bool on_layout(std::string& error) override {
@@ -87,7 +96,7 @@ class dispatch_form : public form {
 
 		auto& volume_caption = widgets::label::add(page);
 		volume_caption
-			.text("Volume")
+			.text("Volume, in litres")
 			.rect().snap_to(serial_number_text.rect(), snap_type::bottom, _margin);
 
 		auto& volume_text = widgets::text_field::add(page, "volume-text");
@@ -123,7 +132,7 @@ class dispatch_form : public form {
 		auto& dispatch_button = widgets::button::add(page);
 		dispatch_button
 			.text("Dispatch")
-			.rect().snap_to(comments_text.rect(), snap_type::bottom, 3.f * _margin);
+			.rect().snap_to(comments_text.rect(), snap_type::bottom, 2.f * _margin);
 		dispatch_button.events().action = [&]() {
 			if (!on_dispatch(error)) {
 				message("Error: " + error);

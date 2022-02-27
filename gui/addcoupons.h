@@ -40,7 +40,7 @@ class addcoupons_form : public form {
 		_controls.
 			allow_minimize(false)
 			.allow_resize(false);
-		_dimensions.set_size({ 500.f, 600.f });
+		_dimensions.set_size({ 500.f, 550.f });
 		return true;
 	}
 
@@ -74,7 +74,7 @@ class addcoupons_form : public form {
 
 		auto& volume_caption = widgets::label::add(page);
 		volume_caption
-			.text("Volume")
+			.text("Volume, in litres")
 			.rect().snap_to(serial_number_text.rect(), snap_type::bottom, _margin);
 
 		auto& volume_text = widgets::text_field::add(page, "volume-text");
@@ -129,7 +129,7 @@ class addcoupons_form : public form {
 		auto& coupon_button = widgets::button::add(page);
 		coupon_button
 			.text("Save")
-			.rect().snap_to(added_coupons_table.rect(), snap_type::bottom, 3.f * _margin);
+			.rect().snap_to(added_coupons_table.rect(), snap_type::bottom, 2.f * _margin);
 		coupon_button.events().action = [&]() {
 			if (!on_save(error)) {
 				message("Error: " + error);
