@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <any>
+#include <chrono>
 
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
@@ -92,7 +93,7 @@ class dispatch_form : public form {
 		auto& volume_text = widgets::text_field::add(page, "volume-text");
 		volume_text
 			.allowed_characters({ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' })
-			.text(get_::text(_saved_coupon.at("Volume")))
+			.text(leccore::round_off::to_string(get_::real(_saved_coupon.at("Volume")), 0))
 			.rect().snap_to(volume_caption.rect(), snap_type::bottom, 0);
 
 		auto& receiver_department_caption = widgets::label::add(page);
@@ -155,13 +156,13 @@ class dispatch_form : public form {
 				return false;
 			}
 
-			auto dispatch_date = date_time::to_string(date_time::today());
+			double time = static_cast<double>(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
 
 			database::row dispatched_coupon = {
-				{ "Date", dispatch_date },
+				{ "Date", time },
 				{ "Serial Number", serial_number },
 				{ "Fuel Type", fuel },
-				{ "Volume", volume },
+				{ "Volume", atof(volume.c_str())},
 				{ "Issued To", receiver_department },
 				{ "Receiver", receiver },
 				{ "Comments", comments }

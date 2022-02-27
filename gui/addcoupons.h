@@ -3,6 +3,7 @@
 #include <any>
 #include <algorithm>
 #include <set>
+#include <chrono>
 
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
@@ -109,7 +110,7 @@ class addcoupons_form : public form {
 			{
 				{ "Serial Number", 100 },
 				{ "Fuel", 90 },
-				{ "Volume", 90 },
+				{ "Volume", 90, 0 /* number of decimal places */ },
 				{ "Issued By", 100 }
 			};
 
@@ -175,7 +176,7 @@ class addcoupons_form : public form {
 					{
 						{"Serial Number", serial_number },
 						{"Fuel", fuel_type},
-						{"Volume", volume },
+						{"Volume", atof(volume.c_str()) },
 						{"Issued By", issued_by }
 					}
 			);
@@ -201,8 +202,10 @@ class addcoupons_form : public form {
 				return false;
 			}
 
-			for (auto& row : coupons)
-				row.insert(std::make_pair("Date", date_time::to_string(date_time::today())));
+			for (auto& row : coupons) {
+				double time = static_cast<double>(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+				row.insert(std::make_pair("Date", time));
+			}
 			
 			if (!_state.get_db().on_save_coupons(coupons, error))
 				return false;

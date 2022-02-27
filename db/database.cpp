@@ -9,13 +9,13 @@ bool fuelman_db::connect(std::string& error) {
 		return false;
 
 	if (!_connection.execute("CREATE TABLE IF NOT EXISTS Coupons "
-		"(Date TEXT, 'Serial Number' TEXT, Fuel TEXT, Volume TEXT, 'Issued By' TEXT);",
+		"(Date REAL, 'Serial Number' TEXT, Fuel TEXT, Volume REAL, 'Issued By' TEXT, PRIMARY KEY('Serial Number'));",
 		{}, error)
 		)
 		return false;
 
 	if (!_connection.execute("CREATE TABLE IF NOT EXISTS DispatchedStatus "
-		"(Date TEXT, 'Serial Number' TEXT);",
+		"(Date REAL, 'Serial Number' TEXT);",
 		{}, error)
 		)
 		return false;
@@ -39,7 +39,7 @@ bool fuelman_db::connect(std::string& error) {
 		return false;
 
 	if (!_connection.execute("CREATE TABLE IF NOT EXISTS Vouchers "
-		"(VoucherNumber TEXT, FuelVolume TEXT, ReceivedDate TEXT, ReceivedFrom TEXT)",
+		"(VoucherNumber TEXT, FuelVolume TEXT, ReceivedDate REAL, ReceivedFrom TEXT)",
 		{}, error)
 		)
 		return false;
@@ -51,8 +51,8 @@ bool fuelman_db::on_dispatch_coupons(database::row& table, std::string& error) {
 
 	if (!_connection.execute("INSERT INTO DispatchedStatus VALUES(?, ?);",
 		{
-			db_get::text(table.at("Date")).c_str(),
-			db_get::text(table.at("Serial Number")).c_str()
+			db_get::real(table.at("Date")),
+			db_get::text(table.at("Serial Number"))
 		},
 		error))
 		return false;
@@ -74,11 +74,11 @@ bool fuelman_db::on_save_coupons(const std::vector<database::row>& table, std::s
 	for (auto& row : table) {
 		if (!_connection.execute("INSERT INTO Coupons VALUES(?, ?, ?, ?, ?);",
 			{
-				db_get::text(row.at("Date")).c_str(),
-				db_get::text(row.at("Serial Number")).c_str(),
-				db_get::text(row.at("Fuel")).c_str(),
-				db_get::text(row.at("Volume")).c_str(),
-				db_get::text(row.at("Issued By")).c_str(),
+				row.at("Date"),
+				row.at("Serial Number"),
+				row.at("Fuel"),
+				row.at("Volume"),
+				row.at("Issued By"),
 			},
 			error))
 			return false;
@@ -102,8 +102,6 @@ bool fuelman_db::on_get_coupons(std::vector<database::row>& table, std::string& 
 }
 
 bool fuelman_db::on_get_coupon(const std::any& serial_number, std::vector<database::row>& table_, std::string& error) {
-	const std::string sql_query = "SELECT * FR";
-
 	database::table results_table;
 	if (!_connection.execute_query("SELECT * FROM Coupons WHERE \"Serial Number\" = '" + database::get::text(serial_number) + "';", {}, results_table, error))
 		return false;

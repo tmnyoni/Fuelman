@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 
-
 #include <liblec/leccore/database.h>
 
 using namespace liblec::leccore;

@@ -44,7 +44,10 @@
 #include <liblec/leccore/file.h>
 #include <liblec/leccore/system.h>
 #include <liblec/leccore/zip.h>
+
+// STL
 #include <filesystem>
+#include <sstream>
 
 // include local headers.
 #include "../main_ui.h"
@@ -92,7 +95,6 @@ bool main_window::on_initialize(std::string& error) {
 		return false;
 	else
 		_setting_darktheme = value == "on";
-
 
 	_controls
 		.allow_minimize(false)
@@ -306,14 +308,43 @@ bool main_window::on_layout(std::string& error) {
 		{
 			{ "Serial Number", 100 },
 			{ "Fuel", 50 },
-			{ "Volume", 60 },
-			{ "Date", 90 },
+			{ "Volume", 60, 0 /* number of decimal places */ },
+			{ "Date", 120 },
 			{ "Issued By", 90 },
 		};
 
 		std::vector<database::row> coupons_data;
 		if (!_state.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
+
+		std::vector<database::row> table_data;
+
+		for (const auto& row : coupons_data) {
+
+			database::row table_row;
+			for (const auto& [column_name, data] : row) {
+				if (column_name == "Date") {
+					// get the time_t value
+					long long time = static_cast<long long>(db_get::real(data));
+
+					// convert to a std::tm, local time
+					std::tm tm = { };
+					localtime_s(&tm, &time);
+
+					// convert to a string
+					std::stringstream ss;
+					ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+					std::string date_string = ss.str();
+
+					// insert the string into the table row instead of the time_t value
+					table_row.insert(std::make_pair(column_name, date_string));
+				}
+				else
+					table_row.insert(std::make_pair(column_name, data));
+			}
+
+			table_data.push_back(table_row);
+		}
 
 		coupons_table
 			.border(1.f)
@@ -323,7 +354,7 @@ bool main_window::on_layout(std::string& error) {
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.columns(coupons_table_cols)
-			.data(coupons_data)
+			.data(table_data)
 			.rect(lecui::rect()
 				.left(_margin)
 				.right(coupons_tab.size().get_width() - _margin - dispatched_coupons_width - _margin)
@@ -693,17 +724,30 @@ bool main_window::on_add_coupons(std::string& error) {
 		//}
 
 		if (!saved_coupons.empty()) {
-			for (const auto& row : saved_coupons)
+			for (const auto& row : saved_coupons) {
+				// get the time_t value
+				long long time = static_cast<long long>(db_get::real(row.at("Date")));
+
+				// convert to a std::tm, local time
+				std::tm tm = { };
+				localtime_s(&tm, &time);
+
+				// convert to a string
+				std::stringstream ss;
+				ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+				std::string date_string = ss.str();
+
 				get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
 					.data().push_back(
 						{
-							{ "Date", row.at("Date")},
-							{ "Volume", row.at("Volume")},
-							{ "Serial Number", row.at("Serial Number")},
-							{ "Fuel", row.at("Fuel")},
-							{ "Issued By", row.at("Issued By")},
+							{ "Date", date_string },
+							{ "Volume", row.at("Volume") },
+							{ "Serial Number", row.at("Serial Number") },
+							{ "Fuel", row.at("Fuel") },
+							{ "Issued By", row.at("Issued By") },
 						}
-					);
+				);
+			}
 		}
 
 		update();
@@ -765,10 +809,21 @@ void main_window::dispatched_coupon_timer() {
 			float bottom_margin = 0.f;
 
 			for (const auto& row : coupons_data) {
-				const std::string date = get::text(row.at("Date"));
+				// get the time_t value
+				long long time = static_cast<long long>(db_get::real(row.at("Date")));
+
+				// convert to a std::tm, local time
+				std::tm tm = { };
+				localtime_s(&tm, &time);
+
+				// convert to a string
+				std::stringstream ss;
+				ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+				std::string date_string = ss.str();
+
 				const std::string serial_number = get::text(row.at("Serial Number"));
 				const std::string fuel = get::text(row.at("Fuel"));
-				const std::string volume = get::text(row.at("Volume"));
+				const std::string volume = leccore::round_off::to_string(get::real(row.at("Volume")), 0);
 				const std::string issued_by = get::text(row.at("Issued By"));
 
 				auto& coupon_pane = lecui::containers::pane::add(dispatched_coupons_pane, serial_number);
@@ -794,7 +849,7 @@ void main_window::dispatched_coupon_timer() {
 
 				auto& date_label = lecui::widgets::label::add(coupon_pane, serial_number + "_date");
 				date_label
-					.text(date)
+					.text(date_string)
 					.rect(lecui::rect(volume_label.rect())
 						.snap_to(serial_number_label.rect(), snap_type::bottom, 0.f));
 
