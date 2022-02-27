@@ -38,7 +38,7 @@
 #define splash_image_256	115
 
 #define icon_png_512		116
-#define icon_png_25			117
+#define icon_png_256		117
 #define icon_png_128		118
 #define icon_png_64			119
 #define icon_png_32			120

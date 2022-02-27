@@ -108,5 +108,20 @@
     <Image Include="resources\png\share_report.png">
       <Filter>Source Files\resources\png</Filter>
     </Image>
+    <Image Include="resources\png\icon_32.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\icon_64.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\icon_128.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\icon_256.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
+    <Image Include="resources\png\icon_512.png">
+      <Filter>Source Files\resources\png</Filter>
+    </Image>
   </ItemGroup>
 </Project>

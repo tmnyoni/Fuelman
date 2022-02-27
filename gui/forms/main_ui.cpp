@@ -101,7 +101,8 @@ bool main_window::on_initialize(std::string& error) {
 	_appearance
 		.theme(lecui::themes::dark)
 		.main_icon(ico_resource)
-		.mini_icon(ico_resource);
+		.mini_icon(ico_resource)
+		.caption_icon(get_dpi_scale() < 2.f ? icon_png_32 : icon_png_64);
 	
 	_dimensions.set_size(_window_size);
 
