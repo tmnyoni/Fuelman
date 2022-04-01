@@ -34,9 +34,6 @@
     <Filter Include="Source Files\resources\png">
       <UniqueIdentifier>{386bf4f9-f1eb-497f-9e9e-abf7874e04aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\main_form">
-      <UniqueIdentifier>{e70d4f96-7252-40b2-abc8-83f7a687bce3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,20 +42,14 @@
     <ClCompile Include="gui\forms\addcoupons.cpp">
       <Filter>Source Files\gui\forms</Filter>
     </ClCompile>
+    <ClCompile Include="gui\forms\main_ui.cpp">
+      <Filter>Source Files\gui\forms</Filter>
+    </ClCompile>
     <ClCompile Include="version_info\version_info.h">
       <Filter>Source Files\version_info</Filter>
     </ClCompile>
     <ClCompile Include="db\database.cpp">
       <Filter>Source Files\db</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\main_form\main_ui.cpp">
-      <Filter>Source Files\gui\main_form</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\main_form\on_initialize.cpp">
-      <Filter>Source Files\gui\main_form</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\main_form\settings.cpp">
-      <Filter>Source Files\gui\main_form</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -101,7 +101,7 @@ class main_window : public lecui::form {
 	bool _autodownload_updates_setting = false;
 	bool _update_check_manaully_initiated = false;
 
-	bool _reset_now = false;
+
 
 public:
 	main_window(const std::string& caption,
