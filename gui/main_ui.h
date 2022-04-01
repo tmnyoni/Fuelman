@@ -14,7 +14,7 @@
 ** copies or substantial portions of the Software.
 **
 ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO x`THE WARRANTIES OF MERCHANTABILITY,
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 ** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
@@ -76,9 +76,9 @@ class main_window : public lecui::form {
 	state& _state;
 
 	// settings
-	const std::string _instance_guid = "{C053EA26-EC40-4E23-8C9E-8174C7D3320F}";
-	const std::string _install_guid_32 = "{C6B21117-3D7D-4487-A6DE-DD4288385D1D}";
-	const std::string _install_guid_64 = "{F9394A11-8440-42E3-A725-1478261700A4}";
+	const std::string _instance_guid = "{F7660410-F00A-4BD0-B4B5-2A76F29D03E0}";
+	const std::string _install_guid_32 = "{4366AB0F-A68F-4388-B4FA-2BE684F86FC4}";
+	const std::string _install_guid_64 = "{5F794184-4C64-402C-AE99-E88BBF681851}";
 	const std::string _update_xml_url = "https://raw.githubusercontent.com/tmnyoni/fuelman/master/latest_update.xml";
 
 	bool _setting_darktheme = false;
