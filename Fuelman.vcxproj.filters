@@ -109,7 +109,4 @@
       <Filter>Source Files\resources\png</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup>
-    <Xml Include="latest_update.xml" />
-  </ItemGroup>
 </Project>
