@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <any>
+#include <chrono>
 
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
@@ -39,8 +40,18 @@ class dispatch_form : public form {
 	bool on_initialize(std::string& error) override {
 		_controls.allow_minimize(false);
 		_controls.allow_resize(false);
-		_dimensions.set_size(size().width(350.f).height(450.f));
+		_dimensions.set_size(lecui::size().width(350.f).height(410.f));
 		return true;
+	}
+
+	void on_start() override {
+		try	{
+			// prevent changing of serial number and volume
+			std::string error;
+			if (!_widget_manager.disable(_page_name + "/serial-number-text", error)) {}
+			if (!_widget_manager.disable(_page_name + "/volume-text", error)) {}
+		}
+		catch (const std::exception&) {}
 	}
 
 	bool on_layout(std::string& error) override {
@@ -86,26 +97,44 @@ class dispatch_form : public form {
 
 		auto& volume_caption = widgets::label::add(page);
 		volume_caption
-			.text("Volume")
+			.text("Volume, in litres")
 			.rect().snap_to(serial_number_text.rect(), snap_type::bottom, _margin);
 
 		auto& volume_text = widgets::text_field::add(page, "volume-text");
 		volume_text
 			.allowed_characters({ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' })
-			.text(get_::text(_saved_coupon.at("Volume")))
+			.text(leccore::round_off::to_string(get_::real(_saved_coupon.at("Volume")), 0))
 			.rect().snap_to(volume_caption.rect(), snap_type::bottom, 0);
 
 		auto& receiver_department_caption = widgets::label::add(page);
 		receiver_department_caption
-			.text("Issued to")
+			.text("Receiving Department")
 			.rect().snap_to(volume_text.rect(), snap_type::bottom, _margin);
 
-		auto& receiver_department_text = widgets::text_field::add(page, "receiver-department-text");
-		receiver_department_text.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
+		auto& receiver_department_text = widgets::combobox::add(page, "receiver-department-text");
+		receiver_department_text
+			.editable(true)
+			.rect().snap_to(receiver_department_caption.rect(), snap_type::bottom, 0);
+		receiver_department_text
+			.events().action = []() {};
+
+		{
+			// get available departments
+			std::vector<std::string> departments;
+			std::string error;
+			if (!_state.get_db().get_departments(departments, error)) {}
+
+			for (const auto& department : departments) {
+				lecui::widgets::combobox::combobox_item item;
+				item.label = department;
+
+				receiver_department_text.items().push_back(item);
+			}
+		}
 
 		auto& receiver_caption = widgets::label::add(page);
 		receiver_caption
-			.text("Received By")
+			.text("Received By (representative)")
 			.rect().snap_to(receiver_department_text.rect(), snap_type::bottom, _margin);
 
 		auto& receiver_text = widgets::text_field::add(page, "receiver-text");
@@ -122,7 +151,7 @@ class dispatch_form : public form {
 		auto& dispatch_button = widgets::button::add(page);
 		dispatch_button
 			.text("Dispatch")
-			.rect().snap_to(comments_text.rect(), snap_type::bottom, 3.f * _margin);
+			.rect().snap_to(comments_text.rect(), snap_type::bottom, 2.f * _margin);
 		dispatch_button.events().action = [&]() {
 			if (!on_dispatch(error)) {
 				message("Error: " + error);
@@ -142,7 +171,7 @@ class dispatch_form : public form {
 			auto fuel = get_combobox(_page_name + "/fuel-select").text();
 			auto serial_number = get_text_field(_page_name + "/serial-number-text").text();
 			auto volume = get_text_field(_page_name + "/volume-text").text();
-			auto receiver_department = get_text_field(_page_name + "/receiver-department-text").text();
+			auto receiver_department = get_combobox(_page_name + "/receiver-department-text").text();
 			auto receiver = get_text_field(_page_name + "/receiver-text").text();
 			auto comments = get_text_field(_page_name + "/comments-text").text();
 
@@ -155,17 +184,22 @@ class dispatch_form : public form {
 				return false;
 			}
 
-			auto dispatch_date = date_time::to_string(date_time::today());
+			double time = static_cast<double>(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
 
 			database::row dispatched_coupon = {
-				{ "Date", dispatch_date },
+				{ "Date", time },
 				{ "Serial Number", serial_number },
 				{ "Fuel Type", fuel },
-				{ "Volume", volume },
+				{ "Volume", atof(volume.c_str())},
 				{ "Issued To", receiver_department },
 				{ "Receiver", receiver },
 				{ "Comments", comments }
 			};
+
+			// save department to database, in case it hasn't already been saved
+			if (!_state.get_db().add_department(receiver_department, error)) {
+				// ignore error, probably a unique contraint error meaning department already exists in database
+			}
 
 			if (!_state.get_db().on_dispatch_coupons(dispatched_coupon, error))
 				return false;

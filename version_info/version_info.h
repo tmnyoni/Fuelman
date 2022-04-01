@@ -24,8 +24,8 @@
 
 #pragma once
 
-#define appname			"PC Info"
-#define appdescription	"Description of Fuel Coupons Management"
+#define appname			"Fuelman"
+#define appdescription	"Fuel Coupon Management"
 #define appcomments		"Powered by liblec"
 #define appcopyright	"(c) 2021 Tawanda M. Nyoni"
 #define appcompany		"Tawanda M. Nyoni"
@@ -36,4 +36,4 @@
 #define appminor		0
 #define apprevision		0
 
-// #define appdate			"24 Jun 2021"
+#define appdate			"27 Feb 2022"

@@ -3,6 +3,7 @@
 #include <any>
 #include <algorithm>
 #include <set>
+#include <chrono>
 
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/appearance.h>
@@ -39,7 +40,7 @@ class addcoupons_form : public form {
 		_controls.
 			allow_minimize(false)
 			.allow_resize(false);
-		_dimensions.set_size({ 500.f, 600.f });
+		_dimensions.set_size({ 500.f, 550.f });
 		return true;
 	}
 
@@ -73,7 +74,7 @@ class addcoupons_form : public form {
 
 		auto& volume_caption = widgets::label::add(page);
 		volume_caption
-			.text("Volume")
+			.text("Volume, in litres")
 			.rect().snap_to(serial_number_text.rect(), snap_type::bottom, _margin);
 
 		auto& volume_text = widgets::text_field::add(page, "volume-text");
@@ -83,11 +84,29 @@ class addcoupons_form : public form {
 
 		auto& issuedby_caption = widgets::label::add(page);
 		issuedby_caption
-			.text("Issued by")
+			.text("Issuing Department")
 			.rect().snap_to(volume_text.rect(), snap_type::bottom, _margin);
 
-		auto& issuedby_text = widgets::text_field::add(page, "issuedby-text");
-		issuedby_text.rect().snap_to(issuedby_caption.rect(), snap_type::bottom, 0);
+		auto& issuedby_text = widgets::combobox::add(page, "issuedby-text");
+		issuedby_text
+			.text("")
+			.editable(true)
+			.rect().snap_to(issuedby_caption.rect(), snap_type::bottom, 0);
+		issuedby_text.events().action = []() {};
+
+		{
+			// get available departments
+			std::vector<std::string> departments;
+			std::string error;
+			if (!_state.get_db().get_departments(departments, error)) {}
+
+			for (const auto& department : departments) {
+				liblec::lecui::widgets::combobox::combobox_item item;
+				item.label = department;
+
+				issuedby_text.items().push_back(item);
+			}
+		}
 
 		auto& add_to_table_button = widgets::button::add(page);
 		add_to_table_button
@@ -107,9 +126,9 @@ class addcoupons_form : public form {
 		{
 			std::vector<table_column> added_coupons_columns =
 			{
-				{ "Serial Number", 150 },
+				{ "Serial Number", 100 },
 				{ "Fuel", 90 },
-				{ "Volume", 90 },
+				{ "Volume", 90, 0 /* number of decimal places */ },
 				{ "Issued By", 100 }
 			};
 
@@ -128,7 +147,7 @@ class addcoupons_form : public form {
 		auto& coupon_button = widgets::button::add(page);
 		coupon_button
 			.text("Save")
-			.rect().snap_to(added_coupons_table.rect(), snap_type::bottom, 3.f * _margin);
+			.rect().snap_to(added_coupons_table.rect(), snap_type::bottom, 2.f * _margin);
 		coupon_button.events().action = [&]() {
 			if (!on_save(error)) {
 				message("Error: " + error);
@@ -147,7 +166,7 @@ class addcoupons_form : public form {
 			auto serial_number = get_text_field(_page_name + "/serial-number-text").text();
 			auto fuel_type = get_combobox(_page_name + "/fuel-select").text();
 			auto volume = get_text_field(_page_name + "/volume-text").text();
-			auto issued_by = get_text_field(_page_name + "/issuedby-text").text();
+			auto issued_by = get_combobox(_page_name + "/issuedby-text").text();
 
 			if (serial_number.empty() ||
 				fuel_type.empty() ||
@@ -175,12 +194,17 @@ class addcoupons_form : public form {
 					{
 						{"Serial Number", serial_number },
 						{"Fuel", fuel_type},
-						{"Volume", volume },
+						{"Volume", atof(volume.c_str()) },
 						{"Issued By", issued_by }
 					}
 			);
-			update();
 
+			// save department to database, in case it hasn't already been saved
+			if (!_state.get_db().add_department(issued_by, error)) {
+				// ignore error, probably a unique contraint error meaning department already exists in database
+			}
+
+			update();
 		}
 		catch (const std::exception& ex) {
 			error = std::string(ex.what());
@@ -201,8 +225,10 @@ class addcoupons_form : public form {
 				return false;
 			}
 
-			for (auto& row : coupons)
-				row.insert(std::make_pair("Date", date_time::to_string(date_time::today())));
+			for (auto& row : coupons) {
+				double time = static_cast<double>(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+				row.insert(std::make_pair("Date", time));
+			}
 			
 			if (!_state.get_db().on_save_coupons(coupons, error))
 				return false;

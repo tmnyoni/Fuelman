@@ -35,6 +35,8 @@
 #include <liblec/lecui/widgets/image_view.h>
 #include <liblec/lecui/widgets/toggle.h>
 #include <liblec/lecui/widgets/progress_indicator.h>
+#include <liblec/lecui/widgets/rectangle.h>
+#include <liblec/lecui/widgets/strength_bar.h>
 
 #include <liblec/lecui/menus/context_menu.h>
 
@@ -44,7 +46,12 @@
 #include <liblec/leccore/file.h>
 #include <liblec/leccore/system.h>
 #include <liblec/leccore/zip.h>
+
+// STL
 #include <filesystem>
+#include <sstream>
+
+#include <liblec/lecui/widgets/date.h>	// had to place this below STL headers because of a macro conflict
 
 // include local headers.
 #include "../main_ui.h"
@@ -52,6 +59,7 @@
 #include "../addcoupons.h"
 #include "../../version_info/version_info.h"
 #include "../../resource.h"
+
 
 #ifdef _WIN64
 #define architecture	"64bit"
@@ -91,19 +99,22 @@ bool main_window::on_initialize(std::string& error) {
 	if (!_settings.read_value("", "darktheme", value, error))
 		return false;
 	else
-	_setting_darktheme = value == "on"; 	
-
+		_setting_darktheme = value == "on";
 
 	_controls
 		.allow_minimize(false)
 		.allow_resize(false);
 
 	_appearance
-		.theme(lecui::themes::dark)
+		.theme(_setting_darktheme ? lecui::themes::dark : lecui::themes::light)
 		.main_icon(ico_resource)
-		.mini_icon(ico_resource);
+		.mini_icon(ico_resource)
+		.caption_icon(get_dpi_scale() < 2.f ? icon_png_32 : icon_png_64);
 	
 	_dimensions.set_size(_window_size);
+
+	// schedule timer for dispatched coupons (1500ms kick start ... the method will do the timer looping)
+	_timer_man.add("dispatched_coupon_timer", 1500, [&]() { dispatched_coupon_timer(); });
 
 	_splash_screen.remove();
 
@@ -118,7 +129,6 @@ bool main_window::on_layout(std::string& error) {
 		.border(1.f)
 		.tabs_border(0.f)
 		.color_tabs(lecui::color().alpha(0))
-		.color_fill(lecui::color().alpha(0))
 		.corner_radius_x(0).corner_radius_y(0)
 		.tab_side(lecui::containers::tab_pane::side::left)
 		.caption_reserve({ "Dashboard", "Coupons", "Reports", "Settings" })
@@ -274,7 +284,7 @@ bool main_window::on_layout(std::string& error) {
 	add_coupons_button
 		.text("Add Coupons")
 		.font_size(9.f)
-		.png_resource(add_coupon)
+		.png_resource(png_add_coupon)
 		.max_image_size(20.f)
 		.rect(lecui::rect()
 			.left(_margin * 1.5f)
@@ -283,42 +293,85 @@ bool main_window::on_layout(std::string& error) {
 			.height(_margin * 3.f))
 		.events().action = [&]() { on_add_coupons(error); };
 
+	const float dispatched_coupons_width = 180.f;
+
+	// add coupons table caption
+	auto& coupons_table_caption = lecui::widgets::label::add(coupons_tab);
+	coupons_table_caption
+		.text("<strong>Available</strong>")
+		.font_size(10.f)
+		.rect(lecui::rect()
+			.left(_margin)
+			.right(coupons_tab.size().get_width() - _margin - dispatched_coupons_width - _margin)
+			.top(add_coupons_button.rect().bottom() + _margin)
+			.height(coupons_table_caption.rect().height()));
+
 	auto& coupons_table = lecui::widgets::table_view::add(coupons_tab, "coupons-table");
 	{
 		std::vector<lecui::table_column> coupons_table_cols =
 		{
-			{ "Serial Number", 250 },
-			{ "Fuel", 90 },
-			{ "Volume", 80 },
-			{ "Date", 90 },
-			{ "Issued By", 90 },
+			{ "Serial Number", 100 },
+			{ "Fuel", 50 },
+			{ "Volume", 60, 0 /* number of decimal places */ },
+			{ "Date", 120 },
+			{ "Issued By", 110 },
 		};
 
 		std::vector<database::row> coupons_data;
 		if (!_state.get_db().on_get_coupons(coupons_data, error))
 			message("Error: " + error);
 
+		std::vector<database::row> table_data;
+
+		for (const auto& row : coupons_data) {
+
+			database::row table_row;
+			for (const auto& [column_name, data] : row) {
+				if (column_name == "Date") {
+					// get the time_t value
+					long long time = static_cast<long long>(db_get::real(data));
+
+					// convert to a std::tm, local time
+					std::tm tm = { };
+					localtime_s(&tm, &time);
+
+					// convert to a string
+					std::stringstream ss;
+					ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+					std::string date_string = ss.str();
+
+					// insert the string into the table row instead of the time_t value
+					table_row.insert(std::make_pair(column_name, date_string));
+				}
+				else
+					table_row.insert(std::make_pair(column_name, data));
+			}
+
+			table_data.push_back(table_row);
+		}
+
 		coupons_table
-			.border(0)
+			.border(1.f)
+			.color_border(lecui::defaults::color(_setting_darktheme ? lecui::themes::dark : lecui::themes::light, lecui::item::pane_border))
 			.fixed_number_column(true)
 			.corner_radius_x(0.f)
 			.corner_radius_y(0.f)
 			.user_sort(true)
 			.columns(coupons_table_cols)
-			.data(coupons_data)
+			.data(table_data)
 			.rect(lecui::rect()
 				.left(_margin)
-				.right(coupons_tab.size().get_width() - _margin)
-				.top(add_coupons_button.rect().bottom() + _margin)
+				.right(coupons_tab.size().get_width() - _margin - dispatched_coupons_width - _margin)
+				.top(coupons_table_caption.rect().bottom())
 				.bottom(coupons_tab.size().get_height() - (_margin * _margin)))
 			.events().context_menu = [&]
 			(const std::vector<table_row>& rows) {
 
 			context_menu::specs context_menu_specs;
 			context_menu_specs.items = {
-				{"Dispatch", "resources/png/dispatch_coupon.png"},
-				{"Return",  "resources/png/return_coupon.png"},
-				{"Delete",  "resources/png/delete_coupon.png"} };
+				{"Dispatch", png_dispatch_coupon },
+				{"Return",  png_return_coupon },
+				{"Delete",  png_delete_coupon } };
 
 			auto selected_context_menu_item = lecui::context_menu()(*this, context_menu_specs);
 
@@ -339,18 +392,41 @@ bool main_window::on_layout(std::string& error) {
 
 	auto& total_coupons_caption = lecui::widgets::label::add(coupons_tab, "number-of-coupons");
 	total_coupons_caption
-		.text(std::to_string(coupons_table.data().size()) + " coupons available")
+		.text(std::to_string(coupons_table.data().size()) + " coupon" + (coupons_table.data().size() == 1 ? std::string() : std::string("s")) + " available")
 		.color_text(_caption_color)
-		.rect().set(_margin * 1.5f, coupons_table.rect().bottom(), 200.f, 20.f);
+		.rect().set(_margin * 1.5f, coupons_table.rect().bottom() + _margin / 3.f, dispatched_coupons_width, 20.f);
+
+	// add dispatched coupons pane caption
+	auto& dispatched_coupons_pane_caption = lecui::widgets::label::add(coupons_tab);
+	dispatched_coupons_pane_caption
+		.text("<strong>Dispatched</strong>")
+		.font_size(10.f)
+		.rect(lecui::rect(coupons_table_caption.rect())
+			.left(coupons_table.rect().right() + _margin)
+			.right(coupons_tab.size().get_width() - _margin));
+
+	// add dispatched coupons pane
+	auto& dispatched_coupons_pane = lecui::containers::pane::add(coupons_tab, "dispatched-coupons");
+	dispatched_coupons_pane
+		.border(1.f)
+		.rect(lecui::rect(coupons_table.rect())
+			.left(coupons_table.rect().right() + _margin)
+			.right(coupons_tab.size().get_width() - _margin))
+		.color_fill(lecui::defaults::color(_setting_darktheme ? lecui::themes::dark : lecui::themes::light, lecui::item::table_view));
+
+	auto& total_dispatched_caption = lecui::widgets::label::add(coupons_tab, "number-of-dispatched-coupons");
+	total_dispatched_caption
+		.color_text(_caption_color)
+		.rect(lecui::rect(total_coupons_caption.rect()).left(dispatched_coupons_pane.rect().left()).right(dispatched_coupons_pane.rect().right()));
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Reports
 	auto& reports_tab = lecui::containers::tab::add(main_tab_pane, "Reports");
 
-	auto& report_date_caption = lecui::widgets::label::add(reports_tab);
-	report_date_caption
-		.text("Date")
+	auto& start_date_caption = lecui::widgets::label::add(reports_tab);
+	start_date_caption
+		.text("Start Date")
 		.color_text(_caption_color)
 		.rect(lecui::rect()
 			.left(_margin * 2.f)
@@ -358,88 +434,27 @@ bool main_window::on_layout(std::string& error) {
 			.width(200.f)
 			.height(20.f));
 
-	auto& report_date_select = lecui::widgets::combobox::add(reports_tab, "report-date-select");
-		report_date_select
-			.items({ { "today" }, { "yesterday" } })
-			.color_fill({ 255,255,255,0 })
-			.rect().size(200.f, 25.f)
-			.snap_to(report_date_caption.rect(), snap_type::bottom, 0);
-		report_date_select.events().selection = [](const std::string& selected) {};
-
-	auto& report_items_table = lecui::widgets::table_view::add(reports_tab, "reports-items-table");
-	{
-		std::vector<table_column> reports_table_columns =
-		{
-			{ "Serial Number", 150 },
-			{ "Fuel", 90 },
-			{ "Issued By", 80 },
-			{ "Receiver", 80 },
-			{ "Volume", 80 },
-		};
-
-		report_items_table
-			.border(0.f)
-			.fixed_number_column(true)
-			.corner_radius_x(0.f)
-			.corner_radius_y(0.f)
-			.user_sort(true)
-			.columns(reports_table_columns)
-			.rect(lecui::rect()
-				.left(_margin)
-				.right(550.f)
-				.top(report_date_select.rect().bottom() + _margin)
-				.bottom(400.f));
+	auto& start_date = lecui::widgets::date::add(reports_tab, "start_date");
+	start_date
+		.rect(lecui::rect(start_date.rect()).snap_to(start_date_caption.rect(), snap_type::bottom_left, _margin))
+		.events().change = [this](const lecui::date& dt) {
+		run_report();
+	};
 
 
-		auto& total_volume_caption = lecui::widgets::label::add(reports_tab);
-		total_volume_caption
-			.text("TOTAL")
-			.color_text(_caption_color)
-			.rect().size({ 80.f, 20.f })
-			.set(report_items_table.rect().right() - 180.f, report_items_table.rect().bottom(), 100.f, 20.f);
+	auto& end_date_caption = lecui::widgets::label::add(reports_tab);
+	end_date_caption
+		.text("End Date")
+		.color_text(_caption_color)
+		.rect(lecui::rect(start_date_caption.rect()).snap_to(start_date_caption.rect(), snap_type::right, _margin));
+	
+	auto& end_date = lecui::widgets::date::add(reports_tab, "end_date");
+	end_date
+		.rect(lecui::rect(start_date.rect()).snap_to(end_date_caption.rect(), snap_type::bottom_left, _margin))
+		.events().change = [this](const lecui::date& dt) {
+		run_report();
+	};
 
-		auto& total_volume_text = lecui::widgets::label::add(reports_tab, "total-volume-text");
-		total_volume_text
-			.text("0000 Litres")
-			.color_text(_caption_color)
-			.rect().size({ 80.f, 20.f })
-			.snap_to(total_volume_caption.rect(), snap_type::right, _margin);
-
-
-		const size icon_size{ 80.f, 30.f };
-		auto& print_button = lecui::widgets::icon::add(reports_tab);
-		print_button
-			.text("Print")
-			.font_size(9.f)
-			.png_resource(print_report)
-			.max_image_size(20.f)
-			.rect(rect()
-				.left(report_items_table.rect().right() - (80.f * 3.f) - 2.f * (_margin / 3.f))
-				.top(total_volume_text.rect().bottom() + 2.f * _margin)
-				.width(icon_size.get_width())
-				.height(icon_size.get_height()))
-			.events().action = [&]() {};
-
-		auto& share_button = lecui::widgets::icon::add(reports_tab);
-		share_button
-			.text("Share")
-			.font_size(9.f)
-			.png_resource(share_report)
-			.max_image_size(20.f)
-			.rect(print_button.rect())
-			.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
-		share_button.events().action = [&]() {};
-
-		auto& preview_button = lecui::widgets::icon::add(reports_tab);
-		preview_button
-			.text("Preview")
-			.font_size(9.f)
-			.png_resource(preview_report)
-			.max_image_size(20.f)
-			.rect(print_button.rect())
-			.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);
-		preview_button.events().action = [&]() {};
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	/// Settings
@@ -468,9 +483,30 @@ bool main_window::on_layout(std::string& error) {
 		theme_setting_select
 			.items(themes)
 			.color_fill({ 255,255,255,0 })
+			.selected(_setting_darktheme ? std::string("dark") : std::string("light"))
 			.rect().size(200.f, 25.f)
 			.snap_to(theme_settings_caption.rect(), snap_type::bottom, 0.f);
-		theme_setting_select.events().selection = [](const std::string& selected) {};
+		theme_setting_select.events().selection = [this](const std::string& selected) {
+			std::string error;
+
+			bool new_darktheme_setting = false;
+
+			if (selected == "dark") {
+				if (_settings.write_value("", "darktheme", "on", error))
+					new_darktheme_setting = true;
+			}
+			else {
+				if (_settings.write_value("", "darktheme", "off", error))
+					new_darktheme_setting = false;
+			}
+
+			if (new_darktheme_setting != _setting_darktheme) {
+				if (prompt("Would you like to restart the app now for the changes to take effect?")) {
+					_restart_now = true;
+					close();
+				}
+			}
+		};
 	}
 
 	//// Updates settings.
@@ -605,7 +641,7 @@ bool main_window::on_dispatch_coupon(const std::vector<table_row>& rows, std::st
 
 
 		get_label(_main_tab_pane_path +  "/Coupons/number-of-coupons")
-			.text(std::to_string(new_coupons.size()) + " coupons available");
+			.text(std::to_string(new_coupons.size()) + " coupon" + (new_coupons.size() == 1 ? std::string() : std::string("s")) + " available");
 	}
 
 	return true;
@@ -631,25 +667,40 @@ bool main_window::on_add_coupons(std::string& error) {
 		//}
 
 		if (!saved_coupons.empty()) {
-			for (const auto& row : saved_coupons)
+			for (const auto& row : saved_coupons) {
+				// get the time_t value
+				long long time = static_cast<long long>(db_get::real(row.at("Date")));
+
+				// convert to a std::tm, local time
+				std::tm tm = { };
+				localtime_s(&tm, &time);
+
+				// convert to a string
+				std::stringstream ss;
+				ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+				std::string date_string = ss.str();
+
 				get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
 					.data().push_back(
 						{
-							{ "Date", row.at("Date")},
-							{ "Volume", row.at("Volume")},
-							{ "Serial Number", row.at("Serial Number")},
-							{ "Fuel", row.at("Fuel")},
-							{ "Issued By", row.at("Issued By")},
+							{ "Date", date_string },
+							{ "Volume", row.at("Volume") },
+							{ "Serial Number", row.at("Serial Number") },
+							{ "Fuel", row.at("Fuel") },
+							{ "Issued By", row.at("Issued By") },
 						}
-					);
+				);
+			}
 		}
 
 		update();
 
+		auto& coupons_table = get_table_view(_main_tab_pane_path + "/Coupons/coupons-table");
+
 		get_label(_main_tab_pane_path + "/Coupons/number-of-coupons")
 			.text(
-				std::to_string(get_table_view(_main_tab_pane_path + "/Coupons/coupons-table")
-					.data().size()) + " coupons available");
+				std::to_string(coupons_table
+					.data().size()) + " coupon" + (coupons_table.data().size() == 1 ? std::string() : std::string("s")) + " available");
 	}
 	catch (const std::exception& ex) {
 		error = std::string(ex.what());
@@ -676,13 +727,305 @@ bool main_window::on_delete_coupon(std::string& error) {
 
 
 	get_label(_page_name + "/main_tab/Coupons/number-of-coupons")
-		.text(std::to_string(new_coupons.size()) + " coupons available");
+		.text(std::to_string(new_coupons.size()) + " coupon" + (new_coupons.size() == 1 ? std::string() : std::string("s")) + " available");
 
 	auto table_view =
 		get_table_view(_page_name + "/" + _main_tab_name + "/Coupons/coupons-table");
 
 
 	return true;
+}
+
+void main_window::dispatched_coupon_timer() {
+	// stop the timer
+	_timer_man.stop("dispatched_coupon_timer");
+
+	std::string error;
+	std::vector<fuelman_db::dispatched_coupon_struct> coupons_data;
+	if (_state.get_db().on_get_dispatched_coupons(coupons_data, error)) {
+		try {
+			auto& dispatched_coupons_pane = get_pane(_main_tab_pane_path + "/Coupons/dispatched-coupons");
+			auto& total_dispatched_caption = get_label(_main_tab_pane_path + "/Coupons/number-of-dispatched-coupons");
+
+			const auto ref_rect = lecui::rect(dispatched_coupons_pane.size());
+
+			float bottom_margin = 0.f;
+
+			for (const auto& coupon : coupons_data) {
+				// get the time_t value
+				long long time = static_cast<long long>(coupon.date);
+
+				// convert to a std::tm, local time
+				std::tm tm = { };
+				localtime_s(&tm, &time);
+
+				// convert to a string
+				std::stringstream ss;
+				ss << std::put_time(&tm, "%d %b %Y, %H:%M");
+				std::string date_string = ss.str();
+
+				const std::string serial_number = coupon.serial_number;
+				const std::string fuel = coupon.fuel;
+				const std::string volume = leccore::round_off::to_string(coupon.volume, 0);
+				const std::string issued_to = coupon.receiving_department;
+
+				auto& coupon_pane = lecui::containers::pane::add(dispatched_coupons_pane, serial_number);
+				coupon_pane
+					.rect(lecui::rect(ref_rect)
+						.top(bottom_margin)
+						.height(80.f))
+					.color_fill(_setting_darktheme ?
+						lecui::color().red(35).green(45).blue(60) :
+						lecui::color().red(245).green(245).blue(245));
+
+				auto& volume_label = lecui::widgets::label::add(coupon_pane, serial_number + "_volume");
+				volume_label
+					.text("<strong>" + volume + "</strong> litres of <span style = 'font-size: 8.0pt;'><strong>" + fuel + "</strong> issued to</span>")
+					.rect(volume_label.rect()
+						.right(coupon_pane.size().get_width()));
+
+				auto& issued_to_label = lecui::widgets::label::add(coupon_pane, serial_number + "_issued_to");
+				issued_to_label
+					.text("<span style = 'font-size: 8.0pt;'><strong><em>" + issued_to + "</em></strong></span>")
+					.rect(lecui::rect(volume_label.rect())
+						.snap_to(volume_label.rect(), snap_type::bottom, 0.f));
+
+				auto& date_label = lecui::widgets::label::add(coupon_pane, serial_number + "_date");
+				date_label
+					.text(date_string)
+					.rect(lecui::rect(volume_label.rect())
+						.snap_to(issued_to_label.rect(), snap_type::bottom, 0.f));
+
+				// add color rect to distinguish between petrol and diesel
+				auto& color_rect = lecui::widgets::rectangle::add(dispatched_coupons_pane, serial_number + "_color_rect");
+				color_rect
+					.rect(lecui::rect(coupon_pane.rect()).width(2.f).top(coupon_pane.rect().top() + 10.f).bottom(coupon_pane.rect().bottom() - 10.f));
+				color_rect
+					.color_border().alpha(0);
+				color_rect
+					.color_fill(fuel == "Petrol" ? _petrol_color : _diesel_color);
+
+				// update bottom margin
+				bottom_margin = coupon_pane.rect().bottom() + _margin;
+			}
+
+			total_dispatched_caption.text(std::to_string(coupons_data.size()) + " coupon" +
+				(coupons_data.size() == 1 ? std::string() : std::string("s")) + " dispatched");
+
+			update();
+		}
+		catch (const std::exception&) {}
+	}
+
+	// resume the timer (1200ms looping ...)
+	_timer_man.add("dispatched_coupon_timer", 1200, [&]() {
+		dispatched_coupon_timer();
+		});
+}
+
+void main_window::run_report() {
+	try {
+		auto& reports_tab = get_tab(_main_tab_pane_path + "/Reports");
+		auto& start_date = get_date(_main_tab_pane_path + "/Reports/start_date");
+		auto& end_date = get_date(_main_tab_pane_path + "/Reports/end_date");
+
+		// to-do: filter by dates ... for now get for all time
+
+		// get values
+		auto available_petrol = _state.get_db().available_petrol();
+		auto available_diesel = _state.get_db().available_diesel();
+		auto total_available = available_petrol + available_diesel;
+
+		auto dispatched_petrol = _state.get_db().dispatched_petrol();
+		auto dispatched_diesel = _state.get_db().dispatched_diesel();
+		auto total_dispatched = dispatched_petrol + dispatched_diesel;
+
+		auto total_petrol = available_petrol + dispatched_petrol;
+		auto total_diesel = available_diesel + dispatched_diesel;
+		auto total_fuel = total_petrol + total_diesel;
+
+		if ((total_petrol + total_diesel) == 0) {
+			message("No data available");
+			return;
+		}
+
+		{
+			// available petrol
+			auto& available_petrol_pane = lecui::containers::pane::add(reports_tab);
+			available_petrol_pane
+				.rect(lecui::rect(lecui::size(200.f, 100.f)).snap_to(start_date.rect(), snap_type::bottom_left, 2.f * _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_available > 0)
+					percentage = static_cast<float>(100.0 * available_petrol / total_available);
+
+				auto& label = lecui::widgets::label::add(available_petrol_pane);
+				label
+					.text("AVAILABLE PETROL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(available_petrol_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(available_petrol_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_petrol_color)
+					.color_text(_petrol_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// available diesel
+			auto& available_diesel_pane = lecui::containers::pane::add(reports_tab);
+			available_diesel_pane
+				.rect(lecui::rect(available_petrol_pane.rect()).snap_to(available_petrol_pane.rect(), snap_type::right, _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_available > 0)
+					percentage = static_cast<float>(100.0 * available_diesel / total_available);
+
+				auto& label = lecui::widgets::label::add(available_diesel_pane);
+				label
+					.text("AVAILABLE DIESEL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(available_diesel_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(available_diesel_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_diesel_color)
+					.color_text(_diesel_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+
+			// dispatched petrol
+			auto& dispatched_petrol_pane = lecui::containers::pane::add(reports_tab);
+			dispatched_petrol_pane
+				.rect(lecui::rect(available_petrol_pane.rect()).snap_to(available_petrol_pane.rect(), snap_type::bottom_left, 2.f * _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_dispatched > 0)
+					percentage = static_cast<float>(100.0 * dispatched_petrol / total_dispatched);
+
+				auto& label = lecui::widgets::label::add(dispatched_petrol_pane);
+				label
+					.text("DISPATCHED PETROL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(dispatched_petrol_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(dispatched_petrol_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_petrol_color)
+					.color_text(_petrol_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// dispatched diesel
+			auto& dispatched_diesel_pane = lecui::containers::pane::add(reports_tab);
+			dispatched_diesel_pane
+				.rect(lecui::rect(dispatched_petrol_pane.rect()).snap_to(dispatched_petrol_pane.rect(), snap_type::right, _margin));
+
+			{
+				float percentage = 0.f;
+
+				if (total_dispatched > 0)
+					percentage = static_cast<float>(100.0 * dispatched_diesel / total_dispatched);
+
+				auto& label = lecui::widgets::label::add(dispatched_diesel_pane);
+				label
+					.text("DISPATCHED DIESEL RATIO")
+					.alignment(lecui::text_alignment::center)
+					.rect().width(dispatched_diesel_pane.size().get_width());
+
+				auto& indicator = lecui::widgets::progress_indicator::add(dispatched_diesel_pane);
+				indicator
+					.percentage(percentage)
+					.color_fill(_diesel_color)
+					.color_text(_diesel_color)
+					.rect().snap_to(label.rect(), snap_type::bottom, _margin);
+			}
+
+			// overall ratio between petrol and diesel
+			auto& petrol = lecui::widgets::label::add(reports_tab);
+			petrol
+				.text("TOTAL PETROL")
+				.rect().snap_to(dispatched_petrol_pane.rect(), snap_type::bottom_left, 3.f * _margin);
+
+			auto& diesel = lecui::widgets::label::add(reports_tab);
+			diesel
+				.text("TOTAL DIESEL")
+				.alignment(lecui::text_alignment::right)
+				.rect().snap_to(dispatched_diesel_pane.rect(), snap_type::bottom_right, 3.f * _margin);
+
+			float petrol_ratio = 0.f;
+
+			if (total_fuel > 0)
+				petrol_ratio = static_cast<float>(100.0 * total_petrol / total_fuel);
+
+			liblec::lecui::widgets::strength_bar::strength_level petrol_level;
+			petrol_level.level = petrol_ratio;
+			petrol_level.color = _petrol_color;
+
+			liblec::lecui::widgets::strength_bar::strength_level diesel_level;
+			diesel_level.level = 100.f;
+			diesel_level.color = _diesel_color;
+
+			auto& ratio = lecui::widgets::strength_bar::add(reports_tab);
+			ratio
+				.levels({ petrol_level, diesel_level })
+				.percentage(100.f)
+				.rect(lecui::rect(ratio.rect()).left(petrol.rect().left()).right(diesel.rect().right()).snap_to(petrol.rect(), snap_type::bottom_left, _margin));
+		
+
+			// add icons
+			const lecui::size icon_size{ 80.f, 30.f };
+			auto& print_button = lecui::widgets::icon::add(reports_tab);
+			print_button
+				.text("Print")
+				.font_size(9.f)
+				.png_resource(png_print_report)
+				.max_image_size(20.f)
+				.rect(rect()
+					.left(ratio.rect().left())
+					.top(ratio.rect().bottom() + 2.f * _margin)
+					.width(icon_size.get_width())
+					.height(icon_size.get_height()))
+				.events().action = [&]() {};
+
+			auto& share_button = lecui::widgets::icon::add(reports_tab);
+			share_button
+				.text("Share")
+				.font_size(9.f)
+				.png_resource(png_share_report)
+				.max_image_size(20.f)
+				.rect(print_button.rect())
+				.rect().snap_to(print_button.rect(), snap_type::right, _margin / 3.f);
+			share_button.events().action = [&]() {
+				// share to excel
+
+			};
+
+			auto& preview_button = lecui::widgets::icon::add(reports_tab);
+			preview_button
+				.text("Preview")
+				.font_size(9.f)
+				.png_resource(png_preview_report)
+				.max_image_size(20.f)
+				.rect(print_button.rect())
+				.rect().snap_to(share_button.rect(), snap_type::right, _margin / 3.f);
+			preview_button.events().action = [&]() {};
+		}
+
+	}
+	catch (const std::exception&) {
+
+	}
 }
 
 main_window::main_window(const std::string& caption,

@@ -27,12 +27,15 @@
 // include std headers.
 #include <map>
 #include <vector>
+
+// lecui
+#include <liblec/lecui/instance.h>
 #include <liblec/lecui/appearance.h>
 #include <liblec/lecui/controls.h>
 #include <liblec/lecui/containers/page.h>
 #include <liblec/lecui/widgets/button.h>
-
 #include <liblec/lecui/utilities/splash.h>
+#include <liblec/lecui/utilities/timer.h>
 
 // include leccore
 #include <liblec/leccore/settings.h>
@@ -45,17 +48,24 @@ using namespace liblec;
 
 class main_window : public lecui::form {
 
+	// app instance GUID
+	const std::string _instance_guid = "{226ABAD6-B078-4373-82D9-32A4106071D9}";
+
+	// app instance object (prevents multiple instances and causes new instance to open existing instance)
+	lecui::instance_manager _instance_man{ *this, _instance_guid };
+
 	// app attributes.
 	lecui::appearance _appearance{ *this };
 	lecui::controls _controls{ *this };
 	lecui::dimensions _dimensions{ *this };
 	lecui::page_manager _page_manager{ *this };
 	lecui::widget_manager _widget_manager{ *this };
+	lecui::timer_manager _timer_man{ *this };
 	lecui::splash  _splash_screen{ *this };
 
 	// window attributes.
 	const float _margin = 10.f;
-	const lecui::size _window_size = lecui::size::size().width(800.f).height(700.f);
+	const lecui::size _window_size = lecui::size::size().width(840.f).height(600.f);
 	const std::string _page_name = "fuelman";
 	const std::string _main_tab_name = "main tabs";
 	const std::string _main_tab_pane_path =_page_name + "/" + _main_tab_name; 
@@ -81,10 +91,19 @@ class main_window : public lecui::form {
 	leccore::settings& _settings; // app settings.
 	leccore::registry_settings _registry_settings{ leccore::registry::scope::current_user };
 
+	bool _restart_now = false;
 
+	lecui::color _petrol_color = lecui::color().red(0).green(150).blue(0);
+	lecui::color _diesel_color = lecui::color().red(180).green(0).blue(255);
+
+	void dispatched_coupon_timer();
+	void run_report();
 
 public:
 	main_window(const std::string& caption,
-		state& app_state
-	);
+		state& app_state);
+
+	bool restart_now() {
+		return _restart_now;
+	}
 };
