@@ -1,7 +1,7 @@
 ;
 ; MIT License
 ;
-; Copyright(c) 2021 Tawanda M. Nyoni
+; Copyright(c) 2021 Alec Musasa
 ;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files(the "Software"), to deal
@@ -22,23 +22,23 @@
 ; SOFTWARE.
 ;
 
-#define MainExe "..\..\bin\fuelman64.exe"
+#define MainExe "..\..\bin\pc_info64.exe"
 #define RedistPath "..\..\files\redist\vs2019\vc\x64\"
 #define Architecture "64"
 #define ModulesPath "..\..\bin\"
 #define OutputPath ModulesPath
 
-#define MyAppName "FuelMan"
-#define MyAppNameCode "fuelman"
-#define MyAppExeName "fuelman64.exe"
-#define MyAppVersion GetVersionNumbersString('..\..\bin\fuelman64.exe')
-#define MyProductVersion GetStringFileInfo("..\..\bin\fuelman64.exe", "ProductVersion")
-#define MyAppPublisher "Tawanda M. Nyoni"
-#define MyAppPublisherPath "com.github.tmnyoni"
-#define MyAppPublisherURL "https://tmnyoni.github.io"
-#define MyAppURL "https://github.com/tmnyoni/fuelman"
-#define MyAppUpdates "https://github.com/tmnyoni/fuelman/releases"
-#define MyAppCopyright "© 2021 Tawanda M. Nyoni"
+#define MyAppName "PC Info"
+#define MyAppNameCode "pc_info"
+#define MyAppExeName "pc_info64.exe"
+#define MyAppVersion GetVersionNumbersString('..\..\bin\pc_info64.exe')
+#define MyProductVersion GetStringFileInfo("..\..\bin\pc_info64.exe", "ProductVersion")
+#define MyAppPublisher "Alec Musasa"
+#define MyAppPublisherPath "com.github.alecmus"
+#define MyAppPublisherURL "https://alecmus.github.io"
+#define MyAppURL "https://github.com/alecmus/pc_info"
+#define MyAppUpdates "https://github.com/alecmus/pc_info/releases"
+#define MyAppCopyright "© 2021 Alec Musasa"
 
 [Messages]
 // define wizard title and tray status msg
@@ -48,7 +48,7 @@ SetupWindowTitle = Setup - {#MyAppName} {#MyProductVersion} ({#Architecture} bit
 
 [Setup]
 ; AppId uniquely identifies this app. No other app should use this ID.
-AppId={{9E5FF0AE-03FA-4D95-8ADC-193BA6E34AA6}
+AppId={{5F794184-4C64-402C-AE99-E88BBF681851}
 AppName={#MyAppName}
 AppVersion={#MyProductVersion}
 VersionInfoCompany={#MyAppPublisher}
@@ -86,8 +86,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-; fuelman
-Source: "{#ModulesPath}fuelman64.exe"; DestDir: "{app}"; Flags: ignoreversion;
+; pc_info
+Source: "{#ModulesPath}pc_info64.exe"; DestDir: "{app}"; Flags: ignoreversion;
 
 ; liblec
 Source: "{#ModulesPath}leccore64.dll"; DestDir: "{app}"; Flags: ignoreversion;

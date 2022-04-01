@@ -31,24 +31,17 @@
 using namespace liblec::lecui;
 
 int main() {
+	std::string error;
+	state app_state;
 
-	bool restart_now = false;
+	// Creating main window.
+	main_window main_wind(appname, app_state);
 
-	do {
-		std::string error;
-		state app_state;
+	if (!app_state.get_db().connect(error))
+		return 1;
 
-		// Creating main window.
-		main_window main_wind(appname, app_state);
-
-		if (!app_state.get_db().connect(error))
-			return 1;
-
-		if (!main_wind.create(error))
-			main_wind.message("Error: " + error);
-
-		restart_now = main_wind.on_restart_now();
-	} while (restart_now);
+	if (!main_wind.create(error))
+		main_wind.message("Error: " + error);
 
 	return 0;
 }

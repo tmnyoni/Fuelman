@@ -244,7 +244,7 @@ bool main_window::on_initialize(std::string& error) {
 		.allow_resize(false);
 
 	_appearance
-		.theme(_setting_darktheme ? lecui::themes::dark : lecui::themes::light )
+		.theme(lecui::themes::dark)
 		.main_icon(ico_resource)
 		.mini_icon(ico_resource);
 
